@@ -5,9 +5,11 @@ import {
 } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { useEffect, useState } from "react";
+import { Activity, TrendingUp } from "lucide-react";
 import PendingTicketCard from "../components/InProgressTicketCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
+import { Navbar } from "@/components/Navbar";
 
 const TicketPage = () => {
   const [inProgressTicketLoading, setInProgressTicketLoading] =
@@ -64,59 +66,96 @@ const TicketPage = () => {
   }, []);
 
   return (
-    <main className="flex-1 overflow-auto">
-      <div id="dashboard-content" className="p-8 space-y-12">
-        {/* In Progress Tickets Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">
-              In Progress Tickets
-            </h3>
-            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-              {inProgressTicketList.length} Active
-            </span>
+    <div className="min-h-screen bg-gradient-to-br from-[#ee754e]/5 via-white to-[#1fb6a6]/5">
+      <Navbar />
+      
+      <main className="flex-1">
+        <div className="container mx-auto px-6 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+            <p className="text-muted-foreground">Monitor and manage your tickets efficiently</p>
           </div>
 
-          {inProgressTicketLoading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Skeleton className="h-40 w-full rounded-md" />
-              <Skeleton className="h-40 w-full rounded-md" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {inProgressTicketList.map((item: TicketItem, index) => (
-                <PendingTicketCard key={index} item={item} />
-              ))}
-            </div>
-          )}
-        </section>
+          <div id="dashboard-content" className="space-y-8">
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">In Progress Tickets</h2>
+                    <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl border border-[#ee754e]/20">
+                  <span className="text-2xl font-bold text-[#ee754e]">
+                    {inProgressTicketList.length}
+                  </span>
+                  <span className="text-sm font-medium text-[#ee754e]">Active</span>
+                </div>
+              </div>
 
-        {/* Scored Tickets Section */}
-        <section id="scored-section">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">
-              Scored Tickets
-            </h3>
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              {scoredTicketList?.length} Scored
-            </span>
+              {inProgressTicketLoading ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                </div>
+              ) : inProgressTicketList.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {inProgressTicketList.map((item: TicketItem, index) => (
+                    <PendingTicketCard key={index} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-border">
+                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No active tickets at the moment</p>
+                </div>
+              )}
+            </section>
+
+            <section id="scored-section">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1fb6a6] to-[#17a397] shadow-lg">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Scored Tickets</h2>
+                    <p className="text-sm text-muted-foreground">Completed and evaluated tickets</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 rounded-xl border border-[#1fb6a6]/20">
+                  <span className="text-2xl font-bold text-[#1fb6a6]">
+                    {scoredTicketList?.length || 0}
+                  </span>
+                  <span className="text-sm font-medium text-[#1fb6a6]">Scored</span>
+                </div>
+              </div>
+
+              {scoredTicketLoading ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                </div>
+              ) : scoredTicketList.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {scoredTicketList.map((item: ScoredTicketItem, index) => (
+                    <ScoredTicketCard key={index} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-border">
+                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No scored tickets yet</p>
+                </div>
+              )}
+            </section>
           </div>
-
-          {scoredTicketLoading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Skeleton className="h-40 w-full rounded-md" />
-              <Skeleton className="h-40 w-full rounded-md" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {scoredTicketList.map((item: ScoredTicketItem, index) => (
-                <ScoredTicketCard key={index} item={item} />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 };
 
