@@ -6,6 +6,17 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-18**: Professional UI Redesign with Brand Color System
+  - Implemented comprehensive design system with brand color #ee754e as primary
+  - Created complementary color palette: Teal accent #1fb6a6, Charcoal text #1f1f24, Surface #f5f5f8
+  - Built professional Navbar component with user menu, notifications, and settings
+  - Redesigned Landing Page with gradient backgrounds, feature highlights, and branded CTA button
+  - Upgraded Home Page (TicketPage) with navbar integration, gradient section headers, and metrics badges
+  - Enhanced ticket cards with gradient borders using p-[2px] wrapper technique
+  - Integrated Lucide icons throughout (Tag, Star, AlertCircle, ArrowRight, Activity, TrendingUp)
+  - Applied backdrop blur effects, hover transitions (20% to 40% gradient intensity), and rounded-2xl styling
+  - Consistent design tokens for spacing, shadows, typography, and interactive states
+
 - **2025-11-18**: Landing Page with Manual Microsoft SSO
   - Created professional landing page with Uptime logo and "Sign in with Microsoft" button
   - Replaced automatic SSO redirect with user-initiated authentication flow
@@ -38,7 +49,8 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 - **Build Tool**: Vite 7.2.2
 - **State Management**: Redux Toolkit 2.10.1
 - **Routing**: React Router DOM 7.9.5
-- **Styling**: Tailwind CSS 4.1.17
+- **Styling**: Tailwind CSS 4.1.17 with custom design system
+- **Icons**: Lucide React (replacing react-icons)
 - **UI Components**: Radix UI (Avatar, Dialog, Label, Separator, Slot, Tooltip)
 - **Forms**: Formik 2.4.9 with Yup validation
 - **HTTP Client**: Axios 1.13.2 with RxJS 7.8.2
@@ -73,13 +85,27 @@ src/
 ```
 
 ### Key Features
+- **Professional Design System**: Modern UI with brand color #ee754e
+  - Gradient borders with hover effects (20% to 40% opacity transitions)
+  - Backdrop blur effects and rounded-2xl styling throughout
+  - Consistent Lucide icon integration for visual clarity
+  - Responsive layouts with proper spacing and typography
+  - Custom Tailwind theme defined in src/index.css (@theme inline)
 - **Authentication**: Microsoft Single Sign-On (SSO) using Azure AD with MSAL
   - Professional landing page with Uptime logo and sign-in button
   - User-initiated authentication via "Sign in with Microsoft" button
   - Silent token acquisition for seamless authentication
   - Secure logout with redirect to Microsoft logout page
   - Tokens stored securely in MSAL cache (not vulnerable to XSS attacks)
-- **Ticket Management**: View in-progress and scored tickets
+- **Ticket Management**: View in-progress and scored tickets with professional card designs
+  - In-progress tickets: Orange gradient borders (#ee754e), Tag icons
+  - Scored tickets: Teal gradient borders (#1fb6a6), Star icons, score badges
+  - Triage indicators with AlertCircle icons
+  - Smooth hover states and arrow animations
+- **Navigation**: Professional Navbar component
+  - User profile with avatar and name display
+  - Notifications, settings, and logout functionality
+  - Responsive design with proper spacing and shadows
 - **Private Routes**: Protected routes requiring Microsoft authentication
 - **Global Modal System**: Centralized modal management
 - **Error Handling**: Global error handler with toast notifications
