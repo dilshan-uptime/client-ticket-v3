@@ -1,45 +1,34 @@
-import { Navigate } from "react-router-dom";
-
-import { validateToken } from "@/services/api/user-api";
-
-import { handleUnauthorizedKickOut } from "@/services/api/base-api";
-
-import storage from "@/services/storage/local-storage";
-import { AUTH_RESPONSE } from "@/constants/storage";
+import { useEffect } from "react";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
+import { InteractionStatus } from "@azure/msal-browser";
 import { ProtectedLayout } from "@/app/container/ProtectedLayout";
-import { LOGIN } from "@/modules/auth/routes";
-import { logger } from "@/services/logger/logger";
-import type { ValidateTokenResponse } from "@/models/auth";
+import { loginRequest } from "@/config/msalConfig";
 
 export interface ProtectedRouteProps {
   children: React.ComponentType;
 }
 
 export const PrivateRoute = ({ children }: any) => {
-  const auth = storage.get(AUTH_RESPONSE);
+  const isAuthenticated = useIsAuthenticated();
+  const { instance, inProgress } = useMsal();
 
-  if (auth === null) {
-    return <Navigate to={LOGIN} replace />;
-  } else {
-    validateToken().subscribe({
-      next: (response: ValidateTokenResponse) => {
-        if (!response.validated) {
-          handleUnauthorizedKickOut();
-        }
-      },
+  useEffect(() => {
+    if (!isAuthenticated && inProgress === InteractionStatus.None) {
+      instance.loginRedirect(loginRequest).catch((error) => {
+        console.error("Login redirect failed:", error);
+      });
+    }
+  }, [isAuthenticated, inProgress, instance]);
 
-      error: (e) => {
-        logger.error(e);
-
-        if (e?.response?.status === 401) {
-          handleUnauthorizedKickOut();
-
-          return <Navigate to={LOGIN} replace />;
-        }
-      },
-
-      complete() {},
-    });
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Authenticating...</h2>
+          <p className="text-gray-600">Redirecting to Microsoft login...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

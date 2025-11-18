@@ -6,6 +6,15 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-18**: Microsoft SSO Integration
+  - Integrated Microsoft Authentication Library (MSAL) for Azure AD SSO
+  - Removed traditional login/signup pages in favor of Microsoft authentication
+  - Updated App.tsx to automatically redirect unauthenticated users to Microsoft login
+  - Created AuthProvider component to sync MSAL authentication with Redux store
+  - Updated SideBar component to use MSAL logout
+  - Updated PrivateRoute component to work with MSAL authentication
+  - Configured MSAL with support for User.Read scope
+  
 - **2025-11-18**: Initial project import and Replit environment setup
   - Configured Vite to run on port 5000 with host 0.0.0.0 for Replit proxy compatibility
   - Set up HMR (Hot Module Replacement) with WebSocket support
@@ -57,17 +66,30 @@ src/
 ```
 
 ### Key Features
-- **Authentication**: Login and signup with JWT token management and auto-refresh
+- **Authentication**: Microsoft Single Sign-On (SSO) using Azure AD with MSAL
+  - Automatic redirect to Microsoft login for unauthenticated users
+  - Silent token acquisition for seamless authentication
+  - Secure logout with redirect to Microsoft logout page
 - **Ticket Management**: View in-progress and scored tickets
-- **Private Routes**: Protected routes requiring authentication
+- **Private Routes**: Protected routes requiring Microsoft authentication
 - **Global Modal System**: Centralized modal management
 - **Error Handling**: Global error handler with toast notifications
 - **API Integration**: Axios-based API client with request/response interceptors
 
 ### Environment Variables
-The application requires the following environment variables:
-- `VITE_API_URL`: Backend API base URL (currently set to example)
-- `VITE_FRONTEND_URL`: Frontend URL for CORS and redirects
+The application requires the following environment variables (see .env.example):
+- `VITE_CLIENT_ID`: Microsoft Azure application (client) ID
+- `VITE_TENANT_ID`: Microsoft Azure tenant ID
+- `VITE_REDIRECT_URI`: Redirect URI for authentication callbacks (default: http://localhost:5000/)
+- `VITE_API_URL`: Backend API base URL (e.g., https://dev.api.upstimegerlobal.tech)
+- `VITE_HTTP_REQUEST_TIMEOUT`: HTTP request timeout in milliseconds
+- `VITE_VERSION`: Application version
+- `VITE_IS_PRODUCTION`: Production flag (true/false)
+- `VITE_ENABLE_SENTRY`: Enable Sentry error tracking (true/false)
+- `VITE_HUB_NAME`: SignalR hub name
+- `VITE_INVITATION_DEFAULT_MESSAGE`: Default invitation message
+
+**Important**: You must add these environment variables via Replit Secrets for the application to work properly.
 
 ### Backend Integration
 This is a frontend-only application that connects to a separate backend API. The base API service (`src/services/api/base-api.ts`) handles:
@@ -88,6 +110,20 @@ This is a frontend-only application that connects to a separate backend API. The
 - TypeScript compilation followed by Vite build
 
 ## Known Issues
-- The backend API URL is set to a placeholder (`https://api.example.com`)
-- Users will need to configure the actual backend API URL via environment variables
-- One minor LSP warning in `base-api.ts` for unused parameter in stubbed function (non-critical)
+- None currently
+
+## Setup Instructions
+1. Add all required environment variables via Replit Secrets (see Environment Variables section)
+2. Make sure your Microsoft Azure app registration has the redirect URI configured
+3. The application will automatically redirect to Microsoft login when accessed
+4. After successful authentication, users will be directed to the home page
+
+## Authentication Flow
+1. User visits the application
+2. App checks if user is authenticated via MSAL
+3. If not authenticated, redirects to Microsoft login page
+4. User logs in with Microsoft credentials
+5. Microsoft redirects back to the app with authentication token
+6. App acquires access token silently and stores it in localStorage
+7. User data is synced with Redux store
+8. Protected routes are now accessible

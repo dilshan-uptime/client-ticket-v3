@@ -1,20 +1,17 @@
 import { useAppDispatch, useAppSelector } from "@/hooks/store-hooks";
 import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FiSidebar, FiLogOut } from "react-icons/fi";
 import { FaHome } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 
-import { userSignOut } from "@/services/api/user-api";
-
-import { errorHandler } from "@/services/other/error-handler";
-
 import { authActions, getAuth } from "../redux/authSlice";
-
-import { LOGIN } from "@/modules/auth/routes";
+import storage from "@/services/storage/local-storage";
+import { AUTH_RESPONSE } from "@/constants/storage";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -46,31 +43,16 @@ const MenuItem = ({ icon, label, onClick, collapsed }: MenuItemProps) => (
 export const SideBar = ({ collapsed, setCollapsed }: SidebarProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { instance } = useMsal();
 
   const auth = useAppSelector(getAuth);
 
   const onLogout = () => {
-    if (auth?.refreshToken) {
-      userSignOut({
-        refreshToken: auth?.refreshToken,
-      }).subscribe({
-        next: (response: boolean) => {
-          dispatch(authActions.logoutUser());
-
-          navigate(LOGIN);
-        },
-
-        error: (e) => {
-          errorHandler(e);
-
-          navigate(LOGIN);
-        },
-
-        complete() {},
-      });
-    } else {
-      navigate(LOGIN);
-    }
+    dispatch(authActions.logoutUser());
+    storage.remove(AUTH_RESPONSE);
+    instance.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin,
+    });
   };
 
   return (
@@ -124,10 +106,9 @@ export const SideBar = ({ collapsed, setCollapsed }: SidebarProps) => {
           // }}
         >
           <Avatar>
-            {/* <AvatarImage src={`/${auth?.user?.profileUrl}`} alt="User Name" /> */}
             <AvatarFallback className="bg-orange-300 text-white text-sm">
-              {auth?.user.firstName?.[0].toUpperCase()}
-              {auth?.user.lastName?.[0].toUpperCase()}
+              {auth?.user?.firstName?.[0]?.toUpperCase() || '?'}
+              {auth?.user?.lastName?.[0]?.toUpperCase() || '?'}
             </AvatarFallback>
           </Avatar>
 

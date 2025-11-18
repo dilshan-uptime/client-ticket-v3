@@ -8,14 +8,9 @@ import store from "@/app/redux/store";
 import storage from "../storage/local-storage";
 import { authActions } from "../../app/redux/authSlice";
 import { BASE_URL } from "@/constants/api";
-import type {
-  AuthenticationResponse,
-  RefreshTokenResponse,
-} from "@/models/auth";
+import type { AuthenticationResponse } from "@/models/auth";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
-
-const REFRESH_TOKEN_ENDPOINT = "/user/refreshtoken";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -23,32 +18,21 @@ declare module "axios" {
   }
 }
 
-interface FailedRequestHandler {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  resolve: Function;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  reject: Function;
-}
-
 const axiosInstance = Axios.create({
   baseURL: BASE_URL,
 });
 
-axiosInstance.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use(async (config) => {
   if (!config.isPublic) {
     const authDetails = storage.get(AUTH_RESPONSE);
     if (authDetails?.token) {
       config.headers["Authorization"] = `Bearer ${authDetails.token}`;
     }
   } else {
-    // Remove any Authorization if it exists globally
     delete config.headers["Authorization"];
   }
   return config;
 });
-
-let isRefreshing = false;
-let failedRequestHandlers: FailedRequestHandler[] = [];
 
 //  eslint-disable-next-line
 axiosInstance.defaults.headers.common["Content-Type"] = "application/json";
@@ -60,81 +44,18 @@ const setBearerToken = (token: string): void => {
   // axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const processQueue = (error: any, token: any) => {
-  failedRequestHandlers.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-
-  failedRequestHandlers = [];
-};
-
-// Handle refresh token
-/* eslint-disable */
 axiosInstance.interceptors.response.use(
   (response) => response,
   (err) => {
-    const originalRequest = err.config;
-
     if (
-      (err.response.status === 403 || err.response.status === 401) &&
-      !originalRequest._retry
+      err.response &&
+      (err.response.status === 403 || err.response.status === 401)
     ) {
       handleUnauthorizedKickOut();
-
-      if (isRefreshing) {
-        return new Promise(function (resolve, reject) {
-          failedRequestHandlers.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
-            return Axios(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      const authDetails: AuthenticationResponse = storage.get(AUTH_RESPONSE);
-
-      return new Promise(function (resolve, reject) {
-        axiosInstance
-          .get<RefreshTokenResponse>(
-            `${REFRESH_TOKEN_ENDPOINT}?refreshToken=${
-              storage.get(AUTH_RESPONSE).refreshToken
-            }`
-          )
-          .then(({ data }) => {
-            storage.set(AUTH_RESPONSE, {
-              ...authDetails,
-              token: data.bearerToken,
-            });
-            axiosInstance.defaults.headers.common["Authorization"] =
-              "Bearer " + data.bearerToken;
-            originalRequest.headers["Authorization"] =
-              "Bearer " + data.bearerToken;
-            processQueue(null, data.bearerToken);
-            resolve(Axios(originalRequest));
-          })
-          .catch((err) => {
-            processQueue(err, null);
-            handleUnauthorizedKickOut();
-            reject(err);
-          })
-          .then(() => {
-            isRefreshing = false;
-          });
-      });
     }
     return Promise.reject(err);
   }
 );
-/* eslint-enable */
 
 const removeBearerToken = (): void => {
   //  eslint-disable-next-line
@@ -145,7 +66,7 @@ export const handleUnauthorizedKickOut = () => {
   store.dispatch(authActions.logoutUser());
   storage.remove(AUTH_RESPONSE);
 
-  window.location.href = "/login";
+  window.location.href = "/";
 };
 
 const createUrl = (
