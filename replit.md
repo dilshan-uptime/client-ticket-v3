@@ -6,14 +6,21 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-18**: Landing Page with Manual Microsoft SSO
+  - Created professional landing page with Uptime logo and "Sign in with Microsoft" button
+  - Replaced automatic SSO redirect with user-initiated authentication flow
+  - Added loading state and error handling with toast notifications for better UX
+  - Button shows spinner and "Redirecting..." text during sign-in process
+  - Disabled button during sign-in to prevent duplicate submissions
+
 - **2025-11-18**: Microsoft SSO Integration
   - Integrated Microsoft Authentication Library (MSAL) for Azure AD SSO
   - Removed traditional login/signup pages in favor of Microsoft authentication
-  - Updated App.tsx to automatically redirect unauthenticated users to Microsoft login
   - Created AuthProvider component to sync MSAL authentication with Redux store
   - Updated SideBar component to use MSAL logout
   - Updated PrivateRoute component to work with MSAL authentication
   - Configured MSAL with support for User.Read scope
+  - Tokens securely managed via MSAL's internal cache (not localStorage)
   
 - **2025-11-18**: Initial project import and Replit environment setup
   - Configured Vite to run on port 5000 with host 0.0.0.0 for Replit proxy compatibility
@@ -67,9 +74,11 @@ src/
 
 ### Key Features
 - **Authentication**: Microsoft Single Sign-On (SSO) using Azure AD with MSAL
-  - Automatic redirect to Microsoft login for unauthenticated users
+  - Professional landing page with Uptime logo and sign-in button
+  - User-initiated authentication via "Sign in with Microsoft" button
   - Silent token acquisition for seamless authentication
   - Secure logout with redirect to Microsoft logout page
+  - Tokens stored securely in MSAL cache (not vulnerable to XSS attacks)
 - **Ticket Management**: View in-progress and scored tickets
 - **Private Routes**: Protected routes requiring Microsoft authentication
 - **Global Modal System**: Centralized modal management
@@ -115,15 +124,16 @@ This is a frontend-only application that connects to a separate backend API. The
 ## Setup Instructions
 1. Add all required environment variables via Replit Secrets (see Environment Variables section)
 2. Make sure your Microsoft Azure app registration has the redirect URI configured
-3. The application will automatically redirect to Microsoft login when accessed
-4. After successful authentication, users will be directed to the home page
+3. Visit the application to see the landing page
+4. Click "Sign in with Microsoft" to authenticate
+5. After successful authentication, users will be directed to the home page
 
 ## Authentication Flow
-1. User visits the application
-2. App checks if user is authenticated via MSAL
-3. If not authenticated, redirects to Microsoft login page
+1. User visits the application and sees the landing page with Uptime logo
+2. User clicks "Sign in with Microsoft" button
+3. App redirects to Microsoft login page
 4. User logs in with Microsoft credentials
 5. Microsoft redirects back to the app with authentication token
-6. App acquires access token silently and stores it in localStorage
+6. App acquires access token silently and stores it securely in MSAL cache
 7. User data is synced with Redux store
 8. Protected routes are now accessible
