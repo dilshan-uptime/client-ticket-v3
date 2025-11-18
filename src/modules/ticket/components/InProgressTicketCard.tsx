@@ -1,6 +1,6 @@
 import type { TicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
-import { FaArrowRight } from "react-icons/fa";
+import { ArrowRight, Tag } from "lucide-react";
 
 interface PendingTicketCardProps {
   item: TicketItem;
@@ -8,30 +8,33 @@ interface PendingTicketCardProps {
 
 const PendingTicketCard = ({ item }: PendingTicketCardProps) => {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow text-left">
-      <div className="flex items-start justify-between mb-3">
-        <h4 className="font-semibold text-gray-900">
-          {item?.title && textShortener(item?.title, 50)}
-        </h4>
-        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-          {item?.ticketNumber}
-        </span>
-      </div>
-      <p className="text-gray-600 text-sm mb-3">
-        {item?.description && textShortener(item?.description, 150)}
-      </p>
-      <div className="flex items-center justify-between">
-        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-          {item?.queue}
-        </span>
-        <a
-          href={item.url}
-          className="inline-flex items-center text-orange-500 hover:text-orange-600 text-sm font-medium"
-          target="_blank"
-        >
-          View Details
-          <FaArrowRight className="ml-1" />
-        </a>
+    <div className="group relative rounded-2xl bg-gradient-to-br from-[#ee754e]/20 via-[#f49b71]/10 to-transparent p-[2px] hover:from-[#ee754e]/40 hover:via-[#f49b71]/30 transition-all duration-300">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 hover:shadow-xl transition-all duration-300 text-left h-full">
+        <div className="flex items-start justify-between mb-4">
+          <h4 className="font-semibold text-foreground text-lg leading-snug flex-1 pr-3">
+            {item?.title && textShortener(item?.title, 50)}
+          </h4>
+          <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 text-[#ee754e] px-3 py-1.5 rounded-full font-medium border border-[#ee754e]/20 whitespace-nowrap">
+            <Tag className="h-3 w-3" />
+            {item?.ticketNumber}
+          </span>
+        </div>
+        <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+          {item?.description && textShortener(item?.description, 150)}
+        </p>
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-lg font-medium">
+            {item?.queue}
+          </span>
+          <a
+            href={item.url}
+            className="inline-flex items-center gap-2 text-[#ee754e] hover:text-[#f49b71] text-sm font-semibold group-hover:gap-3 transition-all"
+            target="_blank"
+          >
+            View Details
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
       </div>
     </div>
   );
