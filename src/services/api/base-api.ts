@@ -24,9 +24,16 @@ const axiosInstance = Axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   if (!config.isPublic) {
-    const authDetails = storage.get(AUTH_RESPONSE);
-    if (authDetails?.token) {
-      config.headers["Authorization"] = `Bearer ${authDetails.token}`;
+    try {
+      const { getAccessToken, LoginRedirectError } = await import('@/utils/msal-token-helper');
+      const token = await getAccessToken();
+      
+      config.headers["Authorization"] = `Bearer ${token}`;
+    } catch (error: any) {
+      if (error?.name === 'LoginRedirectError') {
+        throw new Axios.Cancel('Login redirect initiated');
+      }
+      console.error('Failed to acquire token for request:', error);
     }
   } else {
     delete config.headers["Authorization"];
@@ -46,12 +53,27 @@ const setBearerToken = (token: string): void => {
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (err) => {
+  async (err) => {
     if (
       err.response &&
-      (err.response.status === 403 || err.response.status === 401)
+      (err.response.status === 403 || err.response.status === 401) &&
+      !err.config._retry
     ) {
-      handleUnauthorizedKickOut();
+      err.config._retry = true;
+
+      try {
+        const { getAccessToken, LoginRedirectError } = await import('@/utils/msal-token-helper');
+        const token = await getAccessToken();
+
+        err.config.headers["Authorization"] = `Bearer ${token}`;
+        return axiosInstance.request(err.config);
+      } catch (tokenError: any) {
+        if (tokenError?.name === 'LoginRedirectError') {
+          return Promise.reject(new Axios.Cancel('Login redirect initiated'));
+        }
+        console.error('Token renewal failed:', tokenError);
+        await handleUnauthorizedKickOut();
+      }
     }
     return Promise.reject(err);
   }
@@ -62,11 +84,18 @@ const removeBearerToken = (): void => {
   delete axiosInstance.defaults.headers.common.Authorization;
 };
 
-export const handleUnauthorizedKickOut = () => {
+export const handleUnauthorizedKickOut = async () => {
   store.dispatch(authActions.logoutUser());
-  storage.remove(AUTH_RESPONSE);
 
-  window.location.href = "/";
+  try {
+    const { msalInstance } = await import('@/config/msalInstance');
+    await msalInstance.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin,
+    });
+  } catch (error) {
+    console.error('Logout redirect failed:', error);
+    window.location.href = "/";
+  }
 };
 
 const createUrl = (
