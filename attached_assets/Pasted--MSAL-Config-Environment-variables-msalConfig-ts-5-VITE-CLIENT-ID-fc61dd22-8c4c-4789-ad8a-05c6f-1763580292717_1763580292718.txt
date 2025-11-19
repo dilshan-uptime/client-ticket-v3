@@ -1,0 +1,48 @@
+[MSAL Config] Environment variables:
+msalConfig.ts:5   VITE_CLIENT_ID: fc61dd22-8c4c-4789-ad8a-05c6f39515d4
+msalConfig.ts:6   VITE_TENANT_ID: e8c7a1e6-646c-45df-95c0-1652dc958e27
+msalConfig.ts:7   VITE_REDIRECT_URI: http://localhost:5000
+msalConfig.ts:8   window.location.origin: http://localhost:5000
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:21 [App] Authentication state: false Current path: /
+App.tsx:21 [App] Authentication state: false Current path: /
+msalConfig.ts:37 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-browser@4.26.1 : Warning - There is already an instance of MSAL.js in the window with the same client id.
+loggerCallback @ msalConfig.ts:37
+executeCallback @ chunk-GLU6NE24.js?v=716961ef:721
+logMessage @ chunk-GLU6NE24.js?v=716961ef:714
+warning @ chunk-GLU6NE24.js?v=716961ef:748
+collectInstanceStats @ chunk-GLU6NE24.js?v=716961ef:14091
+logMultipleInstances @ chunk-GLU6NE24.js?v=716961ef:15365
+initialize @ chunk-GLU6NE24.js?v=716961ef:14193
+initialize @ chunk-GLU6NE24.js?v=716961ef:16094
+(anonymous) @ @azure_msal-react.js?v=716961ef:155
+react_stack_bottom_frame @ react-dom_client.js?v=716961ef:18567
+runWithFiberInDEV @ react-dom_client.js?v=716961ef:997
+commitHookEffectListMount @ react-dom_client.js?v=716961ef:9411
+commitHookPassiveMountEffects @ react-dom_client.js?v=716961ef:9465
+reconnectPassiveEffects @ react-dom_client.js?v=716961ef:11273
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=716961ef:11240
+reconnectPassiveEffects @ react-dom_client.js?v=716961ef:11317
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=716961ef:13339
+runWithFiberInDEV @ react-dom_client.js?v=716961ef:997
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=716961ef:13312
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=716961ef:13347
+flushPassiveEffects @ react-dom_client.js?v=716961ef:13157
+(anonymous) @ react-dom_client.js?v=716961ef:12776
+performWorkUntilDeadline @ react-dom_client.js?v=716961ef:36
+<MsalProvider>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=716961ef:247
+(anonymous) @ main.tsx:11Understand this warning
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-browser@4.26.1 : Info - MSAL.js was last initialized by version: 4.26.1
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [019a9d93-38f0-7a2d-913a-994a8bee0cda] : msal.js.browser@4.26.1 : Info - handleRedirectPromise did not detect a response as a result of a redirect. Cleaning temporary cache.
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-browser@4.26.1 : Info - MSAL.js was last initialized by version: 4.26.1
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - msal:handleRedirectStart results in setting inProgress from startup to handleRedirect
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - msal:handleRedirectStart results in setting inProgress from startup to handleRedirect
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - msal:handleRedirectEnd results in setting inProgress from handleRedirect to none
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:24:24 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - msal:handleRedirectEnd results in setting inProgress from handleRedirect to none
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:21 [App] Authentication state: false Current path: /login
