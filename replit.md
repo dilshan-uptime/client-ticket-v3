@@ -6,6 +6,19 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-19**: Backend Authentication Integration & Professional Sidebar
+  - Updated authentication flow to use backend token instead of MSAL access token
+  - After Microsoft SSO, app sends idToken to POST /api/v1/auth/ms-sign-in
+  - Backend response (token, refreshToken, user) stored in localStorage and Redux
+  - All API requests use Bearer token from backend response in Authorization headers
+  - Updated routes: landing page at /login, home page at /home
+  - Created professional sidebar component with dark/light mode toggle
+  - Added ThemeProvider for theme persistence across sessions
+  - Sidebar features: user profile, navigation menu, theme switcher, logout
+  - Responsive collapsed/expanded states with smooth transitions
+  - Updated User model to match backend response structure
+  - Improved error handling with toast notifications and automatic logout on auth failure
+
 - **2025-11-18**: Professional UI Redesign with Brand Color System
   - Implemented comprehensive design system with brand color #ee754e as primary
   - Created complementary color palette: Teal accent #1fb6a6, Charcoal text #1f1f24, Surface #f5f5f8
@@ -27,11 +40,12 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 - **2025-11-18**: Microsoft SSO Integration
   - Integrated Microsoft Authentication Library (MSAL) for Azure AD SSO
   - Removed traditional login/signup pages in favor of Microsoft authentication
-  - Created AuthProvider component to sync MSAL authentication with Redux store
+  - Created AuthProvider component to handle Microsoft SSO and backend authentication
   - Updated SideBar component to use MSAL logout
   - Updated PrivateRoute component to work with MSAL authentication
-  - Configured MSAL with support for User.Read scope
-  - Tokens securely managed via MSAL's internal cache (not localStorage)
+  - Configured MSAL with support for User.Read, openid, profile, email scopes
+  - idToken from MSAL sent to backend for session creation
+  - Backend tokens stored securely in localStorage (not MSAL cache)
   
 - **2025-11-18**: Initial project import and Replit environment setup
   - Configured Vite to run on port 5000 with host 0.0.0.0 for Replit proxy compatibility
@@ -85,26 +99,38 @@ src/
 ```
 
 ### Key Features
+- **Authentication & Theme**: 
+  - Hybrid authentication: Microsoft SSO + Backend session management
+  - Dark/light mode toggle with localStorage persistence
+  - ThemeProvider context for global theme management
+  - Professional sidebar with user profile and navigation
 - **Professional Design System**: Modern UI with brand color #ee754e
   - Gradient borders with hover effects (20% to 40% opacity transitions)
   - Backdrop blur effects and rounded-2xl styling throughout
   - Consistent Lucide icon integration for visual clarity
   - Responsive layouts with proper spacing and typography
   - Custom Tailwind theme defined in src/index.css (@theme inline)
-- **Authentication**: Microsoft Single Sign-On (SSO) using Azure AD with MSAL
-  - Professional landing page with Uptime logo and sign-in button
+- **Authentication**: Hybrid Microsoft SSO + Backend Token Management
+  - Professional landing page at /login with Uptime logo and sign-in button
   - User-initiated authentication via "Sign in with Microsoft" button
-  - Silent token acquisition for seamless authentication
-  - Secure logout with redirect to Microsoft logout page
-  - Tokens stored securely in MSAL cache (not vulnerable to XSS attacks)
+  - After Microsoft login, idToken sent to backend /api/v1/auth/ms-sign-in
+  - Backend returns user data + JWT token + refresh token
+  - Backend tokens stored in localStorage (AUTH_RESPONSE key)
+  - All API requests use Bearer token from backend in Authorization headers
+  - Secure logout clears both local storage and Microsoft session
+  - Automatic token validation and error handling with user feedback
 - **Ticket Management**: View in-progress and scored tickets with professional card designs
   - In-progress tickets: Orange gradient borders (#ee754e), Tag icons
   - Scored tickets: Teal gradient borders (#1fb6a6), Star icons, score badges
   - Triage indicators with AlertCircle icons
   - Smooth hover states and arrow animations
-- **Navigation**: Professional Navbar component
-  - User profile with avatar and name display
-  - Notifications, settings, and logout functionality
+- **Navigation**: Professional Sidebar component
+  - Fixed sidebar with collapsible/expandable states
+  - User profile with avatar, name, and email display
+  - Dark/light mode toggle with Sun/Moon icons
+  - Home and Settings navigation menu items
+  - Logout button with proper cleanup of auth state
+  - Smooth transitions and hover effects
   - Responsive design with proper spacing and shadows
 - **Private Routes**: Protected routes requiring Microsoft authentication
 - **Global Modal System**: Centralized modal management
@@ -155,11 +181,17 @@ This is a frontend-only application that connects to a separate backend API. The
 5. After successful authentication, users will be directed to the home page
 
 ## Authentication Flow
-1. User visits the application and sees the landing page with Uptime logo
+1. User visits the application and is redirected to /login (landing page)
 2. User clicks "Sign in with Microsoft" button
 3. App redirects to Microsoft login page
 4. User logs in with Microsoft credentials
-5. Microsoft redirects back to the app with authentication token
-6. App acquires access token silently and stores it securely in MSAL cache
-7. User data is synced with Redux store
-8. Protected routes are now accessible
+5. Microsoft redirects back to the app with authentication code
+6. AuthProvider acquires idToken from Microsoft silently
+7. AuthProvider sends idToken to backend POST /api/v1/auth/ms-sign-in
+8. Backend validates Microsoft token and creates session
+9. Backend returns { user, token, refreshToken }
+10. App stores backend credentials in localStorage (AUTH_RESPONSE)
+11. User data synced with Redux store
+12. User redirected to /home (dashboard)
+13. All subsequent API calls use Bearer token from backend
+14. Protected routes are now accessible

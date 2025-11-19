@@ -27,6 +27,9 @@ axiosInstance.interceptors.request.use(async (config) => {
     const authData: AuthenticationResponse | null = storage.get(AUTH_RESPONSE);
     if (authData && authData.token) {
       config.headers["Authorization"] = `Bearer ${authData.token}`;
+      console.log('[API] Using backend token for request:', config.url);
+    } else {
+      console.warn('[API] No backend token available for request:', config.url);
     }
   } else {
     delete config.headers["Authorization"];
@@ -38,11 +41,6 @@ axiosInstance.interceptors.request.use(async (config) => {
 axiosInstance.defaults.headers.common["Content-Type"] = "application/json";
 //  eslint-disable-next-line
 axiosInstance.defaults.headers.common.Accept = "application/json";
-
-const setBearerToken = (token: string): void => {
-  //  eslint-disable-next-line
-  // axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
-};
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -59,10 +57,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-const removeBearerToken = (): void => {
-  //  eslint-disable-next-line
-  delete axiosInstance.defaults.headers.common.Authorization;
-};
 
 export const handleUnauthorizedKickOut = async () => {
   store.dispatch(authActions.logoutUser());
@@ -177,4 +171,4 @@ const PATCH = <T>(
 ): Observable<T> =>
   apiCall<T>("PATCH", endPoint, data, queryParams, customConfig);
 
-export { GET, POST, PUT, DELETE, PATCH, setBearerToken, removeBearerToken };
+export { GET, POST, PUT, DELETE, PATCH };

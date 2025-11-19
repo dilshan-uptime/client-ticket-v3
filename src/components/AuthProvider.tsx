@@ -21,6 +21,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const syncAuthState = async () => {
       if (isAuthenticated && accounts.length > 0 && inProgress === InteractionStatus.None) {
+        const existingAuth = storage.get(AUTH_RESPONSE);
+        if (existingAuth && existingAuth.token) {
+          dispatch(authActions.authenticateUserSuccess(existingAuth));
+          return;
+        }
+
         const account = accounts[0];
         
         try {
@@ -50,21 +56,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
               storage.set(AUTH_RESPONSE, authData);
               dispatch(authActions.authenticateUserSuccess(authData));
+              console.log('[Auth] Backend authentication successful, token stored');
             },
             error: (error) => {
-              console.error('Backend sign-in failed:', error);
+              console.error('[Auth] Backend sign-in failed:', error);
               toast.error('Authentication failed. Please try again.');
+              storage.remove(AUTH_RESPONSE);
               instance.logoutRedirect({
                 postLogoutRedirectUri: window.location.origin,
               });
             }
           });
         } catch (error) {
-          console.error('Silent token acquisition failed:', error);
+          console.error('[Auth] Silent token acquisition failed:', error);
           try {
             await instance.loginRedirect(loginRequest);
           } catch (loginError) {
-            console.error('Login redirect failed:', loginError);
+            console.error('[Auth] Login redirect failed:', loginError);
           }
         }
       }

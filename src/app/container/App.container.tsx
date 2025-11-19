@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/store-hooks";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 
 import { authActions } from "../redux/authSlice";
 import { getAppLoading } from "../redux/appSlice";
