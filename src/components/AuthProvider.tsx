@@ -20,17 +20,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const syncAuthState = async () => {
-      console.log('[AuthProvider] State:', { isAuthenticated, accountsCount: accounts.length, inProgress });
-      
       if (isAuthenticated && accounts.length > 0 && inProgress === InteractionStatus.None) {
         const existingAuth = storage.get(AUTH_RESPONSE);
         if (existingAuth && existingAuth.token) {
-          console.log('[AuthProvider] Found existing backend token, syncing to Redux');
           dispatch(authActions.authenticateUserSuccess(existingAuth));
           return;
         }
 
-        console.log('[AuthProvider] No backend token found, calling backend with idToken');
         const account = accounts[0];
         
         try {
@@ -40,11 +36,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           });
 
           const idToken = tokenResponse.idToken;
-          console.log('[AuthProvider] Got idToken from MSAL, calling backend API');
 
           msSignIn(idToken).subscribe({
             next: (response) => {
-              console.log('[AuthProvider] Backend API response received');
               const authData = {
                 token: response.token,
                 refreshToken: response.refreshToken,
@@ -62,10 +56,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
               storage.set(AUTH_RESPONSE, authData);
               dispatch(authActions.authenticateUserSuccess(authData));
-              console.log('[AuthProvider] Backend authentication successful, token stored');
             },
             error: (error) => {
-              console.error('[AuthProvider] Backend sign-in failed:', error);
+              console.error('Backend sign-in failed:', error);
               toast.error('Authentication failed. Please try again.');
               storage.remove(AUTH_RESPONSE);
               instance.logoutRedirect({
@@ -74,7 +67,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
           });
         } catch (error) {
-          console.error('[AuthProvider] Silent token acquisition failed:', error);
+          console.error('Silent token acquisition failed:', error);
         }
       }
     };

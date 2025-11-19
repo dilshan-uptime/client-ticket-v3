@@ -1,8 +1,7 @@
 import { Provider } from "react-redux";
 import { Toaster } from "sonner";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
-import { useEffect } from "react";
 import { InteractionStatus } from "@azure/msal-browser";
 
 import store from "./app/redux/store";
@@ -17,15 +16,9 @@ import "./App.css";
 function AppRoutes() {
   const isAuthenticated = useIsAuthenticated();
   const { inProgress } = useMsal();
-  const location = useLocation();
-
-  useEffect(() => {
-    console.log('[App] Authentication state:', isAuthenticated, 'inProgress:', inProgress, 'Current path:', location.pathname);
-  }, [isAuthenticated, inProgress, location.pathname]);
 
   // Show loading while MSAL is processing redirect
   if (inProgress === InteractionStatus.HandleRedirect || inProgress === InteractionStatus.Startup) {
-    console.log('[App] MSAL is processing redirect, showing loading...');
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#ee754e]/5 via-white to-[#1fb6a6]/5">
         <div className="text-center space-y-4">
@@ -38,7 +31,6 @@ function AppRoutes() {
   }
 
   if (!isAuthenticated) {
-    console.log('[App] User not authenticated, showing login page');
     return (
       <Routes>
         <Route path="/login" element={<LandingPage />} />
@@ -47,7 +39,6 @@ function AppRoutes() {
     );
   }
 
-  console.log('[App] User authenticated, showing app routes');
   return (
     <Provider store={store}>
       <AuthProvider>

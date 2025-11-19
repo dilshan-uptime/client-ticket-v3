@@ -27,9 +27,6 @@ axiosInstance.interceptors.request.use(async (config) => {
     const authData: AuthenticationResponse | null = storage.get(AUTH_RESPONSE);
     if (authData && authData.token) {
       config.headers["Authorization"] = `Bearer ${authData.token}`;
-      console.log('[API] Using backend token for request:', config.url);
-    } else {
-      console.warn('[API] No backend token available for request:', config.url);
     }
   } else {
     delete config.headers["Authorization"];

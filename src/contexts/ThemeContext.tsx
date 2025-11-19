@@ -23,16 +23,24 @@ interface ThemeProviderProps {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved as Theme) || 'light';
+    try {
+      const saved = localStorage.getItem('theme');
+      return (saved as Theme) || 'light';
+    } catch {
+      return 'light';
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    try {
+      localStorage.setItem('theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (error) {
+      console.error('Failed to persist theme:', error);
     }
   }, [theme]);
 
