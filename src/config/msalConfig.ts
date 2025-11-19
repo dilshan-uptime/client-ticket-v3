@@ -1,6 +1,12 @@
 import { LogLevel } from '@azure/msal-browser';
 import type { Configuration } from '@azure/msal-browser';
 
+console.log('[MSAL Config] Environment variables:');
+console.log('  VITE_CLIENT_ID:', import.meta.env.VITE_CLIENT_ID);
+console.log('  VITE_TENANT_ID:', import.meta.env.VITE_TENANT_ID);
+console.log('  VITE_REDIRECT_URI:', import.meta.env.VITE_REDIRECT_URI);
+console.log('  window.location.origin:', window.location.origin);
+
 export const msalConfig: Configuration = {
   auth: {
     clientId: import.meta.env.VITE_CLIENT_ID || '',

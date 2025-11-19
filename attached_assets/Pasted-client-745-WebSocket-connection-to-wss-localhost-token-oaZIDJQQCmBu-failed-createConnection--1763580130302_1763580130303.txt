@@ -1,0 +1,58 @@
+client:745 WebSocket connection to 'wss://localhost/?token=oaZIDJQQCmBu' failed: 
+createConnection @ client:745
+connect @ client:411
+connect @ client:751
+connect @ client:289
+connect @ client:373
+(anonymous) @ client:823Understand this error
+client:772 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
+connect @ client:772
+await in connect
+connect @ client:289
+connect @ client:373
+(anonymous) @ client:823Understand this error
+client:423 Uncaught (in promise) Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:423:30)
+(anonymous) @ client:423Understand this error
+react-dom_client.js?v=716961ef:20103 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:21 [App] Authentication state: false Current path: /
+App.tsx:21 [App] Authentication state: false Current path: /
+msalConfig.ts:31 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-browser@4.26.1 : Warning - There is already an instance of MSAL.js in the window with the same client id.
+loggerCallback @ msalConfig.ts:31
+executeCallback @ chunk-GLU6NE24.js?v=716961ef:721
+logMessage @ chunk-GLU6NE24.js?v=716961ef:714
+warning @ chunk-GLU6NE24.js?v=716961ef:748
+collectInstanceStats @ chunk-GLU6NE24.js?v=716961ef:14091
+logMultipleInstances @ chunk-GLU6NE24.js?v=716961ef:15365
+initialize @ chunk-GLU6NE24.js?v=716961ef:14193
+initialize @ chunk-GLU6NE24.js?v=716961ef:16094
+(anonymous) @ @azure_msal-react.js?v=716961ef:155
+react_stack_bottom_frame @ react-dom_client.js?v=716961ef:18567
+runWithFiberInDEV @ react-dom_client.js?v=716961ef:997
+commitHookEffectListMount @ react-dom_client.js?v=716961ef:9411
+commitHookPassiveMountEffects @ react-dom_client.js?v=716961ef:9465
+reconnectPassiveEffects @ react-dom_client.js?v=716961ef:11273
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=716961ef:11240
+reconnectPassiveEffects @ react-dom_client.js?v=716961ef:11317
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=716961ef:13339
+runWithFiberInDEV @ react-dom_client.js?v=716961ef:997
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=716961ef:13312
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=716961ef:13347
+flushPassiveEffects @ react-dom_client.js?v=716961ef:13157
+(anonymous) @ react-dom_client.js?v=716961ef:12776
+performWorkUntilDeadline @ react-dom_client.js?v=716961ef:36
+<MsalProvider>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=716961ef:247
+(anonymous) @ main.tsx:11Understand this warning
+msalConfig.ts:25 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-browser@4.26.1 : Info - MSAL.js was last initialized by version: 4.26.1
+msalConfig.ts:25 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-browser@4.26.1 : Info - handleRedirectPromise called but there is no interaction in progress, returning null.
+msalConfig.ts:25 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-browser@4.26.1 : Info - MSAL.js was last initialized by version: 4.26.1
+msalConfig.ts:25 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+msalConfig.ts:25 [Wed, 19 Nov 2025 19:21:42 GMT] : [] : @azure/msal-react@3.0.21 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:25 [App] User not authenticated, showing login page
+App.tsx:21 [App] Authentication state: false Current path: /login

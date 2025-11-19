@@ -10,11 +10,17 @@ export const LandingPage = () => {
   const [isSigningIn, setIsSigningIn] = useState(false);
 
   const handleSignIn = async () => {
+    console.log('[LandingPage] Sign in button clicked');
+    console.log('[LandingPage] MSAL instance:', instance);
+    console.log('[LandingPage] Login request:', loginRequest);
+    
     setIsSigningIn(true);
     try {
+      console.log('[LandingPage] Calling loginRedirect...');
       await instance.loginRedirect(loginRequest);
+      console.log('[LandingPage] loginRedirect called successfully');
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('[LandingPage] Login failed:', error);
       toast.error('Failed to sign in. Please try again.');
       setIsSigningIn(false);
     }
