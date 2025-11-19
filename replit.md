@@ -6,6 +6,16 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-19**: Fixed SSO Redirect Loop & Production-Ready Authentication
+  - **Critical Fix**: Resolved SSO redirect loop by handling MSAL inProgress states
+  - App now shows "Authenticating..." loading screen while MSAL processes redirect
+  - Checks for `inProgress === 'handleRedirect' || inProgress === 'startup'` before routing
+  - User experience: Click button → Microsoft login → Loading spinner → Dashboard at /home
+  - Added defensive try-catch blocks in ThemeProvider for localStorage safety
+  - Removed all debug console.log statements for clean production code
+  - Fixed unused imports causing LSP errors
+  - SSO flow now working end-to-end without redirect loops
+
 - **2025-11-19**: Backend Authentication Integration & Professional Sidebar
   - Updated authentication flow to use backend token instead of MSAL access token
   - After Microsoft SSO, app sends idToken to POST /api/v1/auth/ms-sign-in
