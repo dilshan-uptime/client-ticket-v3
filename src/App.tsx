@@ -31,6 +31,7 @@ function AppRoutes() {
           <Toaster richColors position="top-right" />
           <GlobalModal />
           <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/login" element={<Navigate to="/home" replace />} />
             <Route path="*" element={<AppContainer />} />
           </Routes>
