@@ -9,7 +9,7 @@ import { Activity, TrendingUp } from "lucide-react";
 import PendingTicketCard from "../components/InProgressTicketCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
-import { Navbar } from "@/components/Navbar";
+import { Sidebar } from "@/components/Sidebar";
 
 const TicketPage = () => {
   const [inProgressTicketLoading, setInProgressTicketLoading] =
@@ -66,14 +66,14 @@ const TicketPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ee754e]/5 via-white to-[#1fb6a6]/5">
-      <Navbar />
+    <div className="flex min-h-screen bg-background dark:bg-gray-950">
+      <Sidebar />
       
-      <main className="flex-1">
-        <div className="container mx-auto px-6 py-8">
+      <main className="flex-1 ml-64">
+        <div className="container mx-auto px-6 py-8 transition-colors">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Monitor and manage your tickets efficiently</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
+            <p className="text-gray-600 dark:text-gray-400">Monitor and manage your tickets efficiently</p>
           </div>
 
           <div id="dashboard-content" className="space-y-8">

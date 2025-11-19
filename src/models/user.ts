@@ -1,8 +1,10 @@
 export interface User {
-  id?: string;
-  autoTaskId?: string;
+  id?: number;
+  autoTaskId?: number;
   firstName?: string;
   lastName?: string;
   email?: string;
-  roleCode: string;
+  roleId?: number;
+  roleCode?: string;
+  teamId?: number;
 }

@@ -1,7 +1,7 @@
 import type { AppRouteDto } from "@/models/common";
 import { HomePage } from "@/modules/auth/other/pages/HomePage";
 
-export const HOME = "/";
+export const HOME = "/home";
 
 export const ClientRoutes: AppRouteDto[] = [
   {

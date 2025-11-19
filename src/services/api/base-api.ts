@@ -24,16 +24,9 @@ const axiosInstance = Axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   if (!config.isPublic) {
-    try {
-      const { getAccessToken, LoginRedirectError } = await import('@/utils/msal-token-helper');
-      const token = await getAccessToken();
-      
-      config.headers["Authorization"] = `Bearer ${token}`;
-    } catch (error: any) {
-      if (error?.name === 'LoginRedirectError') {
-        throw new Axios.Cancel('Login redirect initiated');
-      }
-      console.error('Failed to acquire token for request:', error);
+    const authData: AuthenticationResponse | null = storage.get(AUTH_RESPONSE);
+    if (authData && authData.token) {
+      config.headers["Authorization"] = `Bearer ${authData.token}`;
     }
   } else {
     delete config.headers["Authorization"];
@@ -60,20 +53,7 @@ axiosInstance.interceptors.response.use(
       !err.config._retry
     ) {
       err.config._retry = true;
-
-      try {
-        const { getAccessToken, LoginRedirectError } = await import('@/utils/msal-token-helper');
-        const token = await getAccessToken();
-
-        err.config.headers["Authorization"] = `Bearer ${token}`;
-        return axiosInstance.request(err.config);
-      } catch (tokenError: any) {
-        if (tokenError?.name === 'LoginRedirectError') {
-          return Promise.reject(new Axios.Cancel('Login redirect initiated'));
-        }
-        console.error('Token renewal failed:', tokenError);
-        await handleUnauthorizedKickOut();
-      }
+      await handleUnauthorizedKickOut();
     }
     return Promise.reject(err);
   }

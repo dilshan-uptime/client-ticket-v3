@@ -4,6 +4,10 @@ import { InteractionStatus } from '@azure/msal-browser';
 import { useDispatch } from 'react-redux';
 import { authActions } from '@/app/redux/authSlice';
 import { loginRequest } from '@/config/msalConfig';
+import { msSignIn } from '@/services/api/auth-api';
+import { toast } from 'sonner';
+import storage from '@/services/storage/local-storage';
+import { AUTH_RESPONSE } from '@/constants/storage';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -20,24 +24,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const account = accounts[0];
         
         try {
-          await instance.acquireTokenSilent({
+          const tokenResponse = await instance.acquireTokenSilent({
             scopes: loginRequest.scopes,
             account: account,
           });
 
-          const authData = {
-            token: '',
-            refreshToken: '',
-            user: {
-              id: account.localAccountId,
-              email: account.username,
-              firstName: account.name?.split(' ')[0] || '',
-              lastName: account.name?.split(' ').slice(1).join(' ') || '',
-              userRole: null,
-            },
-          };
+          const idToken = tokenResponse.idToken;
 
-          dispatch(authActions.authenticateUserSuccess(authData));
+          msSignIn(idToken).subscribe({
+            next: (response) => {
+              const authData = {
+                token: response.token,
+                refreshToken: response.refreshToken,
+                user: {
+                  id: response.user.id,
+                  autoTaskId: response.user.autoTaskId,
+                  email: response.user.email,
+                  firstName: response.user.firstName,
+                  lastName: response.user.lastName,
+                  roleId: response.user.roleId,
+                  roleCode: response.user.roleCode,
+                  teamId: response.user.teamId,
+                },
+              };
+
+              storage.set(AUTH_RESPONSE, authData);
+              dispatch(authActions.authenticateUserSuccess(authData));
+            },
+            error: (error) => {
+              console.error('Backend sign-in failed:', error);
+              toast.error('Authentication failed. Please try again.');
+              instance.logoutRedirect({
+                postLogoutRedirectUri: window.location.origin,
+              });
+            }
+          });
         } catch (error) {
           console.error('Silent token acquisition failed:', error);
           try {

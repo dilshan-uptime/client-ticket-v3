@@ -37,7 +37,7 @@ export const AppContainer = () => {
   }, []);
 
   const renderContainer = () => (
-    <BrowserRouter>
+    <>
       <AppScroller />
       <Routes>
         {AppRoutes(userRole).map(
@@ -59,7 +59,7 @@ export const AppContainer = () => {
         )}
         <Route path={"*"} element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 
   return loading ? <>Loading...</> : <>{renderContainer()}</>;
