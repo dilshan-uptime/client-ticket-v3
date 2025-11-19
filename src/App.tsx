@@ -1,7 +1,8 @@
 import { Provider } from "react-redux";
 import { Toaster } from "sonner";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useIsAuthenticated } from "@azure/msal-react";
+import { useEffect } from "react";
 
 import store from "./app/redux/store";
 import { GlobalModal } from "./shared/global-modal/GlobalModal";
@@ -14,8 +15,14 @@ import "./App.css";
 
 function AppRoutes() {
   const isAuthenticated = useIsAuthenticated();
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('[App] Authentication state:', isAuthenticated, 'Current path:', location.pathname);
+  }, [isAuthenticated, location.pathname]);
 
   if (!isAuthenticated) {
+    console.log('[App] User not authenticated, showing login page');
     return (
       <Routes>
         <Route path="/login" element={<LandingPage />} />
@@ -24,6 +31,7 @@ function AppRoutes() {
     );
   }
 
+  console.log('[App] User authenticated, showing app routes');
   return (
     <Provider store={store}>
       <AuthProvider>
