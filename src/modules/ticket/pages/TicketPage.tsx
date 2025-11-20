@@ -92,14 +92,14 @@ const TicketPage = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-background dark:bg-gray-950">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       
       <main className="flex-1 ml-64">
-        <div className="container mx-auto px-6 py-8 transition-colors">
+        <div className="container mx-auto px-6 py-8 smooth-transition">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400">Monitor and manage your tickets efficiently</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+            <p className="text-muted-foreground">Monitor and manage your tickets efficiently</p>
           </div>
 
           <div id="dashboard-content" className="space-y-8">
@@ -134,7 +134,7 @@ const TicketPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-border">
+                <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
                   <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
                   <p className="text-muted-foreground">No scored tickets yet</p>
                 </div>
@@ -153,10 +153,10 @@ const TicketPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600/10 to-purple-500/10 rounded-xl border border-purple-600/20">
-                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <span className="text-2xl font-bold text-purple-600">
                     {companyTodoList.length}
                   </span>
-                  <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Tasks</span>
+                  <span className="text-sm font-medium text-purple-600">Tasks</span>
                 </div>
               </div>
 
@@ -172,7 +172,7 @@ const TicketPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-border">
+                <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
                   <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
                   <p className="text-muted-foreground">No upcoming tasks</p>
                 </div>
@@ -210,7 +210,7 @@ const TicketPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-border">
+                <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
                   <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
                   <p className="text-muted-foreground">No active tickets at the moment</p>
                 </div>

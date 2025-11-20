@@ -50,12 +50,12 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 z-50 ${
+      className={`fixed top-0 left-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col smooth-transition z-50 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border smooth-transition">
         {!collapsed && (
           <h1 className="text-xl font-bold bg-gradient-to-r from-[#ee754e] to-[#f49b71] bg-clip-text text-transparent">
             uptime
@@ -63,13 +63,13 @@ export const Sidebar = () => {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="p-2 rounded-lg hover:bg-sidebar-accent smooth-transition"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
-            <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <ChevronRight className="h-5 w-5 text-sidebar-foreground" />
           ) : (
-            <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <ChevronLeft className="h-5 w-5 text-sidebar-foreground" />
           )}
         </button>
       </div>
@@ -84,12 +84,12 @@ export const Sidebar = () => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium smooth-transition ${
                 collapsed ? "justify-center" : "justify-start"
               } ${
                 active
-                  ? "bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 text-[#ee754e] dark:from-[#ee754e]/20 dark:to-[#f49b71]/20"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 text-[#ee754e] shadow-sm"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent"
               }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
@@ -100,11 +100,11 @@ export const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 dark:border-gray-800 p-4 space-y-3">
+      <div className="border-t border-sidebar-border p-4 space-y-3 smooth-transition">
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium smooth-transition text-sidebar-foreground hover:bg-sidebar-accent ${
             collapsed ? "justify-center" : "justify-start"
           }`}
         >
@@ -118,17 +118,17 @@ export const Sidebar = () => {
 
         {/* User Profile */}
         {auth?.user && (
-          <div className={`flex items-center gap-3 px-3 py-2 ${collapsed ? "justify-center" : ""}`}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#ee754e] to-[#f49b71] flex items-center justify-center text-white font-semibold flex-shrink-0">
+          <div className={`flex items-center gap-3 px-3 py-2 smooth-transition ${collapsed ? "justify-center" : ""}`}>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#ee754e] to-[#f49b71] flex items-center justify-center text-white font-semibold flex-shrink-0 shadow-sm">
               {auth.user.firstName?.[0]?.toUpperCase() || '?'}
               {auth.user.lastName?.[0]?.toUpperCase() || '?'}
             </div>
             {!collapsed && (
               <div className="flex-1 overflow-hidden">
-                <p className="font-semibold text-sm text-gray-900 dark:text-white truncate">
+                <p className="font-semibold text-sm text-sidebar-foreground truncate">
                   {auth.user.firstName} {auth.user.lastName}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {auth.user.email}
                 </p>
               </div>
@@ -139,7 +139,7 @@ export const Sidebar = () => {
         {/* Logout */}
         <button
           onClick={handleLogoutClick}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 ${
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium smooth-transition text-destructive hover:bg-destructive/10 ${
             collapsed ? "justify-center" : "justify-start"
           }`}
         >

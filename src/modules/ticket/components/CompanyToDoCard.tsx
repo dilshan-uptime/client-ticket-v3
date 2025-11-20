@@ -30,14 +30,14 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
   const isOverdue = isPastDue();
 
   return (
-    <div className="group relative rounded-2xl bg-gradient-to-br from-purple-500/20 via-purple-400/10 to-transparent p-[2px] hover:from-purple-500/40 hover:via-purple-400/30 transition-all duration-300">
-      <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 hover:shadow-xl transition-all duration-300 text-left h-full">
+    <div className="group relative rounded-2xl bg-gradient-to-br from-purple-500/20 via-purple-400/10 to-transparent p-[2px] hover:from-purple-500/40 hover:via-purple-400/30 smooth-transition">
+      <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
         <div className="flex items-start justify-between mb-4">
-          <h4 className="font-semibold text-foreground text-lg leading-snug flex-1 pr-3">
+          <h4 className="font-semibold text-card-foreground text-lg leading-snug flex-1 pr-3">
             {textShortener(item.description, 80)}
           </h4>
           {item.ticketNumber && (
-            <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-purple-500/10 to-purple-400/10 text-purple-600 dark:text-purple-400 px-3 py-1.5 rounded-full font-medium border border-purple-500/20 whitespace-nowrap">
+            <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-purple-500/10 to-purple-400/10 text-purple-600 px-3 py-1.5 rounded-full font-medium border border-purple-500/20 whitespace-nowrap">
               <ExternalLink className="h-3 w-3" />
               {item.ticketNumber}
             </span>
@@ -56,7 +56,7 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
           {item.ticketUrl ? (
             <a
               href={item.ticketUrl}
-              className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 text-sm font-semibold group-hover:gap-3 transition-all"
+              className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 text-sm font-semibold group-hover:gap-3 smooth-transition"
               target="_blank"
               rel="noopener noreferrer"
             >

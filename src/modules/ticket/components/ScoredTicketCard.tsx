@@ -8,10 +8,10 @@ interface ScoredTicketCardProp {
 
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   return (
-    <div className="group relative rounded-2xl bg-gradient-to-br from-[#1fb6a6]/20 via-[#17a397]/10 to-transparent p-[2px] hover:from-[#1fb6a6]/40 hover:via-[#17a397]/30 transition-all duration-300">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 hover:shadow-xl transition-all duration-300 text-left h-full">
+    <div className="group relative rounded-2xl bg-gradient-to-br from-[#1fb6a6]/20 via-[#17a397]/10 to-transparent p-[2px] hover:from-[#1fb6a6]/40 hover:via-[#17a397]/30 smooth-transition">
+      <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
         <div className="flex items-start justify-between mb-4">
-          <h4 className="font-semibold text-foreground text-lg leading-snug flex-1 pr-3">
+          <h4 className="font-semibold text-card-foreground text-lg leading-snug flex-1 pr-3">
             {item?.title && textShortener(item?.title, 50)}
           </h4>
           <div className="flex items-center gap-2">
@@ -28,7 +28,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
         <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
           {item?.description && textShortener(item?.description, 150)}
         </p>
-        <div className="flex items-center justify-between mb-4 pt-3 border-t border-border">
+        <div className="flex items-center justify-between mb-4 pt-3 border-t border-border smooth-transition">
           <div className="flex items-center gap-2">
             {item.isTriage && (
               <span className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg font-medium border border-destructive/20">
@@ -39,15 +39,15 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
           </div>
           <a
             href={item.url}
-            className="inline-flex items-center gap-2 text-[#1fb6a6] hover:text-[#17a397] text-sm font-semibold group-hover:gap-3 transition-all"
+            className="inline-flex items-center gap-2 text-[#1fb6a6] hover:text-[#17a397] text-sm font-semibold group-hover:gap-3 smooth-transition"
             target="_blank"
           >
             View Details
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>
-        <div className="text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3 border border-border">
-          <strong className="text-foreground">Reasons:</strong> {item?.reasons.join(", ")}
+        <div className="text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3 border border-border smooth-transition">
+          <strong className="text-card-foreground">Reasons:</strong> {item?.reasons.join(", ")}
         </div>
       </div>
     </div>
