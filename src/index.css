@@ -160,8 +160,14 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    @apply bg-background transition-colors duration-300;
+  }
+  
   body {
     @apply bg-background text-foreground transition-colors duration-300;
+    min-height: 100vh;
   }
   
   .card-shadow {
