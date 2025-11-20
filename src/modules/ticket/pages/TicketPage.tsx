@@ -105,7 +105,7 @@ const TicketPage = () => {
           <div id="dashboard-content" className="space-y-8">
             <section id="scored-section">
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1fb6a6] to-[#17a397] shadow-lg">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
@@ -143,7 +143,7 @@ const TicketPage = () => {
                   <span className="text-2xl font-bold text-purple-600">
                     {companyTodoList.length}
                   </span>
-                  <span className="text-sm font-medium text-purple-600">Tasks</span>
+                  <span className="text-sm font-medium text-purple-600">Tickets</span>
                 </div>
               </div>
 
