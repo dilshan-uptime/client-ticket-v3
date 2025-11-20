@@ -92,11 +92,11 @@ const TicketPage = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background smooth-transition">
       <Sidebar />
       
-      <main className="flex-1 ml-64">
-        <div className="container mx-auto px-6 py-8 smooth-transition">
+      <main className="flex-1 ml-64 bg-background smooth-transition">
+        <div className="container mx-auto px-6 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
             <p className="text-muted-foreground">Monitor and manage your tickets efficiently</p>
