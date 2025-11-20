@@ -11,6 +11,8 @@ export interface ScoredTicketItem extends TicketItem {
   isTriage: boolean;
   score: number;
   reasons: string[];
+  createdAt?: string;
+  scoredAt?: string;
 }
 
 export interface CompanyTodoItem {

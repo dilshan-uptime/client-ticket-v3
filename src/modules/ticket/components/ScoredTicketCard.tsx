@@ -1,12 +1,35 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
-import { ArrowRight, Tag, Star, AlertCircle } from "lucide-react";
+import { ArrowRight, Tag, AlertCircle } from "lucide-react";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
 }
 
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) {
+      const now = new Date();
+      return now.toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#1fb6a6]/20 via-[#17a397]/10 to-transparent p-[2px] hover:from-[#1fb6a6]/40 hover:via-[#17a397]/30 smooth-transition">
       <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
@@ -14,14 +37,13 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
           <h4 className="font-semibold text-card-foreground text-lg leading-snug flex-1 pr-3">
             {item?.title && textShortener(item?.title, 50)}
           </h4>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-end gap-2">
             <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 text-[#1fb6a6] px-3 py-1.5 rounded-full font-medium border border-[#1fb6a6]/20 whitespace-nowrap">
               <Tag className="h-3 w-3" />
               {item.ticketNumber}
             </span>
-            <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white px-3 py-1.5 rounded-full font-bold shadow-md">
-              <Star className="h-3 w-3 fill-white" />
-              {item.score}
+            <span className="text-xs text-muted-foreground font-medium">
+              {formatDateTime(item.scoredAt || item.createdAt)}
             </span>
           </div>
         </div>
