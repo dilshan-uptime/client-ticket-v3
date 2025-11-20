@@ -105,7 +105,7 @@ const TicketPage = () => {
           <div id="dashboard-content" className="space-y-8">
             <section id="scored-section">
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1fb6a6] to-[#17a397] shadow-lg">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
