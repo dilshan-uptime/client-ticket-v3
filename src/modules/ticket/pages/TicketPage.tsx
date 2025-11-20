@@ -123,13 +123,9 @@ const TicketPage = () => {
               </div>
 
               {scoredTicketLoading ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                </div>
+                <Skeleton className="h-48 w-full rounded-2xl" />
               ) : scoredTicketList.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <ScoredTicketCard item={scoredTicketList[0]} />
-                </div>
+                <ScoredTicketCard item={scoredTicketList[0]} />
               ) : (
                 <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
                   <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
