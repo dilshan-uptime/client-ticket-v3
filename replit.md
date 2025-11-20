@@ -6,6 +6,17 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-20**: Company To Do List Feature Implementation
+  - Added new "Company To Do List" section to dashboard at /home route
+  - Created CompanyTodoItem model and API service for /api/v1/company-todo/upcoming-list
+  - Built CompanyToDoCard component with timezone-safe date comparison logic
+  - Overdue tasks (start_date < today) displayed with red text highlighting
+  - Uses purple gradient theme to differentiate from other ticket types
+  - Reordered dashboard sections: Scored Tickets → Company To Do List → In Progress Tickets
+  - Proper error handling and loading states for API failures
+  - Dark mode support with consistent design system
+  - Timezone-safe implementation using UTC accessors to prevent off-by-one errors
+
 - **2025-11-19**: Fixed SSO Redirect Loop & Production-Ready Authentication
   - **Critical Fix**: Resolved SSO redirect loop by handling MSAL inProgress states
   - App now shows "Authenticating..." loading screen while MSAL processes redirect
