@@ -1,6 +1,6 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
-import { ArrowRight, Tag, Star, AlertCircle } from "lucide-react";
+import { ArrowRight, Tag, Star, AlertCircle, Check, X } from "lucide-react";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
@@ -48,6 +48,17 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
         </div>
         <div className="text-xs text-muted-foreground bg-secondary/50 rounded-lg p-3 border border-border smooth-transition">
           <strong className="text-card-foreground">Reasons:</strong> {item?.reasons.join(", ")}
+        </div>
+        
+        <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border">
+          <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-95">
+            <Check className="h-5 w-5" />
+            Approve
+          </button>
+          <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-95">
+            <X className="h-5 w-5" />
+            Reject
+          </button>
         </div>
       </div>
     </div>
