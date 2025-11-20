@@ -38,4 +38,5 @@ export const msalConfig: Configuration = {
 
 export const loginRequest = {
   scopes: ['User.Read', 'openid', 'profile', 'email'],
+  prompt: 'select_account',
 };

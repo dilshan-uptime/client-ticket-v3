@@ -11,23 +11,31 @@ export const performLogout = (msalInstance: IPublicClientApplication): void => {
   storage.remove(AUTH_RESPONSE);
   console.log('[LogoutHelper] Redux and localStorage cleared');
   
+  const activeAccount = msalInstance.getActiveAccount();
   const allAccounts = msalInstance.getAllAccounts();
+  const accountToLogout = activeAccount || (allAccounts.length > 0 ? allAccounts[0] : null);
+  
   console.log(`[LogoutHelper] Found ${allAccounts.length} cached accounts`);
   
-  msalInstance.setActiveAccount(null);
-  console.log('[LogoutHelper] Active account cleared');
-  
-  console.log('[LogoutHelper] Calling logoutRedirect to clear ALL accounts from MSAL cache');
-  
-  msalInstance.logoutRedirect({
-    postLogoutRedirectUri: `${window.location.origin}/login`,
-  }).catch((error) => {
-    console.error('[LogoutHelper] Logout redirect failed, forcing manual redirect:', error);
+  if (accountToLogout) {
+    console.log('[LogoutHelper] Logging out account:', accountToLogout.username);
     
-    store.dispatch(authActions.logoutUser());
-    storage.remove(AUTH_RESPONSE);
+    msalInstance.logoutRedirect({
+      account: accountToLogout,
+      logoutHint: accountToLogout.username,
+      postLogoutRedirectUri: `${window.location.origin}/login`,
+    }).catch((error) => {
+      console.error('[LogoutHelper] Logout redirect failed, forcing manual redirect:', error);
+      
+      store.dispatch(authActions.logoutUser());
+      storage.remove(AUTH_RESPONSE);
+      msalInstance.setActiveAccount(null);
+      
+      window.location.href = '/login';
+    });
+  } else {
+    console.log('[LogoutHelper] No accounts found, clearing active account and redirecting');
     msalInstance.setActiveAccount(null);
-    
     window.location.href = '/login';
-  });
+  }
 };
