@@ -28,7 +28,7 @@ The agent should prioritize iterative development and clear communication. Befor
 - **Ticket Management**: Displays in-progress and scored tickets with distinct visual cues (e.g., orange gradients for in-progress, teal for scored, gradient borders, and specific icons). Includes a "Company To Do List" section with overdue task highlighting.
 - **Global Error Handling & Modals**: Centralized error handling with toast notifications and a global modal system for consistent user feedback.
 - **API Integration**: Utilizes an Axios-based API client with interceptors for Bearer token authentication, automatic token refresh, request/response transformation (camelCase ↔ snake_case), and global error handling.
-- **Production-Ready Logout**: Implements a fire-and-forget logout pattern to prevent redirect loops, clearing Redux state, localStorage, and all MSAL cached accounts.
+- **Production-Ready Logout with Forced SSO Re-authentication**: Implements a fire-and-forget logout pattern that properly terminates Azure AD sessions. The logout process captures the active MSAL account before clearing state, passes the account object and `logoutHint` parameter to `logoutRedirect()` to ensure complete server-side session termination. After logout, users MUST complete Microsoft SSO login again (cannot use cached credentials). Login request includes `prompt: 'select_account'` to force account selection and prevent silent authentication.
 - **SSO Token Storage Reliability**: Employs `useRef`-based subscription management to prevent race conditions and ensure reliable SSO token storage, specifically addressing issues with duplicate authentication providers and component unmount during API calls.
 
 ### Project Structure
