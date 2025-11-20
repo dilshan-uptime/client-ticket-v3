@@ -20,13 +20,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const syncAuthState = async () => {
+      console.log('[AuthProvider] Sync auth state - isAuthenticated:', isAuthenticated, 'inProgress:', inProgress);
+      
       if (isAuthenticated && accounts.length > 0 && inProgress === InteractionStatus.None) {
         const existingAuth = storage.get(AUTH_RESPONSE);
         if (existingAuth && existingAuth.token) {
+          console.log('[AuthProvider] Found existing backend token, syncing to Redux');
           dispatch(authActions.authenticateUserSuccess(existingAuth));
           return;
         }
 
+        console.log('[AuthProvider] No backend token found, calling backend with idToken');
         const account = accounts[0];
         
         try {
@@ -36,9 +40,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           });
 
           const idToken = tokenResponse.idToken;
+          console.log('[AuthProvider] Got idToken from MSAL (length:', idToken?.length, ')');
+          console.log('[AuthProvider] Calling backend API:', import.meta.env.VITE_API_URL + '/api/v1/auth/ms-sign-in');
 
           msSignIn(idToken).subscribe({
             next: (response) => {
+              console.log('[AuthProvider] Backend sign-in successful:', response);
               const authData = {
                 token: response.token,
                 refreshToken: response.refreshToken,
@@ -56,14 +63,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
               storage.set(AUTH_RESPONSE, authData);
               dispatch(authActions.authenticateUserSuccess(authData));
+              console.log('[AuthProvider] Auth data stored successfully');
             },
             error: (error) => {
-              console.error('Backend sign-in failed:', error);
-              toast.error('Authentication failed. Please try again.');
+              console.error('[AuthProvider] Backend sign-in failed - Full error:', error);
+              console.error('[AuthProvider] Error response:', error?.response);
+              console.error('[AuthProvider] Error data:', error?.response?.data);
+              console.error('[AuthProvider] Error status:', error?.response?.status);
+              console.error('[AuthProvider] API URL:', import.meta.env.VITE_API_URL);
+              
+              const errorMessage = error?.response?.data?.message || error?.message || 'Authentication failed';
+              toast.error(`Authentication failed: ${errorMessage}. Please check console for details.`);
+              
               storage.remove(AUTH_RESPONSE);
-              instance.logoutRedirect({
-                postLogoutRedirectUri: window.location.origin,
-              });
+              
+              console.warn('[AuthProvider] Not logging out immediately - check backend API configuration');
             }
           });
         } catch (error) {
