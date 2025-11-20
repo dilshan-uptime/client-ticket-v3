@@ -123,15 +123,12 @@ const TicketPage = () => {
               </div>
 
               {scoredTicketLoading ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Skeleton className="h-48 w-full rounded-2xl" />
+                <div className="max-w-2xl">
                   <Skeleton className="h-48 w-full rounded-2xl" />
                 </div>
               ) : scoredTicketList.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {scoredTicketList.map((item: ScoredTicketItem, index) => (
-                    <ScoredTicketCard key={index} item={item} />
-                  ))}
+                <div className="max-w-2xl">
+                  <ScoredTicketCard item={scoredTicketList[0]} />
                 </div>
               ) : (
                 <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
