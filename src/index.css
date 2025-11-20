@@ -163,11 +163,21 @@ body {
   
   html {
     @apply bg-background transition-colors duration-300;
+    height: 100%;
   }
   
   body {
     @apply bg-background text-foreground transition-colors duration-300;
     min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    @apply bg-background transition-colors duration-300;
+    min-height: 100vh;
+    height: 100%;
   }
   
   .card-shadow {
