@@ -56,16 +56,15 @@ axiosInstance.interceptors.response.use(
 
 
 export const handleUnauthorizedKickOut = async () => {
-  store.dispatch(authActions.logoutUser());
-
   try {
     const { msalInstance } = await import('@/config/msalInstance');
-    await msalInstance.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin,
-    });
+    const { performLogout } = await import('@/utils/logout-helper');
+    performLogout(msalInstance);
   } catch (error) {
     console.error('Logout redirect failed:', error);
-    window.location.href = "/";
+    storage.remove(AUTH_RESPONSE);
+    store.dispatch(authActions.logoutUser());
+    window.location.href = "/login";
   }
 };
 

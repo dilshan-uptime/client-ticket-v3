@@ -52,6 +52,9 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
       
       // Reset states if not authenticated
       if (!isAuthenticated) {
+        console.log('[BackendAuth] User not authenticated, clearing backend auth state');
+        dispatch(authActions.logoutUser());
+        storage.remove(AUTH_RESPONSE);
         if (isMounted) {
           setIsBackendAuthReady(false);
           setIsBackendAuthLoading(false);
@@ -143,14 +146,18 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
               const errorMessage = error?.response?.data?.message || error?.message || 'Authentication failed';
               toast.error(`Authentication failed: ${errorMessage}. Please try again.`);
               
-              storage.remove(AUTH_RESPONSE);
               setIsBackendAuthReady(false);
               setIsBackendAuthLoading(false);
               activeSubscriptionRef.current = null;
               
               // Logout from MSAL on backend failure
-              instance.logoutRedirect({
-                postLogoutRedirectUri: window.location.origin,
+              import('@/utils/logout-helper').then(({ performLogout }) => {
+                performLogout(instance);
+              }).catch((err) => {
+                console.error('[BackendAuth] Logout import failed:', err);
+                dispatch(authActions.logoutUser());
+                storage.remove(AUTH_RESPONSE);
+                window.location.href = '/login';
               });
             }
           });

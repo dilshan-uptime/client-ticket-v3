@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
-import { useAppDispatch, useAppSelector } from "@/hooks/store-hooks";
-import { authActions, getAuth } from "@/app/redux/authSlice";
-import storage from "@/services/storage/local-storage";
-import { AUTH_RESPONSE } from "@/constants/storage";
+import { useAppSelector } from "@/hooks/store-hooks";
+import { getAuth } from "@/app/redux/authSlice";
 import { useTheme } from "@/contexts/ThemeContext";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
+import { performLogout } from "@/utils/logout-helper";
 
 import { 
   Home, 
@@ -30,19 +30,20 @@ const menuItems: MenuItem[] = [
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const { instance } = useMsal();
   const auth = useAppSelector(getAuth);
   const { theme, toggleTheme } = useTheme();
 
-  const onLogout = () => {
-    dispatch(authActions.logoutUser());
-    storage.remove(AUTH_RESPONSE);
-    instance.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin,
-    });
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutDialog(false);
+    performLogout(instance);
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -137,7 +138,7 @@ export const Sidebar = () => {
 
         {/* Logout */}
         <button
-          onClick={onLogout}
+          onClick={handleLogoutClick}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 ${
             collapsed ? "justify-center" : "justify-start"
           }`}
@@ -146,6 +147,12 @@ export const Sidebar = () => {
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        onConfirm={handleLogoutConfirm}
+      />
     </aside>
   );
 };
