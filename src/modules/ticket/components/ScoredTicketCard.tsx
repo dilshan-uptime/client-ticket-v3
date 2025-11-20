@@ -50,14 +50,16 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
           <strong className="text-card-foreground">Reasons:</strong> {item?.reasons.join(", ")}
         </div>
         
-        <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border">
-          <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-95">
-            <Check className="h-5 w-5" />
-            Approve
+        <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
+          <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve">
+            <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/approve:opacity-100 smooth-transition"></div>
+            <Check className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" />
+            <span className="relative z-10 tracking-wide">Approve</span>
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-95">
-            <X className="h-5 w-5" />
-            Reject
+          <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject">
+            <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/reject:opacity-100 smooth-transition"></div>
+            <X className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" />
+            <span className="relative z-10 tracking-wide">Reject</span>
           </button>
         </div>
       </div>
