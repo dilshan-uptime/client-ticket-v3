@@ -10,17 +10,18 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
   const isPastDue = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const startDate = new Date(item.startDate);
-    startDate.setHours(0, 0, 0, 0);
-    return startDate < today;
+    const startDate = new Date(item.startDate + 'T00:00:00Z');
+    const startDateLocal = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+    return startDateLocal < today;
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00Z');
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'UTC'
     });
   };
 

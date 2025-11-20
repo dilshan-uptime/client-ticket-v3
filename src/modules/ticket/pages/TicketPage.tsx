@@ -1,14 +1,16 @@
-import type { ScoredTicketItem, TicketItem } from "@/models/ticket";
+import type { ScoredTicketItem, TicketItem, CompanyTodoItem } from "@/models/ticket";
 import {
   getInProgressTicketsAPI,
   getScoredTicketsAPI,
+  getCompanyTodoListAPI,
 } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { useEffect, useState } from "react";
-import { Activity, TrendingUp } from "lucide-react";
+import { Activity, TrendingUp, ClipboardList } from "lucide-react";
 import PendingTicketCard from "../components/InProgressTicketCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
+import CompanyToDoCard from "../components/CompanyToDoCard";
 import { Sidebar } from "@/components/Sidebar";
 
 const TicketPage = () => {
@@ -22,6 +24,9 @@ const TicketPage = () => {
   const [scoredTicketList, setScoredTicketList] = useState<ScoredTicketItem[]>(
     []
   );
+
+  const [companyTodoLoading, setCompanyTodoLoading] = useState<boolean>(true);
+  const [companyTodoList, setCompanyTodoList] = useState<CompanyTodoItem[]>([]);
 
   const fetchInProgressTicketData = (showLoading = true) => {
     if (showLoading) setInProgressTicketLoading(true);
@@ -65,6 +70,27 @@ const TicketPage = () => {
     fetchScoredTicketData(true);
   }, []);
 
+  const fetchCompanyTodoData = (showLoading = true) => {
+    if (showLoading) setCompanyTodoLoading(true);
+    const sub = getCompanyTodoListAPI().subscribe({
+      next: (response) => {
+        setCompanyTodoList(response);
+      },
+      error: (e) => {
+        errorHandler(e);
+        setCompanyTodoList([]);
+        setCompanyTodoLoading(false);
+      },
+      complete: () => setCompanyTodoLoading(false),
+    });
+
+    return () => sub.unsubscribe();
+  };
+
+  useEffect(() => {
+    fetchCompanyTodoData(true);
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-background dark:bg-gray-950">
       <Sidebar />
@@ -77,44 +103,6 @@ const TicketPage = () => {
           </div>
 
           <div id="dashboard-content" className="space-y-8">
-            <section>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
-                    <Activity className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">In Progress Tickets</h2>
-                    <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl border border-[#ee754e]/20">
-                  <span className="text-2xl font-bold text-[#ee754e]">
-                    {inProgressTicketList.length}
-                  </span>
-                  <span className="text-sm font-medium text-[#ee754e]">Active</span>
-                </div>
-              </div>
-
-              {inProgressTicketLoading ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                </div>
-              ) : inProgressTicketList.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {inProgressTicketList.map((item: TicketItem, index) => (
-                    <PendingTicketCard key={index} item={item} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-border">
-                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <p className="text-muted-foreground">No active tickets at the moment</p>
-                </div>
-              )}
-            </section>
-
             <section id="scored-section">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -149,6 +137,82 @@ const TicketPage = () => {
                 <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border border-border">
                   <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
                   <p className="text-muted-foreground">No scored tickets yet</p>
+                </div>
+              )}
+            </section>
+
+            <section id="company-todo-section">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-600 to-purple-500 shadow-lg">
+                    <ClipboardList className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Company To Do List</h2>
+                    <p className="text-sm text-muted-foreground">Upcoming tasks and deadlines</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600/10 to-purple-500/10 rounded-xl border border-purple-600/20">
+                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {companyTodoList.length}
+                  </span>
+                  <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Tasks</span>
+                </div>
+              </div>
+
+              {companyTodoLoading ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                </div>
+              ) : companyTodoList.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {companyTodoList.map((item: CompanyTodoItem) => (
+                    <CompanyToDoCard key={item.id} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-border">
+                  <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No upcoming tasks</p>
+                </div>
+              )}
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">In Progress Tickets</h2>
+                    <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl border border-[#ee754e]/20">
+                  <span className="text-2xl font-bold text-[#ee754e]">
+                    {inProgressTicketList.length}
+                  </span>
+                  <span className="text-sm font-medium text-[#ee754e]">Active</span>
+                </div>
+              </div>
+
+              {inProgressTicketLoading ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                </div>
+              ) : inProgressTicketList.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {inProgressTicketList.map((item: TicketItem, index) => (
+                    <PendingTicketCard key={index} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-border">
+                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No active tickets at the moment</p>
                 </div>
               )}
             </section>
