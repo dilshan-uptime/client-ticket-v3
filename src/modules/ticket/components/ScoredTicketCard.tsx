@@ -1,6 +1,6 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
-import { ArrowRight, Tag, Star, AlertCircle, Check, X } from "lucide-react";
+import { ArrowRight, Tag, Star, AlertCircle } from "lucide-react";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
@@ -53,12 +53,16 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
         <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
           <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve">
             <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/approve:opacity-100 smooth-transition"></div>
-            <Check className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" />
+            <svg className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
             <span className="relative z-10 tracking-wide">Approve</span>
           </button>
           <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject">
             <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/reject:opacity-100 smooth-transition"></div>
-            <X className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" />
+            <svg className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
             <span className="relative z-10 tracking-wide">Reject</span>
           </button>
         </div>
