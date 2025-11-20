@@ -1,6 +1,6 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
-import { ArrowRight, Tag, AlertCircle } from "lucide-react";
+import { ArrowRight, Tag, AlertCircle, Star } from "lucide-react";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
@@ -38,10 +38,16 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             {item?.title && textShortener(item?.title, 50)}
           </h4>
           <div className="flex flex-col items-end gap-2">
-            <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 text-[#1fb6a6] px-3 py-1.5 rounded-full font-medium border border-[#1fb6a6]/20 whitespace-nowrap">
-              <Tag className="h-3 w-3" />
-              {item.ticketNumber}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 text-[#1fb6a6] px-3 py-1.5 rounded-full font-medium border border-[#1fb6a6]/20 whitespace-nowrap">
+                <Tag className="h-3 w-3" />
+                {item.ticketNumber}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white px-3 py-1.5 rounded-full font-bold shadow-md">
+                <Star className="h-3 w-3 fill-white" />
+                {item.score}
+              </span>
+            </div>
             <span className="text-xs text-muted-foreground font-medium">
               {formatDateTime(item.scoredAt || item.createdAt)}
             </span>

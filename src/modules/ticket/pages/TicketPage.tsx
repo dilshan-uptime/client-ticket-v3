@@ -114,12 +114,6 @@ const TicketPage = () => {
                     <p className="text-sm text-muted-foreground">Completed and evaluated tickets</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 rounded-xl border border-[#1fb6a6]/20">
-                  <span className="text-2xl font-bold text-[#1fb6a6]">
-                    {scoredTicketList?.length || 0}
-                  </span>
-                  <span className="text-sm font-medium text-[#1fb6a6]">Scored</span>
-                </div>
               </div>
 
               {scoredTicketLoading ? (
