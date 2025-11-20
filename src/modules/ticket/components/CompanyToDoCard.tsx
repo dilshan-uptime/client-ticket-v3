@@ -10,13 +10,15 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
   const isPastDue = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const startDate = new Date(item.startDate + 'T00:00:00Z');
+    
+    const startDate = new Date(item.startDate);
     const startDateLocal = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+    
     return startDateLocal < today;
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString + 'T00:00:00Z');
+    const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
