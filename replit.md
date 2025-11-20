@@ -6,6 +6,18 @@ This is a React + TypeScript + Vite frontend application for a ticket management
 **Current State**: Fully configured and running on Replit environment with all dependencies installed.
 
 ## Recent Changes
+- **2025-11-20**: Fixed SSO Token Storage with useRef-Based Subscription Management
+  - **Critical Fix**: Resolved duplicate authentication providers causing token storage failures
+  - Removed old AuthProvider component and useMsalAuth hook that were conflicting with BackendAuthProvider
+  - Implemented useRef-based subscription tracking to prevent race conditions during backend token exchange
+  - Fixed edge cases: component unmount during API call, rapid auth state changes, dependency updates
+  - activeSubscriptionRef cancels previous backend calls when dependencies change, preventing duplicate requests
+  - Added isMounted guards throughout async flow to prevent state updates after unmount
+  - Early-exit checks after MSAL token acquisition prevent backend calls on unmounted components
+  - BackendAuthProvider now properly gates AppRoutes until backend token is stored in localStorage and Redux
+  - Configured correct backend API URL via Replit Secrets (was pointing to localhost:8081)
+  - SSO flow now works reliably: Microsoft login → idToken exchange → Backend token storage → Dashboard access
+
 - **2025-11-20**: Company To Do List Feature Implementation
   - Added new "Company To Do List" section to dashboard at /home route
   - Created CompanyTodoItem model and API service for /api/v1/company-todo/upcoming-list
