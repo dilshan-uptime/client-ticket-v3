@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { GET } from "./base-api";
+import { GET, POST } from "./base-api";
 import type { ScoredTicketItem, TicketItem, CompanyTodoItem } from "@/models/ticket";
 
 const ROOT_PATH = "api/v1/tickets";
@@ -15,4 +15,12 @@ export const getScoredTicketsAPI = (): Observable<ScoredTicketItem[]> => {
 
 export const getCompanyTodoListAPI = (): Observable<CompanyTodoItem[]> => {
   return GET('api/v1/company-todo/upcoming-list', {});
+};
+
+export const acceptTicketAPI = (ticketId: number): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/accept`, {});
+};
+
+export const rejectTicketAPI = (ticketId: number): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/reject`, {});
 };

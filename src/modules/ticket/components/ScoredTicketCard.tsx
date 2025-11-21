@@ -1,12 +1,19 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
 import { ArrowRight, Tag, AlertCircle, Star } from "lucide-react";
+import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
+import { errorHandler } from "@/services/other/error-handler";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
 }
 
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
   const formatDateTime = (dateString?: string) => {
     if (!dateString) {
       const now = new Date();
@@ -28,6 +35,36 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
       minute: '2-digit',
       hour12: true 
     });
+  };
+
+  const handleApprove = () => {
+    setIsApproving(true);
+    const sub = acceptTicketAPI(item.id).subscribe({
+      next: () => {
+        toast.success("Ticket approved successfully!");
+        setIsApproving(false);
+      },
+      error: (e) => {
+        errorHandler(e);
+        setIsApproving(false);
+      },
+    });
+    return () => sub.unsubscribe();
+  };
+
+  const handleReject = () => {
+    setIsRejecting(true);
+    const sub = rejectTicketAPI(item.id).subscribe({
+      next: () => {
+        toast.success("Ticket rejected successfully!");
+        setIsRejecting(false);
+      },
+      error: (e) => {
+        errorHandler(e);
+        setIsRejecting(false);
+      },
+    });
+    return () => sub.unsubscribe();
   };
 
   return (
@@ -79,19 +116,35 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
         </div>
         
         <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
-          <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve">
+          <button 
+            onClick={handleApprove}
+            disabled={isApproving || isRejecting}
+            className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/approve:opacity-100 smooth-transition"></div>
-            <svg className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="relative z-10 tracking-wide">Approve</span>
+            {isApproving ? (
+              <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+            <span className="relative z-10 tracking-wide">{isApproving ? "Approving..." : "Approve"}</span>
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject">
+          <button 
+            onClick={handleReject}
+            disabled={isApproving || isRejecting}
+            className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/reject:opacity-100 smooth-transition"></div>
-            <svg className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            <span className="relative z-10 tracking-wide">Reject</span>
+            {isRejecting ? (
+              <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+            <span className="relative z-10 tracking-wide">{isRejecting ? "Rejecting..." : "Reject"}</span>
           </button>
         </div>
       </div>
