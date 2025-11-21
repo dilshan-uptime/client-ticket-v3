@@ -276,7 +276,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             <AlertDialogAction
               onClick={handleRejectConfirm}
               disabled={!rejectReason.trim()}
-              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm Rejection
             </AlertDialogAction>
@@ -355,7 +355,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleApproveConfirm}
-              className="bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white shadow-md hover:shadow-lg"
+              className="bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white shadow-md hover:shadow-lg"
             >
               Confirm Approval
             </AlertDialogAction>
