@@ -24,6 +24,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
   const formatDateTime = (dateString?: string) => {
@@ -49,8 +50,14 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
     });
   };
 
-  const handleApprove = () => {
+  const handleApproveClick = () => {
+    setShowApproveDialog(true);
+  };
+
+  const handleApproveConfirm = () => {
     setIsApproving(true);
+    setShowApproveDialog(false);
+    
     const sub = acceptTicketAPI(item.id).subscribe({
       next: () => {
         toast.success("Ticket approved successfully!");
@@ -62,6 +69,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
       },
     });
     return () => sub.unsubscribe();
+  };
+
+  const handleApproveCancel = () => {
+    setShowApproveDialog(false);
   };
 
   const handleRejectClick = () => {
@@ -146,7 +157,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
         
         <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
           <button 
-            onClick={handleApprove}
+            onClick={handleApproveClick}
             disabled={isApproving || isRejecting}
             className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -264,9 +275,89 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRejectConfirm}
-              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-md hover:shadow-lg"
+              disabled={!rejectReason.trim()}
+              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm Rejection
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <AlertDialogContent className="bg-card border-border max-w-md">
+          <div className="flex flex-col items-center pt-6 pb-2">
+            <svg width="240" height="140" viewBox="0 0 240 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Decorative elements */}
+              <circle cx="40" cy="30" r="8" fill="#10b981" opacity="0.2" />
+              <circle cx="200" cy="50" r="6" fill="#34d399" opacity="0.3" />
+              <rect x="25" y="20" width="12" height="12" rx="2" stroke="#1fb6a6" strokeWidth="2" fill="none" opacity="0.4" transform="rotate(15 31 26)" />
+              
+              {/* Base line */}
+              <line x1="60" y1="110" x2="180" y2="110" stroke="currentColor" strokeWidth="2" opacity="0.3" strokeLinecap="round" />
+              
+              {/* Left character - celebrating */}
+              <g>
+                <circle cx="70" cy="85" r="12" fill="#a7f3d0" />
+                <circle cx="70" cy="95" r="9" fill="#6ee7b7" />
+                <circle cx="70" cy="103" r="6" fill="#34d399" />
+                <circle cx="67" cy="82" r="2" fill="#065f46" />
+                <circle cx="73" cy="82" r="2" fill="#065f46" />
+                <path d="M 65 88 Q 70 91 75 88" stroke="#065f46" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Arms up celebrating */}
+                <line x1="58" y1="92" x2="52" y2="80" stroke="#34d399" strokeWidth="3" strokeLinecap="round" />
+                <line x1="82" y1="92" x2="88" y2="80" stroke="#34d399" strokeWidth="3" strokeLinecap="round" />
+              </g>
+              
+              {/* Large checkmark - center */}
+              <g transform="translate(95, 35)">
+                <circle cx="25" cy="25" r="28" fill="#10b981" opacity="0.1" />
+                <circle cx="25" cy="25" r="22" fill="#10b981" opacity="0.2" />
+                <path d="M 10 25 L 20 35 L 40 15" stroke="#10b981" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </g>
+              
+              {/* Right character - thumbs up */}
+              <g>
+                <circle cx="170" cy="85" r="12" fill="#bfdbfe" />
+                <circle cx="170" cy="95" r="9" fill="#93c5fd" />
+                <circle cx="170" cy="103" r="6" fill="#60a5fa" />
+                <circle cx="167" cy="82" r="2" fill="#1e3a8a" />
+                <circle cx="173" cy="82" r="2" fill="#1e3a8a" />
+                <path d="M 165 88 Q 170 91 175 88" stroke="#1e3a8a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Thumbs up */}
+                <path d="M 185 90 L 185 100 M 185 90 L 182 87" stroke="#60a5fa" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </g>
+              
+              {/* Sparkles */}
+              <g opacity="0.6">
+                <path d="M 50 45 L 52 50 L 50 55 L 48 50 Z" fill="#fbbf24" />
+                <path d="M 190 65 L 192 69 L 190 73 L 188 69 Z" fill="#fbbf24" />
+                <path d="M 115 15 L 117 19 L 115 23 L 113 19 Z" fill="#34d399" />
+              </g>
+            </svg>
+          </div>
+          
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-foreground text-xl font-bold">
+              Are you sure you want to approve this scored ticket?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-muted-foreground pt-2">
+              This action will mark the ticket as approved and accepted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="pt-4">
+            <AlertDialogCancel 
+              onClick={handleApproveCancel}
+              className="bg-secondary hover:bg-secondary/80 text-foreground border-border"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleApproveConfirm}
+              className="bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white shadow-md hover:shadow-lg"
+            >
+              Confirm Approval
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
