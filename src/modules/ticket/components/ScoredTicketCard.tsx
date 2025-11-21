@@ -5,6 +5,16 @@ import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
@@ -13,6 +23,8 @@ interface ScoredTicketCardProp {
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   const formatDateTime = (dateString?: string) => {
     if (!dateString) {
@@ -52,12 +64,24 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
     return () => sub.unsubscribe();
   };
 
-  const handleReject = () => {
+  const handleRejectClick = () => {
+    setShowRejectDialog(true);
+  };
+
+  const handleRejectConfirm = () => {
+    if (!rejectReason.trim()) {
+      toast.error("Please enter a reason for rejection");
+      return;
+    }
+
     setIsRejecting(true);
-    const sub = rejectTicketAPI(item.id).subscribe({
+    setShowRejectDialog(false);
+    
+    const sub = rejectTicketAPI(item.id, rejectReason).subscribe({
       next: () => {
         toast.success("Ticket rejected successfully!");
         setIsRejecting(false);
+        setRejectReason("");
       },
       error: (e) => {
         errorHandler(e);
@@ -65,6 +89,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
       },
     });
     return () => sub.unsubscribe();
+  };
+
+  const handleRejectCancel = () => {
+    setShowRejectDialog(false);
+    setRejectReason("");
   };
 
   return (
@@ -132,7 +161,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             <span className="relative z-10 tracking-wide">{isApproving ? "Approving..." : "Approve"}</span>
           </button>
           <button 
-            onClick={handleReject}
+            onClick={handleRejectClick}
             disabled={isApproving || isRejecting}
             className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -148,6 +177,50 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
           </button>
         </div>
       </div>
+
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
+              <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Reject Scored Ticket
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              Are you sure you want to reject this scored ticket? Please provide a reason for rejection.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            <label htmlFor="reject-reason" className="block text-sm font-medium text-foreground mb-2">
+              Rejection Reason <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="reject-reason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter the reason for rejecting this ticket..."
+              className="w-full min-h-[100px] px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none smooth-transition"
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={handleRejectCancel}
+              className="bg-secondary hover:bg-secondary/80 text-foreground border-border"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRejectConfirm}
+              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-md hover:shadow-lg"
+            >
+              Confirm Rejection
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -21,6 +21,6 @@ export const acceptTicketAPI = (ticketId: number): Observable<any> => {
   return POST(`${ROOT_PATH}/${ticketId}/accept`, {});
 };
 
-export const rejectTicketAPI = (ticketId: number): Observable<any> => {
-  return POST(`${ROOT_PATH}/${ticketId}/reject`, {});
+export const rejectTicketAPI = (ticketId: number, reason: string): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/reject`, { reason });
 };
