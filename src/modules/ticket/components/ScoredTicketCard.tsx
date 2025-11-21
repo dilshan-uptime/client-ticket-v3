@@ -179,16 +179,66 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
       </div>
 
       <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <AlertDialogContent className="bg-card border-border">
+        <AlertDialogContent className="bg-card border-border max-w-md">
+          <div className="flex flex-col items-center pt-6 pb-2">
+            <svg width="240" height="140" viewBox="0 0 240 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Decorative squares */}
+              <rect x="30" y="15" width="16" height="16" rx="3" stroke="#1fb6a6" strokeWidth="2" fill="none" opacity="0.6" transform="rotate(-15 38 23)" />
+              <rect x="194" y="40" width="14" height="14" rx="2" stroke="#ee754e" strokeWidth="2" fill="none" opacity="0.5" transform="rotate(20 201 47)" />
+              
+              {/* Base line */}
+              <line x1="60" y1="110" x2="180" y2="110" stroke="currentColor" strokeWidth="2" opacity="0.3" strokeLinecap="round" />
+              
+              {/* Left character with question mark */}
+              <g>
+                <circle cx="75" cy="85" r="12" fill="#cbd5e1" />
+                <circle cx="75" cy="95" r="8" fill="#94a3b8" />
+                <circle cx="75" cy="102" r="6" fill="#64748b" />
+                <circle cx="72" cy="82" r="2" fill="#1e293b" />
+                <circle cx="78" cy="82" r="2" fill="#1e293b" />
+                <path d="M 70 88 Q 75 90 80 88" stroke="#1e293b" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+              
+              {/* Large question mark - center */}
+              <g transform="translate(110, 45)">
+                <path d="M 0 0 Q 0 -15 10 -15 Q 20 -15 20 -5 Q 20 5 10 10 L 10 20" stroke="#ee754e" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="10" cy="30" r="4" fill="#ee754e" />
+              </g>
+              
+              {/* Middle character */}
+              <g>
+                <circle cx="120" cy="90" r="10" fill="#fbbf24" />
+                <circle cx="120" cy="98" r="7" fill="#f59e0b" />
+                <circle cx="120" cy="104" r="5" fill="#d97706" />
+                <circle cx="117" cy="88" r="1.5" fill="#78350f" />
+                <circle cx="123" cy="88" r="1.5" fill="#78350f" />
+                <ellipse cx="120" cy="92" rx="3" ry="2" fill="#78350f" opacity="0.3" />
+              </g>
+              
+              {/* Right character with green theme */}
+              <g>
+                <circle cx="165" cy="85" r="12" fill="#86efac" />
+                <circle cx="165" cy="95" r="9" fill="#4ade80" />
+                <circle cx="165" cy="103" r="6" fill="#22c55e" />
+                <circle cx="162" cy="82" r="2" fill="#14532d" />
+                <circle cx="168" cy="82" r="2" fill="#14532d" />
+                <path d="M 160 88 Q 165 86 170 88" stroke="#14532d" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+              
+              {/* Small question marks floating */}
+              <g opacity="0.4">
+                <text x="50" y="50" fill="#ef4444" fontSize="20" fontWeight="bold">?</text>
+                <text x="185" y="70" fill="#f97316" fontSize="16" fontWeight="bold">?</text>
+              </g>
+            </svg>
+          </div>
+          
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
-              <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              Reject Scored Ticket
+            <AlertDialogTitle className="text-center text-foreground text-xl font-bold">
+              Are you sure you want to reject this scored ticket?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              Are you sure you want to reject this scored ticket? Please provide a reason for rejection.
+            <AlertDialogDescription className="text-center text-muted-foreground pt-2">
+              Please provide a reason for rejection.
             </AlertDialogDescription>
           </AlertDialogHeader>
           
