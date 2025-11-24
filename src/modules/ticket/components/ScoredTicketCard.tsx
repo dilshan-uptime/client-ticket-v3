@@ -27,6 +27,13 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
+  // Triage mode states
+  const [issueType, setIssueType] = useState("");
+  const [subIssueType, setSubIssueType] = useState("");
+  const [priority, setPriority] = useState("");
+  const [workType, setWorkType] = useState("");
+  const [queue, setQueue] = useState("");
+
   const formatDateTime = (dateString?: string) => {
     if (!dateString) {
       const now = new Date();
@@ -107,6 +114,18 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
     setRejectReason("");
   };
 
+  const handleCompleteTriage = () => {
+    // TODO: Implement triage completion API call
+    console.log("Complete Triage:", { issueType, subIssueType, priority, workType, queue });
+    toast.success("Triage completed successfully!");
+  };
+
+  const handleOpenFullView = () => {
+    // TODO: Implement open full view functionality
+    console.log("Opening full view for ticket:", item.id);
+    toast.info("Opening full view...");
+  };
+
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#1fb6a6]/20 via-[#17a397]/10 to-transparent p-[2px] hover:from-[#1fb6a6]/40 hover:via-[#17a397]/30 smooth-transition">
       <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
@@ -155,38 +174,139 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
           <strong className="text-card-foreground">Reasons:</strong> {item?.reasons.join(", ")}
         </div>
         
-        <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
-          <button 
-            onClick={handleApproveClick}
-            disabled={isApproving || isRejecting}
-            className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/approve:opacity-100 smooth-transition"></div>
-            {isApproving ? (
-              <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <svg className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        {item.isTriage ? (
+          // Triage Mode UI
+          <div className="mt-6 pt-5 border-t border-border">
+            <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-[#ee754e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
-            )}
-            <span className="relative z-10 tracking-wide">{isApproving ? "Approving..." : "Approve"}</span>
-          </button>
-          <button 
-            onClick={handleRejectClick}
-            disabled={isApproving || isRejecting}
-            className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/reject:opacity-100 smooth-transition"></div>
-            {isRejecting ? (
-              <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <svg className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            )}
-            <span className="relative z-10 tracking-wide">{isRejecting ? "Rejecting..." : "Reject"}</span>
-          </button>
-        </div>
+              Triage Information
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Issue Type</label>
+                <select
+                  value={issueType}
+                  onChange={(e) => setIssueType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Issue Type</option>
+                  <option value="computer">Computer</option>
+                  <option value="tab">Tab</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Sub-Issue Type</label>
+                <select
+                  value={subIssueType}
+                  onChange={(e) => setSubIssueType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Sub-Issue Type</option>
+                  <option value="new_setup">New Setup</option>
+                  <option value="tab">Tab</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Priority</option>
+                  <option value="medium">Medium</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Work Type</label>
+                <select
+                  value={workType}
+                  onChange={(e) => setWorkType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Work Type</option>
+                  <option value="remote_support">Remote Support</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-sm font-semibold text-card-foreground">Queue</label>
+                <select
+                  value={queue}
+                  onChange={(e) => setQueue(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Queue</option>
+                  <option value="level_support">Level Support</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleCompleteTriage}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white font-bold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Complete Triage
+              </button>
+              
+              <button 
+                onClick={handleOpenFullView}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-background hover:bg-secondary border-2 border-border hover:border-[#ee754e] text-foreground font-bold rounded-xl shadow-sm hover:shadow-md smooth-transition active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Open Full View
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Normal Mode UI (Approve/Reject)
+          <div className="flex items-center gap-4 mt-6 pt-5 border-t border-border">
+            <button 
+              onClick={handleApproveClick}
+              disabled={isApproving || isRejecting}
+              className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.4)] hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.6)] smooth-transition active:scale-[0.98] border border-emerald-400/30 hover:border-emerald-400/50 relative overflow-hidden group/approve disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/approve:opacity-100 smooth-transition"></div>
+              {isApproving ? (
+                <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg className="h-5 w-5 relative z-10 group-hover/approve:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              <span className="relative z-10 tracking-wide">{isApproving ? "Approving..." : "Approve"}</span>
+            </button>
+            <button 
+              onClick={handleRejectClick}
+              disabled={isApproving || isRejecting}
+              className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-rose-500 via-red-500 to-pink-500 hover:from-rose-600 hover:via-red-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(244,63,94,0.4)] hover:shadow-[0_6px_20px_0_rgba(244,63,94,0.6)] smooth-transition active:scale-[0.98] border border-rose-400/30 hover:border-rose-400/50 relative overflow-hidden group/reject disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/5 to-white/20 opacity-0 group-hover/reject:opacity-100 smooth-transition"></div>
+              {isRejecting ? (
+                <div className="h-5 w-5 relative z-10 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg className="h-5 w-5 relative z-10 group-hover/reject:scale-110 smooth-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              <span className="relative z-10 tracking-wide">{isRejecting ? "Rejecting..." : "Reject"}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
