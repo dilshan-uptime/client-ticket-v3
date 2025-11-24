@@ -21,9 +21,8 @@ const TicketPage = () => {
   >([]);
 
   const [scoredTicketLoading, setScoredTicketLoading] = useState<boolean>(true);
-  const [scoredTicketList, setScoredTicketList] = useState<ScoredTicketItem[]>(
-    []
-  );
+  const [scoredTicketList, setScoredTicketList] = useState<ScoredTicketItem[]>([]);
+  const [_isTriageMode, _setIsTriageMode] = useState<boolean>(false);
 
   const [companyTodoLoading, setCompanyTodoLoading] = useState<boolean>(true);
   const [companyTodoList, setCompanyTodoList] = useState<CompanyTodoItem[]>([]);
@@ -53,12 +52,13 @@ const TicketPage = () => {
     if (showLoading) setScoredTicketLoading(true);
     const sub = getScoredTicketsAPI().subscribe({
       next: (response) => {
-        setScoredTicketList(response);
+        setScoredTicketList(response.scoredList || []);
+        _setIsTriageMode(response.isTriageMode || false);
       },
       error: (e) => {
         errorHandler(e);
-
         setScoredTicketList([]);
+        _setIsTriageMode(false);
       },
       complete: () => setScoredTicketLoading(false),
     });

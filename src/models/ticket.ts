@@ -13,6 +13,18 @@ export interface ScoredTicketItem extends TicketItem {
   reasons: string[];
   createdAt?: string;
   scoredAt?: string;
+  companyId: number | null;
+  contractId: number | null;
+  issueTypeId: number | null;
+  subIssueTypeId: number | null;
+  priority: string | null;
+  workTypeId: number | null;
+  queueId: number | null;
+}
+
+export interface ScoredTicketResponse {
+  scoredList: ScoredTicketItem[];
+  isTriageMode: boolean;
 }
 
 export interface CompanyTodoItem {
