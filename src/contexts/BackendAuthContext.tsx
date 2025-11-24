@@ -3,8 +3,10 @@ import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 import { useDispatch } from 'react-redux';
 import { authActions } from '@/app/redux/authSlice';
+import { metadataActions } from '@/app/redux/metadataSlice';
 import { loginRequest } from '@/config/msalConfig';
 import { msSignIn } from '@/services/api/auth-api';
+import { getSystemMetadataAPI } from '@/services/api/metadata-api';
 import { toast } from 'sonner';
 import storage from '@/services/storage/local-storage';
 import { AUTH_RESPONSE } from '@/constants/storage';
@@ -36,6 +38,7 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
   const [isBackendAuthReady, setIsBackendAuthReady] = useState(false);
   const [isBackendAuthLoading, setIsBackendAuthLoading] = useState(false);
   const activeSubscriptionRef = useRef<any>(null);
+  const metadataSubscriptionRef = useRef<any>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,11 +52,17 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
         activeSubscriptionRef.current.unsubscribe();
         activeSubscriptionRef.current = null;
       }
+      if (metadataSubscriptionRef.current) {
+        console.log('[BackendAuth] Canceling previous metadata request');
+        metadataSubscriptionRef.current.unsubscribe();
+        metadataSubscriptionRef.current = null;
+      }
       
       // Reset states if not authenticated
       if (!isAuthenticated) {
         console.log('[BackendAuth] User not authenticated, clearing backend auth state');
         dispatch(authActions.logoutUser());
+        dispatch(metadataActions.clearMetadata());
         storage.remove(AUTH_RESPONSE);
         if (isMounted) {
           setIsBackendAuthReady(false);
@@ -68,6 +77,21 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
           console.log('[BackendAuth] Found existing backend token, syncing to Redux');
           if (isMounted) {
             dispatch(authActions.authenticateUserSuccess(existingAuth));
+            
+            metadataSubscriptionRef.current = getSystemMetadataAPI().subscribe({
+              next: (metadata) => {
+                if (!isMounted) return;
+                console.log('[BackendAuth] Metadata fetched successfully (cached auth)');
+                dispatch(metadataActions.setMetadata(metadata));
+                metadataSubscriptionRef.current = null;
+              },
+              error: (metadataError) => {
+                if (!isMounted) return;
+                console.error('[BackendAuth] Failed to fetch metadata (cached auth):', metadataError);
+                metadataSubscriptionRef.current = null;
+              }
+            });
+            
             setIsBackendAuthReady(true);
             setIsBackendAuthLoading(false);
           }
@@ -126,6 +150,28 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
               dispatch(authActions.authenticateUserSuccess(authData));
               console.log('[BackendAuth] Auth data stored successfully');
               
+              metadataSubscriptionRef.current = getSystemMetadataAPI().subscribe({
+                next: (metadata) => {
+                  if (!isMounted) {
+                    console.log('[BackendAuth] Component unmounted, ignoring metadata response');
+                    metadataSubscriptionRef.current = null;
+                    return;
+                  }
+                  console.log('[BackendAuth] Metadata fetched successfully');
+                  dispatch(metadataActions.setMetadata(metadata));
+                  metadataSubscriptionRef.current = null;
+                },
+                error: (metadataError) => {
+                  if (!isMounted) {
+                    console.log('[BackendAuth] Component unmounted, ignoring metadata error');
+                    metadataSubscriptionRef.current = null;
+                    return;
+                  }
+                  console.error('[BackendAuth] Failed to fetch metadata:', metadataError);
+                  metadataSubscriptionRef.current = null;
+                }
+              });
+              
               setIsBackendAuthReady(true);
               setIsBackendAuthLoading(false);
               activeSubscriptionRef.current = null;
@@ -156,6 +202,7 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
               }).catch((err) => {
                 console.error('[BackendAuth] Logout import failed:', err);
                 dispatch(authActions.logoutUser());
+                dispatch(metadataActions.clearMetadata());
                 storage.remove(AUTH_RESPONSE);
                 window.location.href = '/login';
               });
@@ -177,9 +224,14 @@ export const BackendAuthProvider = ({ children }: BackendAuthProviderProps) => {
     return () => {
       isMounted = false;
       if (activeSubscriptionRef.current) {
-        console.log('[BackendAuth] Cleaning up subscription on unmount');
+        console.log('[BackendAuth] Cleaning up auth subscription on unmount');
         activeSubscriptionRef.current.unsubscribe();
         activeSubscriptionRef.current = null;
+      }
+      if (metadataSubscriptionRef.current) {
+        console.log('[BackendAuth] Cleaning up metadata subscription on unmount');
+        metadataSubscriptionRef.current.unsubscribe();
+        metadataSubscriptionRef.current = null;
       }
     };
   }, [isAuthenticated, accounts, inProgress, instance, dispatch]);
