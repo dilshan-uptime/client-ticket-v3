@@ -1,0 +1,99 @@
+ {!item.isTriage ? (
+          // Triage Mode UI
+          <div className="mt-6 pt-5 border-t border-border">
+            <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-[#ee754e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+              Triage Information
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Issue Type</label>
+                <select
+                  value={issueType}
+                  onChange={(e) => setIssueType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Issue Type</option>
+                  <option value="computer">Computer</option>
+                  <option value="tab">Tab</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Sub-Issue Type</label>
+                <select
+                  value={subIssueType}
+                  onChange={(e) => setSubIssueType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Sub-Issue Type</option>
+                  <option value="new_setup">New Setup</option>
+                  <option value="tab">Tab</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Priority</option>
+                  <option value="medium">Medium</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-card-foreground">Work Type</label>
+                <select
+                  value={workType}
+                  onChange={(e) => setWorkType(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Work Type</option>
+                  <option value="remote_support">Remote Support</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-sm font-semibold text-card-foreground">Queue</label>
+                <select
+                  value={queue}
+                  onChange={(e) => setQueue(e.target.value)}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                >
+                  <option value="">Select Queue</option>
+                  <option value="level_support">Level Support</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleCompleteTriage}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white font-bold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Complete Triage
+              </button>
+              
+              <button 
+                onClick={handleOpenFullView}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-background hover:bg-secondary border-2 border-border hover:border-[#ee754e] text-foreground font-bold rounded-xl shadow-sm hover:shadow-md smooth-transition active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Open Full View
+              </button>
+            </div>
+          </div>
+        ) :
