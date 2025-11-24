@@ -1,12 +1,21 @@
 import type { TicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
 import { ArrowRight, Tag } from "lucide-react";
+import { useSelector } from "react-redux";
+import { getMetadata } from "@/app/redux/metadataSlice";
 
 interface PendingTicketCardProps {
   item: TicketItem;
 }
 
 const PendingTicketCard = ({ item }: PendingTicketCardProps) => {
+  const metadata = useSelector(getMetadata);
+  
+  const getQueueName = (queueId?: number | null) => {
+    if (!queueId || !metadata?.queue) return "Unknown Queue";
+    const queue = metadata.queue.find(q => q.id === queueId);
+    return queue?.name || "Unknown Queue";
+  };
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#ee754e]/20 via-[#f49b71]/10 to-transparent p-[2px] hover:from-[#ee754e]/40 hover:via-[#f49b71]/30 smooth-transition">
       <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
@@ -24,7 +33,7 @@ const PendingTicketCard = ({ item }: PendingTicketCardProps) => {
         </p>
         <div className="flex items-center justify-between pt-3 border-t border-border smooth-transition">
           <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-lg font-medium">
-            {item?.queue}
+            {getQueueName(item?.queueId)}
           </span>
           <a
             href={item.url}

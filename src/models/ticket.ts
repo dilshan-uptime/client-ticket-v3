@@ -4,7 +4,7 @@ export interface TicketItem {
   url?: string;
   ticketNumber?: string;
   description?: string;
-  queue?: string;
+  queueId?: number | null;
 }
 
 export interface ScoredTicketItem extends TicketItem {
