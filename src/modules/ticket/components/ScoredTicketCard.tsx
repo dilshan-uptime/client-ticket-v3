@@ -4,7 +4,7 @@ import { ArrowRight, Tag, AlertCircle, Star } from "lucide-react";
 import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getMetadata } from "@/app/redux/metadataSlice";
 import {
@@ -31,12 +31,36 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
-  // Triage mode states
-  const [issueType, setIssueType] = useState("");
-  const [subIssueType, setSubIssueType] = useState("");
-  const [priority, setPriority] = useState("");
-  const [workType, setWorkType] = useState("");
-  const [queue, setQueue] = useState("");
+  // Helper to get priority ID from value (could be ID or name)
+  const getPriorityValue = (priorityValue: string | null) => {
+    if (!priorityValue || !metadata?.priority) return "";
+    
+    // Check if it's already a valid ID (numeric string)
+    const priorityOption = metadata.priority.find(p => String(p.id) === priorityValue);
+    if (priorityOption) return String(priorityValue);
+    
+    // Try to find by name (case-insensitive)
+    const matchByName = metadata.priority.find(
+      p => p.name.toLowerCase() === priorityValue.toLowerCase()
+    );
+    return matchByName ? String(matchByName.id) : "";
+  };
+
+  // Triage mode states - pre-populate from ticket data if available
+  const [issueType, setIssueType] = useState(item.issueTypeId ? String(item.issueTypeId) : "");
+  const [subIssueType, setSubIssueType] = useState(item.subIssueTypeId ? String(item.subIssueTypeId) : "");
+  const [priority, setPriority] = useState(getPriorityValue(item.priority));
+  const [workType, setWorkType] = useState(item.workTypeId ? String(item.workTypeId) : "");
+  const [queue, setQueue] = useState(item.queueId ? String(item.queueId) : "");
+
+  // Sync state when item prop changes
+  useEffect(() => {
+    setIssueType(item.issueTypeId ? String(item.issueTypeId) : "");
+    setSubIssueType(item.subIssueTypeId ? String(item.subIssueTypeId) : "");
+    setPriority(getPriorityValue(item.priority));
+    setWorkType(item.workTypeId ? String(item.workTypeId) : "");
+    setQueue(item.queueId ? String(item.queueId) : "");
+  }, [item.id, item.issueTypeId, item.subIssueTypeId, item.priority, item.workTypeId, item.queueId, metadata]);
 
   const formatDateTime = (dateString?: string) => {
     if (!dateString) {

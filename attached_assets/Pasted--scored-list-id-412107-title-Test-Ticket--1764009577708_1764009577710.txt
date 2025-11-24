@@ -1,0 +1,63 @@
+{
+    "scored_list": [
+        {
+            "id": 412107,
+            "title": "Test Ticket",
+            "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412107",
+            "ticket_number": "T20251120.0001",
+            "description": "Auto Description",
+            "company_id": null,
+            "contract_id": null,
+            "issue_type_id": null,
+            "sub_issue_type_id": null,
+            "priority": null,
+            "work_type_id": null,
+            "queue_id": null,
+            "is_triage": false,
+            "score": 700,
+            "reasons": [
+                "Assigned to requesting user (+700)"
+            ]
+        },
+        {
+            "id": 412108,
+            "title": "[Summary of Issue]",
+            "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412108",
+            "ticket_number": "T20251120.0002",
+            "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+            "company_id": null,
+            "contract_id": null,
+            "issue_type_id": null,
+            "sub_issue_type_id": null,
+            "priority": null,
+            "work_type_id": null,
+            "queue_id": null,
+            "is_triage": false,
+            "score": 700,
+            "reasons": [
+                "Assigned to requesting user (+700)"
+            ]
+        },
+        {
+            "id": 412112,
+            "title": "[Summary of Issue]",
+            "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412112",
+            "ticket_number": "T20251124.0001",
+            "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+            "company_id": null,
+            "contract_id": null,
+            "issue_type_id": null,
+            "sub_issue_type_id": null,
+            "priority": null,
+            "work_type_id": null,
+            "queue_id": null,
+            "is_triage": false,
+            "score": -250,
+            "reasons": [
+                "Queue mismatch for role (–250)",
+                "Invalid assignedResourceID"
+            ]
+        }
+    ],
+    "is_triage_mode": false
+}
