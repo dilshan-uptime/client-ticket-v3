@@ -5,6 +5,8 @@ import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { getMetadata } from "@/app/redux/metadataSlice";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +23,8 @@ interface ScoredTicketCardProp {
 }
 
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
+  const metadata = useSelector(getMetadata);
+  
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
@@ -193,9 +197,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Issue Type</option>
-                  <option value="computer">Computer</option>
-                  <option value="tab">Tab</option>
-                  <option value="mobile">Mobile</option>
+                  {metadata?.issueType?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -207,9 +213,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Sub-Issue Type</option>
-                  <option value="new_setup">New Setup</option>
-                  <option value="tab">Tab</option>
-                  <option value="mobile">Mobile</option>
+                  {metadata?.subIssueType?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -221,7 +229,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Priority</option>
-                  <option value="medium">Medium</option>
+                  {metadata?.priority?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -233,7 +245,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Work Type</option>
-                  <option value="remote_support">Remote Support</option>
+                  {metadata?.workType?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -245,7 +261,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Queue</option>
-                  <option value="level_support">Level Support</option>
+                  {metadata?.queue?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
