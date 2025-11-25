@@ -46,9 +46,23 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
     return matchByName ? String(matchByName.id) : "";
   };
 
+  // Helper to validate sub-issue type belongs to the selected issue type
+  const getValidatedSubIssueType = (issueTypeId: number | null, subIssueTypeId: number | null) => {
+    if (!issueTypeId || !subIssueTypeId || !metadata?.subIssueTypeMap) return "";
+    
+    const issueTypeKey = String(issueTypeId);
+    const subIssueOptions = metadata.subIssueTypeMap[issueTypeKey];
+    
+    if (!subIssueOptions) return "";
+    
+    // Check if sub-issue type exists in the issue type's sub-issue list
+    const isValid = subIssueOptions.some(option => option.id === subIssueTypeId);
+    return isValid ? String(subIssueTypeId) : "";
+  };
+
   // Triage mode states - pre-populate from ticket data if available
   const [issueType, setIssueType] = useState(item.issueTypeId ? String(item.issueTypeId) : "");
-  const [subIssueType, setSubIssueType] = useState(item.subIssueTypeId ? String(item.subIssueTypeId) : "");
+  const [subIssueType, setSubIssueType] = useState(getValidatedSubIssueType(item.issueTypeId, item.subIssueTypeId));
   const [priority, setPriority] = useState(getPriorityValue(item.priority));
   const [workType, setWorkType] = useState(item.workTypeId ? String(item.workTypeId) : "");
   const [queue, setQueue] = useState(item.queueId ? String(item.queueId) : "");
@@ -56,7 +70,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   // Sync state when item prop changes
   useEffect(() => {
     setIssueType(item.issueTypeId ? String(item.issueTypeId) : "");
-    setSubIssueType(item.subIssueTypeId ? String(item.subIssueTypeId) : "");
+    setSubIssueType(getValidatedSubIssueType(item.issueTypeId, item.subIssueTypeId));
     setPriority(getPriorityValue(item.priority));
     setWorkType(item.workTypeId ? String(item.workTypeId) : "");
     setQueue(item.queueId ? String(item.queueId) : "");
