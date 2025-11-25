@@ -46,6 +46,11 @@ export const TicketDetailsPage = () => {
     }
   }, [id]);
 
+  const getStatusName = (statusId: number): string => {
+    const status = metadata?.status?.find((item) => item.id === statusId);
+    return status?.name || `ID: ${statusId}`;
+  };
+
   const getIssueTypeName = (issueTypeId: number): string => {
     const issueType = metadata?.issueType?.find((item) => item.id === issueTypeId);
     return issueType?.name || `ID: ${issueTypeId}`;
@@ -74,6 +79,16 @@ export const TicketDetailsPage = () => {
   const getQueueName = (queueId: number): string => {
     const queue = metadata?.queue?.find((item) => item.id === queueId);
     return queue?.name || `ID: ${queueId}`;
+  };
+
+  const getSourceName = (sourceId: number): string => {
+    const source = metadata?.source?.find((item) => item.id === sourceId);
+    return source?.name || `ID: ${sourceId}`;
+  };
+
+  const getSlaName = (slaId: number): string => {
+    const sla = metadata?.sla?.find((item) => item.id === slaId);
+    return sla?.name || `ID: ${slaId}`;
   };
 
   const formatDate = (dateString: string): string => {
@@ -196,6 +211,36 @@ export const TicketDetailsPage = () => {
                 <h4 className="text-sm font-medium text-muted-foreground">Worked By</h4>
               </div>
               <p className="text-base font-semibold text-foreground">{ticketData.worked_by}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#ee754e]/10">
+                  <CheckCircle2 className="h-5 w-5 text-[#ee754e]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getStatusName(ticketData.status_id)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Source</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getSourceName(ticketData.source_id)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Clock className="h-5 w-5 text-purple-500" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">SLA</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getSlaName(ticketData.sla_id)}</p>
             </div>
           </div>
 
