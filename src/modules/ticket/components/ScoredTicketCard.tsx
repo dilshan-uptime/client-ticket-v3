@@ -1,10 +1,10 @@
 import type { ScoredTicketItem } from "@/models/ticket";
 import { textShortener } from "@/utils/text-formatter";
 import { ArrowRight, Tag, AlertCircle, Star } from "lucide-react";
-import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
+import { acceptTicketAPI, rejectTicketAPI, completeTriageAPI, type CompleteTriagePayload } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { toast } from "sonner";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getMetadata } from "@/app/redux/metadataSlice";
 import {
@@ -25,20 +25,9 @@ interface ScoredTicketCardProp {
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const metadata = useSelector(getMetadata);
   
-  // Debug: Log metadata structure
-  useEffect(() => {
-    console.log("=== METADATA DEBUG ===");
-    console.log("Metadata object:", metadata);
-    console.log("Priority array:", metadata?.priority);
-    console.log("Queue array:", metadata?.queue);
-    console.log("Sub-Issue Type Map:", metadata?.subIssueTypeMap);
-    if (metadata?.subIssueTypeMap) {
-      console.log("Sub-Issue Type Map keys:", Object.keys(metadata.subIssueTypeMap));
-    }
-  }, [metadata]);
-  
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isCompletingTriage, setIsCompletingTriage] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -182,16 +171,41 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
     setRejectReason("");
   };
 
+  // Check if all triage fields are filled (validation for Complete Triage button)
+  const isTriageFormValid = useMemo(() => {
+    return !!(issueType && subIssueType && priority && workType && queue);
+  }, [issueType, subIssueType, priority, workType, queue]);
+
   const handleCompleteTriage = () => {
-    // TODO: Implement triage completion API call
-    console.log("Complete Triage:", { issueType, subIssueType, priority, workType, queue });
-    toast.success("Triage completed successfully!");
+    if (!isTriageFormValid) {
+      toast.error("Please fill in all triage fields");
+      return;
+    }
+
+    setIsCompletingTriage(true);
+
+    const payload: CompleteTriagePayload = {
+      issue_type_id: Number(issueType),
+      sub_issue_type_id: Number(subIssueType),
+      priority_id: Number(priority),
+      work_type_id: Number(workType),
+      queue_id: Number(queue),
+    };
+
+    completeTriageAPI(item.id, payload).subscribe({
+      next: () => {
+        toast.success("Triage completed successfully!");
+        setIsCompletingTriage(false);
+      },
+      error: (e) => {
+        errorHandler(e);
+        setIsCompletingTriage(false);
+      },
+    });
   };
 
   const handleOpenFullView = () => {
-    // TODO: Implement open full view functionality
-    console.log("Opening full view for ticket:", item.id);
-    toast.info("Opening full view...");
+    window.open(item.url, '_blank');
   };
 
   return (
@@ -258,8 +272,6 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={issueType}
                   onChange={(e) => {
-                    console.log("Issue Type changed to:", e.target.value);
-                    console.log("Available sub-issue types for this issue type:", metadata?.subIssueTypeMap?.[e.target.value]);
                     userModifiedRef.current = true;
                     setIssueType(e.target.value);
                     // Clear sub-issue type when issue type changes
@@ -281,7 +293,6 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={subIssueType}
                   onChange={(e) => {
-                    console.log("Sub-Issue Type changed to:", e.target.value);
                     userModifiedRef.current = true;
                     setSubIssueType(e.target.value);
                   }}
@@ -291,21 +302,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   <option value="">
                     {!issueType ? "Select Issue Type First" : "Select Sub-Issue Type"}
                   </option>
-                  {(() => {
-                    console.log("=== SUB-ISSUE TYPE DROPDOWN RENDER ===");
-                    console.log("Current Issue Type:", issueType);
-                    console.log("SubIssueTypeMap:", metadata?.subIssueTypeMap);
-                    console.log("SubIssueTypeMap[issueType]:", metadata?.subIssueTypeMap?.[issueType]);
-                    
-                    if (issueType && metadata?.subIssueTypeMap?.[issueType]) {
-                      return metadata.subIssueTypeMap[issueType].map((type) => (
-                        <option key={type.id} value={type.id}>
-                          {type.name}
-                        </option>
-                      ));
-                    }
-                    return null;
-                  })()}
+                  {issueType && metadata?.subIssueTypeMap?.[issueType]?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -370,17 +371,23 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
             <div className="flex items-center gap-4">
               <button 
                 onClick={handleCompleteTriage}
-                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white font-bold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-[0.98]"
+                disabled={!isTriageFormValid || isCompletingTriage}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#dc6a46] hover:to-[#ee754e] text-white font-bold rounded-xl shadow-md hover:shadow-lg smooth-transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md disabled:active:scale-100"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Complete Triage
+                {isCompletingTriage ? (
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                {isCompletingTriage ? "Completing..." : "Complete Triage"}
               </button>
               
               <button 
                 onClick={handleOpenFullView}
-                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-background hover:bg-secondary border-2 border-border hover:border-[#ee754e] text-foreground font-bold rounded-xl shadow-sm hover:shadow-md smooth-transition active:scale-[0.98]"
+                disabled={isCompletingTriage}
+                className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-background hover:bg-secondary border-2 border-border hover:border-[#ee754e] text-foreground font-bold rounded-xl shadow-sm hover:shadow-md smooth-transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

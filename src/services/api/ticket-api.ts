@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { GET, POST } from "./base-api";
+import { GET, POST, PUT } from "./base-api";
 import type { ScoredTicketResponse, TicketItem, CompanyTodoItem } from "@/models/ticket";
 
 const ROOT_PATH = "api/v1/tickets";
@@ -23,4 +23,16 @@ export const acceptTicketAPI = (ticketId: number): Observable<any> => {
 
 export const rejectTicketAPI = (ticketId: number, reason: string): Observable<any> => {
   return POST(`${ROOT_PATH}/${ticketId}/reject`, { reason });
+};
+
+export interface CompleteTriagePayload {
+  issue_type_id: number;
+  sub_issue_type_id: number;
+  priority_id: number;
+  work_type_id: number;
+  queue_id: number;
+}
+
+export const completeTriageAPI = (ticketId: number, payload: CompleteTriagePayload): Observable<any> => {
+  return PUT(`${ROOT_PATH}/${ticketId}`, payload as unknown as Record<string, unknown>);
 };
