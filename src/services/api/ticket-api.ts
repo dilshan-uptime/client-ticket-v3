@@ -36,3 +36,13 @@ export interface CompleteTriagePayload {
 export const completeTriageAPI = (ticketId: number, payload: CompleteTriagePayload): Observable<any> => {
   return PUT(`${ROOT_PATH}/${ticketId}`, payload as unknown as Record<string, unknown>);
 };
+
+export interface TicketSearchResult {
+  id: number;
+  name: string;
+  title: string;
+}
+
+export const searchTicketByNumberAPI = (ticketNumber: string): Observable<TicketSearchResult[]> => {
+  return GET(`${ROOT_PATH}/search`, { ticket_number: ticketNumber });
+};

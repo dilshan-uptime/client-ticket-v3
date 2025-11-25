@@ -2,18 +2,54 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getAuth } from "@/app/redux/authSlice";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { searchTicketByNumberAPI } from "@/services/api/ticket-api";
 
 export const TopNavbar = () => {
   const auth = useAppSelector(getAuth);
   const { collapsed } = useSidebar();
   const [ticketNumber, setTicketNumber] = useState("");
   const [partnerTicketNumber, setPartnerTicketNumber] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = () => {
-    if (ticketNumber.trim() || partnerTicketNumber.trim()) {
-      console.log("Searching - Ticket Number:", ticketNumber, "Partner Ticket Number:", partnerTicketNumber);
-      // TODO: Implement actual search functionality
+    if (ticketNumber.trim()) {
+      setIsSearching(true);
+      searchTicketByNumberAPI(ticketNumber.trim()).subscribe({
+        next: (results) => {
+          setIsSearching(false);
+          if (results.length === 0) {
+            toast.error("Ticket Not Found", {
+              description: `Ticket number "${ticketNumber}" is not available in the system.`,
+              icon: <AlertCircle className="h-5 w-5" />,
+              duration: 4000,
+            });
+          } else {
+            const ticket = results[0];
+            const url = window.location.origin + "/ticket-details";
+            const newWindow = window.open(url, "_blank");
+            if (newWindow) {
+              setTimeout(() => {
+                newWindow.postMessage({ type: "TICKET_DATA", ticket }, window.location.origin);
+              }, 500);
+            }
+            setTicketNumber("");
+          }
+        },
+        error: (error) => {
+          setIsSearching(false);
+          console.error("Search error:", error);
+          toast.error("Search Failed", {
+            description: "An error occurred while searching for the ticket. Please try again.",
+            icon: <AlertCircle className="h-5 w-5" />,
+            duration: 4000,
+          });
+        },
+      });
+    } else if (partnerTicketNumber.trim()) {
+      console.log("Searching Partner Ticket Number:", partnerTicketNumber);
+      // TODO: Implement partner ticket number search
     }
   };
 
@@ -67,10 +103,11 @@ export const TopNavbar = () => {
       {/* Search Button */}
       <button
         onClick={handleSearch}
-        className="px-4 py-2 bg-white text-[#ee754e] rounded-lg font-semibold hover:bg-white/90 smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap"
+        disabled={isSearching}
+        className="px-4 py-2 bg-white text-[#ee754e] rounded-lg font-semibold hover:bg-white/90 smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Search className="h-4 w-4" />
-        Search
+        {isSearching ? "Searching..." : "Search"}
       </button>
 
       {/* New Ticket Button */}
