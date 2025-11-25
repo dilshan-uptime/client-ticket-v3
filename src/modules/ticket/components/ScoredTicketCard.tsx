@@ -25,6 +25,18 @@ interface ScoredTicketCardProp {
 const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const metadata = useSelector(getMetadata);
   
+  // Debug: Log metadata structure
+  useEffect(() => {
+    console.log("=== METADATA DEBUG ===");
+    console.log("Metadata object:", metadata);
+    console.log("Priority array:", metadata?.priority);
+    console.log("Queue array:", metadata?.queue);
+    console.log("Sub-Issue Type Map:", metadata?.subIssueTypeMap);
+    if (metadata?.subIssueTypeMap) {
+      console.log("Sub-Issue Type Map keys:", Object.keys(metadata.subIssueTypeMap));
+    }
+  }, [metadata]);
+  
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
@@ -246,6 +258,8 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={issueType}
                   onChange={(e) => {
+                    console.log("Issue Type changed to:", e.target.value);
+                    console.log("Available sub-issue types for this issue type:", metadata?.subIssueTypeMap?.[e.target.value]);
                     userModifiedRef.current = true;
                     setIssueType(e.target.value);
                     // Clear sub-issue type when issue type changes
@@ -267,6 +281,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={subIssueType}
                   onChange={(e) => {
+                    console.log("Sub-Issue Type changed to:", e.target.value);
                     userModifiedRef.current = true;
                     setSubIssueType(e.target.value);
                   }}
@@ -276,11 +291,21 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                   <option value="">
                     {!issueType ? "Select Issue Type First" : "Select Sub-Issue Type"}
                   </option>
-                  {issueType && metadata?.subIssueTypeMap?.[issueType]?.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
+                  {(() => {
+                    console.log("=== SUB-ISSUE TYPE DROPDOWN RENDER ===");
+                    console.log("Current Issue Type:", issueType);
+                    console.log("SubIssueTypeMap:", metadata?.subIssueTypeMap);
+                    console.log("SubIssueTypeMap[issueType]:", metadata?.subIssueTypeMap?.[issueType]);
+                    
+                    if (issueType && metadata?.subIssueTypeMap?.[issueType]) {
+                      return metadata.subIssueTypeMap[issueType].map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.name}
+                        </option>
+                      ));
+                    }
+                    return null;
+                  })()}
                 </select>
               </div>
 
