@@ -5,7 +5,7 @@ export interface MetadataOption {
 
 export interface SystemMetadata {
   issueType: MetadataOption[];
-  subIssueType: MetadataOption[];
+  subIssueTypeMap: Record<string, MetadataOption[]>;
   queue: MetadataOption[];
   priority: MetadataOption[];
   workType: MetadataOption[];

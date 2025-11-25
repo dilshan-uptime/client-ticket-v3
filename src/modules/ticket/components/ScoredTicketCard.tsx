@@ -217,7 +217,11 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <label className="text-sm font-semibold text-card-foreground">Issue Type</label>
                 <select
                   value={issueType}
-                  onChange={(e) => setIssueType(e.target.value)}
+                  onChange={(e) => {
+                    setIssueType(e.target.value);
+                    // Clear sub-issue type when issue type changes
+                    setSubIssueType("");
+                  }}
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Issue Type</option>
@@ -234,10 +238,13 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={subIssueType}
                   onChange={(e) => setSubIssueType(e.target.value)}
-                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
+                  disabled={!issueType}
+                  className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Sub-Issue Type</option>
-                  {metadata?.subIssueType?.map((type) => (
+                  <option value="">
+                    {!issueType ? "Select Issue Type First" : "Select Sub-Issue Type"}
+                  </option>
+                  {issueType && metadata?.subIssueTypeMap?.[issueType]?.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.name}
                     </option>
