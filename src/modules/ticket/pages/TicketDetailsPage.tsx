@@ -30,8 +30,25 @@ export const TicketDetailsPage = () => {
         setIsLoading(true);
         getTicketByIdAPI(ticketId).subscribe({
           next: (data) => {
-            console.log("[TicketDetails] Ticket data received:", data);
-            console.log("[TicketDetails] Metadata available:", metadata);
+            console.log("[TicketDetails] === TICKET DATA RECEIVED ===");
+            console.log("[TicketDetails] Ticket ID:", data.id);
+            console.log("[TicketDetails] Status ID:", data.status_id);
+            console.log("[TicketDetails] Priority ID:", data.priority_id);
+            console.log("[TicketDetails] Issue Type:", data.issue_type);
+            console.log("[TicketDetails] Sub Issue Type:", data.sub_issue_type);
+            console.log("[TicketDetails] Queue ID:", data.queue_id);
+            console.log("[TicketDetails] Work Type ID:", data.work_type_id);
+            console.log("[TicketDetails] Source ID:", data.source_id);
+            console.log("[TicketDetails] SLA ID:", data.sla_id);
+            console.log("[TicketDetails] === METADATA AVAILABLE ===");
+            console.log("[TicketDetails] Status array:", metadata?.status);
+            console.log("[TicketDetails] Priority array:", metadata?.priority);
+            console.log("[TicketDetails] IssueType array:", metadata?.issueType);
+            console.log("[TicketDetails] Queue array:", metadata?.queue);
+            console.log("[TicketDetails] WorkType array:", metadata?.workType);
+            console.log("[TicketDetails] Source array:", metadata?.source);
+            console.log("[TicketDetails] SLA array:", metadata?.sla);
+            console.log("[TicketDetails] SubIssueTypeMap:", metadata?.subIssueTypeMap);
             setTicketData(data);
             setIsLoading(false);
           },
@@ -46,24 +63,24 @@ export const TicketDetailsPage = () => {
         });
       }
     }
-  }, [id, metadata]);
+  }, [id]);
 
   const getStatusName = (statusId: number | null | undefined): string => {
-    if (!statusId && statusId !== 0) return "Not Set";
-    if (!metadata?.status) return `ID: ${statusId}`;
+    if (statusId === null || statusId === undefined) return "Not Set";
+    if (!metadata?.status || !Array.isArray(metadata.status)) return `ID: ${statusId}`;
     const status = metadata.status.find((item) => item.id === statusId);
     return status?.name || `ID: ${statusId}`;
   };
 
   const getIssueTypeName = (issueTypeId: number | null | undefined): string => {
-    if (!issueTypeId && issueTypeId !== 0) return "Not Set";
-    if (!metadata?.issueType) return `ID: ${issueTypeId}`;
+    if (issueTypeId === null || issueTypeId === undefined) return "Not Set";
+    if (!metadata?.issueType || !Array.isArray(metadata.issueType)) return `ID: ${issueTypeId}`;
     const issueType = metadata.issueType.find((item) => item.id === issueTypeId);
     return issueType?.name || `ID: ${issueTypeId}`;
   };
 
   const getSubIssueTypeName = (subIssueTypeId: number | null | undefined): string => {
-    if (!subIssueTypeId && subIssueTypeId !== 0) return "Not Set";
+    if (subIssueTypeId === null || subIssueTypeId === undefined) return "Not Set";
     if (!metadata?.subIssueTypeMap) return `ID: ${subIssueTypeId}`;
     for (const issueTypeId in metadata.subIssueTypeMap) {
       const subIssueTypes = metadata.subIssueTypeMap[issueTypeId];
@@ -74,36 +91,36 @@ export const TicketDetailsPage = () => {
   };
 
   const getPriorityName = (priorityId: number | null | undefined): string => {
-    if (!priorityId && priorityId !== 0) return "Not Set";
-    if (!metadata?.priority) return `ID: ${priorityId}`;
+    if (priorityId === null || priorityId === undefined) return "Not Set";
+    if (!metadata?.priority || !Array.isArray(metadata.priority)) return `ID: ${priorityId}`;
     const priority = metadata.priority.find((item) => item.id === priorityId);
     return priority?.name || `ID: ${priorityId}`;
   };
 
   const getWorkTypeName = (workTypeId: number | null | undefined): string => {
-    if (!workTypeId && workTypeId !== 0) return "Not Set";
-    if (!metadata?.workType) return `ID: ${workTypeId}`;
+    if (workTypeId === null || workTypeId === undefined) return "Not Set";
+    if (!metadata?.workType || !Array.isArray(metadata.workType)) return `ID: ${workTypeId}`;
     const workType = metadata.workType.find((item) => item.id === workTypeId);
     return workType?.name || `ID: ${workTypeId}`;
   };
 
   const getQueueName = (queueId: number | null | undefined): string => {
-    if (!queueId && queueId !== 0) return "Not Set";
-    if (!metadata?.queue) return `ID: ${queueId}`;
+    if (queueId === null || queueId === undefined) return "Not Set";
+    if (!metadata?.queue || !Array.isArray(metadata.queue)) return `ID: ${queueId}`;
     const queue = metadata.queue.find((item) => item.id === queueId);
     return queue?.name || `ID: ${queueId}`;
   };
 
   const getSourceName = (sourceId: number | null | undefined): string => {
-    if (!sourceId && sourceId !== 0) return "Not Set";
-    if (!metadata?.source) return `ID: ${sourceId}`;
+    if (sourceId === null || sourceId === undefined) return "Not Set";
+    if (!metadata?.source || !Array.isArray(metadata.source)) return `ID: ${sourceId}`;
     const source = metadata.source.find((item) => item.id === sourceId);
     return source?.name || `ID: ${sourceId}`;
   };
 
   const getSlaName = (slaId: number | null | undefined): string => {
-    if (!slaId && slaId !== 0) return "Not Set";
-    if (!metadata?.sla) return `ID: ${slaId}`;
+    if (slaId === null || slaId === undefined) return "Not Set";
+    if (!metadata?.sla || !Array.isArray(metadata.sla)) return `ID: ${slaId}`;
     const sla = metadata.sla.find((item) => item.id === slaId);
     return sla?.name || `ID: ${slaId}`;
   };
