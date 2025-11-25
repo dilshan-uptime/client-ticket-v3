@@ -20,9 +20,10 @@ import {
 
 interface ScoredTicketCardProp {
   item: ScoredTicketItem;
+  onRefresh?: () => void;
 }
 
-const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
+const ScoredTicketCard = ({ item, onRefresh }: ScoredTicketCardProp) => {
   const metadata = useSelector(getMetadata);
   
   const [isApproving, setIsApproving] = useState(false);
@@ -199,6 +200,9 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
       next: () => {
         toast.success("Triage completed successfully!");
         setIsCompletingTriage(false);
+        if (onRefresh) {
+          onRefresh();
+        }
       },
       error: (e) => {
         errorHandler(e);
