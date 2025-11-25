@@ -103,29 +103,40 @@ const TicketPage = () => {
           </div>
 
           <div id="dashboard-content" className="space-y-8">
-            <section id="scored-section">
+            <section>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1fb6a6] to-[#17a397] shadow-lg">
-                    <TrendingUp className="h-5 w-5 text-white" />
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
+                    <Activity className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">
-                      {_isTriageMode ? "NEXT TRIAGE TICKET" : "NEXT TICKET"}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">Completed and evaluated tickets</p>
+                    <h2 className="text-2xl font-bold text-foreground">TICKET IN PROGRESS</h2>
+                    <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
                   </div>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl border border-[#ee754e]/20">
+                  <span className="text-2xl font-bold text-[#ee754e]">
+                    {inProgressTicketList.length}
+                  </span>
+                  <span className="text-sm font-medium text-[#ee754e]">Active</span>
                 </div>
               </div>
 
-              {scoredTicketLoading ? (
-                <Skeleton className="h-48 w-full rounded-2xl" />
-              ) : scoredTicketList.length > 0 ? (
-                <ScoredTicketCard item={scoredTicketList[0]} />
+              {inProgressTicketLoading ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                </div>
+              ) : inProgressTicketList.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {inProgressTicketList.map((item: TicketItem, index) => (
+                    <PendingTicketCard key={index} item={item} />
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
-                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <p className="text-muted-foreground">No scored tickets yet</p>
+                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No active tickets at the moment</p>
                 </div>
               )}
             </section>
@@ -168,40 +179,29 @@ const TicketPage = () => {
               )}
             </section>
 
-            <section>
+            <section id="scored-section">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
-                    <Activity className="h-5 w-5 text-white" />
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1fb6a6] to-[#17a397] shadow-lg">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">TICKET IN PROGRESS</h2>
-                    <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {_isTriageMode ? "NEXT TRIAGE TICKET" : "NEXT TICKET"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">Completed and evaluated tickets</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl border border-[#ee754e]/20">
-                  <span className="text-2xl font-bold text-[#ee754e]">
-                    {inProgressTicketList.length}
-                  </span>
-                  <span className="text-sm font-medium text-[#ee754e]">Active</span>
                 </div>
               </div>
 
-              {inProgressTicketLoading ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                </div>
-              ) : inProgressTicketList.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {inProgressTicketList.map((item: TicketItem, index) => (
-                    <PendingTicketCard key={index} item={item} />
-                  ))}
-                </div>
+              {scoredTicketLoading ? (
+                <Skeleton className="h-48 w-full rounded-2xl" />
+              ) : scoredTicketList.length > 0 ? (
+                <ScoredTicketCard item={scoredTicketList[0]} />
               ) : (
                 <div className="text-center py-16 bg-card/80 backdrop-blur-sm rounded-2xl border border-border card-shadow smooth-transition">
-                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <p className="text-muted-foreground">No active tickets at the moment</p>
+                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No scored tickets yet</p>
                 </div>
               )}
             </section>
