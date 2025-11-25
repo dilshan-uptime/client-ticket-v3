@@ -6,7 +6,7 @@ import {
 } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { useEffect, useState } from "react";
-import { Activity, TrendingUp, ClipboardList } from "lucide-react";
+import { Activity, TrendingUp, ClipboardList, AlertTriangle } from "lucide-react";
 import PendingTicketCard from "../components/InProgressTicketCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
@@ -193,6 +193,15 @@ const TicketPage = () => {
                   </div>
                 </div>
               </div>
+
+              {_isTriageMode && (
+                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-200 dark:border-amber-800 rounded-xl smooth-transition">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0" />
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                    Triage Mode: {scoredTicketList.length} ticket(s) require triage
+                  </p>
+                </div>
+              )}
 
               {scoredTicketLoading ? (
                 <Skeleton className="h-48 w-full rounded-2xl" />
