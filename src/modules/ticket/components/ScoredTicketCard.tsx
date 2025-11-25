@@ -210,6 +210,13 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
 
   return (
     <div className="group relative rounded-2xl bg-gradient-to-br from-[#1fb6a6]/20 via-[#17a397]/10 to-transparent p-[2px] hover:from-[#1fb6a6]/40 hover:via-[#17a397]/30 smooth-transition">
+      {item.isTriage && (
+        <div className="absolute -top-2 right-4 z-10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/80 dark:to-yellow-900/80 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 shadow-sm">
+            Triage Required
+          </span>
+        </div>
+      )}
       <div className="bg-card backdrop-blur-sm rounded-2xl p-6 card-shadow hover:shadow-xl smooth-transition text-left h-full">
         <div className="flex items-start justify-between mb-4">
           <h4 className="font-semibold text-card-foreground text-lg leading-snug flex-1 pr-3">
