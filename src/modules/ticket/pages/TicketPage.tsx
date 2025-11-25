@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
 import CompanyToDoCard from "../components/CompanyToDoCard";
 import { Sidebar } from "@/components/Sidebar";
+import { TopNavbar } from "@/components/TopNavbar";
 
 const TicketPage = () => {
   const [inProgressTicketLoading, setInProgressTicketLoading] =
@@ -94,8 +95,9 @@ const TicketPage = () => {
   return (
     <div className="flex min-h-screen bg-background smooth-transition">
       <Sidebar />
+      <TopNavbar />
       
-      <main className="flex-1 ml-64 bg-background smooth-transition">
+      <main className="flex-1 ml-64 mt-16 bg-background smooth-transition">
         <div className="container mx-auto px-6 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
