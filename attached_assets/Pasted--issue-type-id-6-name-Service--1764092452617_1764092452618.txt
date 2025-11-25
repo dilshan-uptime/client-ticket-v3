@@ -1,0 +1,932 @@
+{
+    "issue_type": [
+        {
+            "id": 6,
+            "name": "Service"
+        },
+        {
+            "id": 7,
+            "name": "Server"
+        },
+        {
+            "id": 10,
+            "name": "Computer"
+        },
+        {
+            "id": 11,
+            "name": "Network"
+        },
+        {
+            "id": 12,
+            "name": "Break/Fix"
+        },
+        {
+            "id": 13,
+            "name": "Maintenance"
+        },
+        {
+            "id": 14,
+            "name": "Monitoring Alert"
+        },
+        {
+            "id": 15,
+            "name": "New Install"
+        },
+        {
+            "id": 16,
+            "name": "Request"
+        },
+        {
+            "id": 17,
+            "name": "Software"
+        }
+    ],
+    "sub_issue_type_map": {
+        "10": [
+            {
+                "id": 104,
+                "name": "Application"
+            },
+            {
+                "id": 105,
+                "name": "New Setup"
+            },
+            {
+                "id": 108,
+                "name": "Spyware/Malware"
+            },
+            {
+                "id": 109,
+                "name": "System Performance"
+            },
+            {
+                "id": 110,
+                "name": "Virus"
+            },
+            {
+                "id": 152,
+                "name": "Hardware"
+            },
+            {
+                "id": 153,
+                "name": "Operating System"
+            },
+            {
+                "id": 154,
+                "name": "Software"
+            }
+        ],
+        "11": [
+            {
+                "id": 111,
+                "name": "DNS"
+            },
+            {
+                "id": 112,
+                "name": "Firewall/Router"
+            },
+            {
+                "id": 116,
+                "name": "WAP"
+            },
+            {
+                "id": 184,
+                "name": "Cabling"
+            },
+            {
+                "id": 185,
+                "name": "Configuration"
+            },
+            {
+                "id": 186,
+                "name": "Connectivity"
+            },
+            {
+                "id": 187,
+                "name": "Hub"
+            },
+            {
+                "id": 188,
+                "name": "Internet"
+            },
+            {
+                "id": 189,
+                "name": "ISP"
+            },
+            {
+                "id": 190,
+                "name": "Logon Failure"
+            },
+            {
+                "id": 191,
+                "name": "Network Printer"
+            },
+            {
+                "id": 192,
+                "name": "Performance"
+            },
+            {
+                "id": 193,
+                "name": "Remote Access"
+            },
+            {
+                "id": 194,
+                "name": "Security"
+            },
+            {
+                "id": 195,
+                "name": "Server"
+            },
+            {
+                "id": 196,
+                "name": "Settings Change"
+            },
+            {
+                "id": 198,
+                "name": "VPN"
+            },
+            {
+                "id": 199,
+                "name": "Switch"
+            }
+        ],
+        "7": [
+            {
+                "id": 117,
+                "name": "Backup"
+            },
+            {
+                "id": 118,
+                "name": "DHCP"
+            },
+            {
+                "id": 119,
+                "name": "DNS"
+            },
+            {
+                "id": 120,
+                "name": "File System"
+            },
+            {
+                "id": 121,
+                "name": "Messaging"
+            },
+            {
+                "id": 124,
+                "name": "Performance"
+            },
+            {
+                "id": 125,
+                "name": "SQL"
+            },
+            {
+                "id": 126,
+                "name": "User Management"
+            },
+            {
+                "id": 213,
+                "name": "Active Directory"
+            },
+            {
+                "id": 214,
+                "name": "Anti Virus"
+            },
+            {
+                "id": 215,
+                "name": "Application"
+            },
+            {
+                "id": 216,
+                "name": "Exchange"
+            },
+            {
+                "id": 217,
+                "name": "Hardware"
+            },
+            {
+                "id": 218,
+                "name": "Software"
+            }
+        ],
+        "6": [
+            {
+                "id": 127,
+                "name": "Billing"
+            },
+            {
+                "id": 128,
+                "name": "Consulting"
+            },
+            {
+                "id": 129,
+                "name": "Development"
+            },
+            {
+                "id": 130,
+                "name": "Spec Quote"
+            },
+            {
+                "id": 131,
+                "name": "Training"
+            }
+        ],
+        "12": [
+            {
+                "id": 132,
+                "name": "Anti-Virus"
+            },
+            {
+                "id": 133,
+                "name": "Back-up"
+            },
+            {
+                "id": 134,
+                "name": "Desktop"
+            },
+            {
+                "id": 135,
+                "name": "E-Mail"
+            },
+            {
+                "id": 136,
+                "name": "Firewall"
+            },
+            {
+                "id": 137,
+                "name": "Internet"
+            },
+            {
+                "id": 138,
+                "name": "Intranet/LAN"
+            },
+            {
+                "id": 139,
+                "name": "Network"
+            },
+            {
+                "id": 140,
+                "name": "Other"
+            },
+            {
+                "id": 141,
+                "name": "Phone"
+            },
+            {
+                "id": 142,
+                "name": "Point of Sale"
+            },
+            {
+                "id": 143,
+                "name": "Printer"
+            },
+            {
+                "id": 144,
+                "name": "Router"
+            },
+            {
+                "id": 145,
+                "name": "Server"
+            },
+            {
+                "id": 146,
+                "name": "Software"
+            },
+            {
+                "id": 147,
+                "name": "Virus Removal"
+            },
+            {
+                "id": 148,
+                "name": "Website"
+            },
+            {
+                "id": 149,
+                "name": "Wireless"
+            },
+            {
+                "id": 150,
+                "name": "Workstation"
+            }
+        ],
+        "13": [
+            {
+                "id": 155,
+                "name": "Anti-Virus"
+            },
+            {
+                "id": 156,
+                "name": "Backup"
+            },
+            {
+                "id": 157,
+                "name": "E-mail"
+            },
+            {
+                "id": 158,
+                "name": "Firewall"
+            },
+            {
+                "id": 159,
+                "name": "Internet"
+            },
+            {
+                "id": 160,
+                "name": "Intranet/LAN"
+            },
+            {
+                "id": 161,
+                "name": "Network"
+            },
+            {
+                "id": 162,
+                "name": "Phone"
+            },
+            {
+                "id": 163,
+                "name": "Point of Sale"
+            },
+            {
+                "id": 164,
+                "name": "Router"
+            },
+            {
+                "id": 165,
+                "name": "Server"
+            },
+            {
+                "id": 166,
+                "name": "Software"
+            },
+            {
+                "id": 167,
+                "name": "Website"
+            },
+            {
+                "id": 168,
+                "name": "Workstation"
+            }
+        ],
+        "14": [
+            {
+                "id": 169,
+                "name": "Backup"
+            },
+            {
+                "id": 170,
+                "name": "Connectivity"
+            },
+            {
+                "id": 171,
+                "name": "Disk Space"
+            },
+            {
+                "id": 172,
+                "name": "Firewall"
+            },
+            {
+                "id": 173,
+                "name": "Hardware"
+            },
+            {
+                "id": 174,
+                "name": "Internet"
+            },
+            {
+                "id": 175,
+                "name": "Intranet/LAN"
+            },
+            {
+                "id": 176,
+                "name": "Network"
+            },
+            {
+                "id": 177,
+                "name": "Phone"
+            },
+            {
+                "id": 178,
+                "name": "Point of Sale"
+            },
+            {
+                "id": 179,
+                "name": "Printer"
+            },
+            {
+                "id": 180,
+                "name": "Router"
+            },
+            {
+                "id": 181,
+                "name": "Server"
+            },
+            {
+                "id": 182,
+                "name": "Software"
+            },
+            {
+                "id": 183,
+                "name": "Workstation"
+            },
+            {
+                "id": 226,
+                "name": "CPU"
+            },
+            {
+                "id": 227,
+                "name": "Memory"
+            },
+            {
+                "id": 228,
+                "name": "Device Offline"
+            }
+        ],
+        "15": [
+            {
+                "id": 200,
+                "name": "E-mail"
+            },
+            {
+                "id": 201,
+                "name": "Firewall"
+            },
+            {
+                "id": 202,
+                "name": "Hardware"
+            },
+            {
+                "id": 203,
+                "name": "Internet"
+            },
+            {
+                "id": 204,
+                "name": "Intranet/LAN"
+            },
+            {
+                "id": 205,
+                "name": "Network"
+            },
+            {
+                "id": 206,
+                "name": "Phone"
+            },
+            {
+                "id": 207,
+                "name": "Point of Sale"
+            },
+            {
+                "id": 208,
+                "name": "Printer"
+            },
+            {
+                "id": 209,
+                "name": "Router"
+            },
+            {
+                "id": 210,
+                "name": "Server"
+            },
+            {
+                "id": 211,
+                "name": "Software"
+            },
+            {
+                "id": 212,
+                "name": "Workstation"
+            },
+            {
+                "id": 225,
+                "name": "New User"
+            }
+        ],
+        "16": [
+            {
+                "id": 221,
+                "name": "Password Reset"
+            },
+            {
+                "id": 222,
+                "name": "File Permissions"
+            },
+            {
+                "id": 223,
+                "name": "Mapped Drives"
+            },
+            {
+                "id": 224,
+                "name": "Email Permissions"
+            },
+            {
+                "id": 229,
+                "name": "Leaver"
+            }
+        ],
+        "17": [
+            {
+                "id": 230,
+                "name": "Insight"
+            }
+        ]
+    },
+    "queue": [
+        {
+            "id": 5,
+            "name": "Client Portal"
+        },
+        {
+            "id": 6,
+            "name": "Post Sale"
+        },
+        {
+            "id": 8,
+            "name": "Monitoring Alert"
+        },
+        {
+            "id": 29682833,
+            "name": "Level I Support"
+        },
+        {
+            "id": 29682969,
+            "name": "Level II Support"
+        },
+        {
+            "id": 29683354,
+            "name": "Recurring Tickets"
+        },
+        {
+            "id": 29683378,
+            "name": "Administration"
+        },
+        {
+            "id": 29683480,
+            "name": "Triage"
+        },
+        {
+            "id": 29683481,
+            "name": "White Noise"
+        },
+        {
+            "id": 29683482,
+            "name": "WJP Engineers"
+        },
+        {
+            "id": 29683483,
+            "name": "Service Delivery"
+        },
+        {
+            "id": 29683484,
+            "name": "Quick Wins"
+        },
+        {
+            "id": 29683485,
+            "name": "Automation"
+        },
+        {
+            "id": 29683486,
+            "name": "24/7 Handover"
+        },
+        {
+            "id": 29683487,
+            "name": "WLS Monitoring & Remediation"
+        },
+        {
+            "id": 29683488,
+            "name": "Handoff - Continuous Tickets"
+        },
+        {
+            "id": 29683489,
+            "name": "Handoff - Ticket Waiting to be Worked On"
+        },
+        {
+            "id": 29683490,
+            "name": "Handoff - Scheduled Work"
+        },
+        {
+            "id": 29683491,
+            "name": "Stale Tickets Queue"
+        },
+        {
+            "id": 29683492,
+            "name": "H&P Engineers"
+        }
+    ],
+    "priority": [
+        {
+            "id": 1,
+            "name": "High"
+        },
+        {
+            "id": 2,
+            "name": "Medium"
+        },
+        {
+            "id": 3,
+            "name": "Low"
+        },
+        {
+            "id": 4,
+            "name": "Critical"
+        }
+    ],
+    "work_type": [
+        {
+            "id": 29682800,
+            "name": "Onsite Support"
+        },
+        {
+            "id": 29682801,
+            "name": "Remote Support"
+        },
+        {
+            "id": 29682802,
+            "name": "Emergency/After Hours Support"
+        },
+        {
+            "id": 29682804,
+            "name": "Maintenance"
+        },
+        {
+            "id": 29682808,
+            "name": "General Administration"
+        },
+        {
+            "id": 29682860,
+            "name": "Sales"
+        },
+        {
+            "id": 29682861,
+            "name": "Non Billable Support"
+        },
+        {
+            "id": 29683328,
+            "name": "Travel"
+        },
+        {
+            "id": 29683492,
+            "name": "IMAC15+"
+        },
+        {
+            "id": 29683494,
+            "name": "External Work"
+        },
+        {
+            "id": 29683498,
+            "name": "IMAC Sub 15"
+        }
+    ],
+    "status": [
+        {
+            "id": 1,
+            "name": "New"
+        },
+        {
+            "id": 5,
+            "name": "Complete"
+        },
+        {
+            "id": 7,
+            "name": "Waiting Customer"
+        },
+        {
+            "id": 8,
+            "name": "In Progress"
+        },
+        {
+            "id": 9,
+            "name": "Waiting Materials"
+        },
+        {
+            "id": 10,
+            "name": "Dispatched"
+        },
+        {
+            "id": 11,
+            "name": "Escalate to Partner"
+        },
+        {
+            "id": 12,
+            "name": "Waiting Vendor"
+        },
+        {
+            "id": 13,
+            "name": "Waiting Approval"
+        },
+        {
+            "id": 15,
+            "name": "Change Order"
+        },
+        {
+            "id": 16,
+            "name": "Inactive"
+        },
+        {
+            "id": 17,
+            "name": "On Hold"
+        },
+        {
+            "id": 19,
+            "name": "Customer Note Added"
+        },
+        {
+            "id": 23,
+            "name": "Escalate Internally"
+        },
+        {
+            "id": 24,
+            "name": "MSP Support Required"
+        },
+        {
+            "id": 25,
+            "name": "MSP Responded"
+        },
+        {
+            "id": 26,
+            "name": "To Be Scheduled"
+        },
+        {
+            "id": 27,
+            "name": "To Be Reviewed"
+        },
+        {
+            "id": 28,
+            "name": "Internal Support Required"
+        },
+        {
+            "id": 29,
+            "name": "Reboot Scheduled"
+        },
+        {
+            "id": 31,
+            "name": "Attention Required"
+        },
+        {
+            "id": 32,
+            "name": "Monitoring"
+        }
+    ],
+    "source": [
+        {
+            "id": -2,
+            "name": "Insourced"
+        },
+        {
+            "id": -1,
+            "name": "Client Portal"
+        },
+        {
+            "id": 2,
+            "name": "Phone"
+        },
+        {
+            "id": 4,
+            "name": "Email"
+        },
+        {
+            "id": 6,
+            "name": "In Person/Onsite"
+        },
+        {
+            "id": 8,
+            "name": "Monitoring Alert"
+        }
+    ],
+    "sla": [
+        {
+            "id": 1,
+            "name": "Standard SLA"
+        },
+        {
+            "id": 5,
+            "name": "Quotes"
+        },
+        {
+            "id": 4,
+            "name": "24x7"
+        },
+        {
+            "id": 19,
+            "name": "24x7 - SB Test"
+        },
+        {
+            "id": 2,
+            "name": "Remote Only"
+        },
+        {
+            "id": 3,
+            "name": "Onsite & Remote"
+        },
+        {
+            "id": 6,
+            "name": "Remote - AEST"
+        },
+        {
+            "id": 7,
+            "name": "Out of Hours - AEST"
+        },
+        {
+            "id": 8,
+            "name": "Remote - ACST"
+        },
+        {
+            "id": 9,
+            "name": "Out of Hours - ACST"
+        },
+        {
+            "id": 10,
+            "name": "Remote - CWST"
+        },
+        {
+            "id": 11,
+            "name": "Out of hours - AWST"
+        },
+        {
+            "id": 12,
+            "name": "United States In Hours (EST)"
+        },
+        {
+            "id": 13,
+            "name": "Out of Hours - UK"
+        },
+        {
+            "id": 14,
+            "name": "United States In Hours (CST)"
+        },
+        {
+            "id": 15,
+            "name": "United States OOH (CST)"
+        },
+        {
+            "id": 16,
+            "name": "United States In Hours (CDT)"
+        },
+        {
+            "id": 17,
+            "name": "United States In Hours (PST)"
+        },
+        {
+            "id": 18,
+            "name": "United States OOH (EST)"
+        }
+    ],
+    "contract_category": [
+        {
+            "id": 6,
+            "name": "Standard"
+        },
+        {
+            "id": 8,
+            "name": "Hardware-as-a-Service"
+        },
+        {
+            "id": 9,
+            "name": "Maintenance"
+        },
+        {
+            "id": 10,
+            "name": "Custom"
+        },
+        {
+            "id": 11,
+            "name": "Managed Service - 24x7"
+        },
+        {
+            "id": 12,
+            "name": "Managed Service - On-Site"
+        },
+        {
+            "id": 13,
+            "name": "Managed Service - Platinum"
+        },
+        {
+            "id": 14,
+            "name": "Per Ticket - 24x7"
+        },
+        {
+            "id": 15,
+            "name": "Per Ticket - In hours"
+        },
+        {
+            "id": 16,
+            "name": "IMAC Charges"
+        },
+        {
+            "id": 17,
+            "name": "Dedicated Tech"
+        },
+        {
+            "id": 18,
+            "name": "NOC"
+        },
+        {
+            "id": 19,
+            "name": "NOC & Service Desk"
+        },
+        {
+            "id": 20,
+            "name": "Project"
+        },
+        {
+            "id": 21,
+            "name": "Service Desk"
+        }
+    ]
+}
