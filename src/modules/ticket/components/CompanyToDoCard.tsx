@@ -136,12 +136,12 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
 
     {/* Approve Confirmation Dialog */}
     <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-md bg-card border-border">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-2xl font-bold text-center mb-4">
+          <AlertDialogTitle className="text-2xl font-bold text-center mb-4 text-card-foreground">
             Approve To-Do?
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-4">
+          <AlertDialogDescription className="space-y-4 text-muted-foreground">
             <div className="flex justify-center mb-4">
               <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="60" cy="60" r="50" fill="#ee754e" opacity="0.1"/>
