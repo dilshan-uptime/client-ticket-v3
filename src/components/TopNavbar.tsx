@@ -7,13 +7,14 @@ import { Search, Plus, ChevronDown } from "lucide-react";
 export const TopNavbar = () => {
   const auth = useAppSelector(getAuth);
   const { collapsed } = useSidebar();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [ticketNumber, setTicketNumber] = useState("");
+  const [partnerTicketNumber, setPartnerTicketNumber] = useState("");
   const [openFilter, setOpenFilter] = useState("all");
   const [recentFilter, setRecentFilter] = useState("all");
 
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      console.log("Searching for:", searchQuery, "Open:", openFilter, "Recent:", recentFilter);
+    if (ticketNumber.trim() || partnerTicketNumber.trim()) {
+      console.log("Searching - Ticket Number:", ticketNumber, "Partner Ticket Number:", partnerTicketNumber, "Open:", openFilter, "Recent:", recentFilter);
       // TODO: Implement actual search functionality
     }
   };
@@ -39,15 +40,29 @@ export const TopNavbar = () => {
       {/* Divider */}
       <div className="h-8 w-px bg-white/20"></div>
 
-      {/* Search Input */}
+      {/* Ticket Number Search Input */}
       <div className="flex-1 max-w-xs">
         <input
           type="text"
-          placeholder="Search tickets..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Ticket Number"
+          value={ticketNumber}
+          onChange={(e) => setTicketNumber(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm"
+          disabled={partnerTicketNumber.trim().length > 0}
+          className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+      </div>
+
+      {/* Partner Ticket Number Search Input */}
+      <div className="flex-1 max-w-xs">
+        <input
+          type="text"
+          placeholder="Partner Ticket Number"
+          value={partnerTicketNumber}
+          onChange={(e) => setPartnerTicketNumber(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={ticketNumber.trim().length > 0}
+          className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
 
