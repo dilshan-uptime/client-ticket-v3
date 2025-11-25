@@ -6,7 +6,7 @@ import {
 } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { useEffect, useState } from "react";
-import { Activity, TrendingUp, ClipboardList, AlertTriangle } from "lucide-react";
+import { Activity, TrendingUp, ClipboardList, AlertTriangle, Info } from "lucide-react";
 import PendingTicketCard from "../components/InProgressTicketCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ScoredTicketCard from "../components/ScoredTicketCard";
@@ -121,6 +121,15 @@ const TicketPage = () => {
                   <span className="text-sm font-medium text-[#ee754e]">Active</span>
                 </div>
               </div>
+
+              {inProgressTicketList.length > 0 && (
+                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800 rounded-xl smooth-transition">
+                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    You currently have {inProgressTicketList.length} ticket(s) marked as "In Progress"
+                  </p>
+                </div>
+              )}
 
               {inProgressTicketLoading ? (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
