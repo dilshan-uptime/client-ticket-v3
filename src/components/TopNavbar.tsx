@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getAuth } from "@/app/redux/authSlice";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { Search, Plus, ChevronDown } from "lucide-react";
 
 export const TopNavbar = () => {
   const auth = useAppSelector(getAuth);
+  const { collapsed } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [openFilter, setOpenFilter] = useState("all");
   const [recentFilter, setRecentFilter] = useState("all");
@@ -28,7 +30,7 @@ export const TopNavbar = () => {
   };
 
   return (
-    <div className="fixed top-0 left-64 right-0 h-16 bg-gradient-to-r from-[#ee754e] to-[#f49b71] shadow-lg z-40 flex items-center px-6 gap-3">
+    <div className={`fixed top-0 ${collapsed ? 'left-20' : 'left-64'} right-0 h-16 bg-gradient-to-r from-[#ee754e] to-[#f49b71] shadow-lg z-40 flex items-center px-6 gap-3 smooth-transition`}>
       {/* Welcome Message */}
       <div className="text-white font-semibold text-sm whitespace-nowrap">
         Welcome, {auth?.user?.firstName || 'User'}

@@ -13,8 +13,10 @@ import ScoredTicketCard from "../components/ScoredTicketCard";
 import CompanyToDoCard from "../components/CompanyToDoCard";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 const TicketPage = () => {
+  const { collapsed } = useSidebar();
   const [inProgressTicketLoading, setInProgressTicketLoading] =
     useState<boolean>(true);
   const [inProgressTicketList, setInProgressTicketList] = useState<
@@ -97,7 +99,7 @@ const TicketPage = () => {
       <Sidebar />
       <TopNavbar />
       
-      <main className="flex-1 ml-64 mt-16 bg-background smooth-transition">
+      <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} mt-16 bg-background smooth-transition`}>
         <div className="container mx-auto px-6 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>

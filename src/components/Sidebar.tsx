@@ -4,6 +4,7 @@ import { useMsal } from "@azure/msal-react";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getAuth } from "@/app/redux/authSlice";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { performLogout } from "@/utils/logout-helper";
 
@@ -29,7 +30,7 @@ const menuItems: MenuItem[] = [
 ];
 
 export const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useSidebar();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

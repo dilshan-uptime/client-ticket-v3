@@ -10,6 +10,7 @@ import { AppContainer } from "./app/container/App.container";
 import { BackendAuthProvider, useBackendAuth } from "./contexts/BackendAuthContext";
 import { LandingPage } from "./pages/LandingPage";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { SidebarProvider } from "./contexts/SidebarContext";
 
 import "./App.css";
 
@@ -56,13 +57,15 @@ function AppRoutes() {
 
   return (
     <ThemeProvider>
-      <Toaster richColors position="top-right" />
-      <GlobalModal />
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/login" element={<Navigate to="/home" replace />} />
-        <Route path="*" element={<AppContainer />} />
-      </Routes>
+      <SidebarProvider>
+        <Toaster richColors position="top-right" />
+        <GlobalModal />
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/login" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<AppContainer />} />
+        </Routes>
+      </SidebarProvider>
     </ThemeProvider>
   );
 }
