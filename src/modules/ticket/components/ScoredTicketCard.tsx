@@ -40,13 +40,16 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const getPriorityValue = (priorityValue: string | null) => {
     if (!priorityValue || !metadata?.priority) return "";
     
+    // Convert to string to safely handle any type
+    const valueStr = String(priorityValue);
+    
     // Check if it's already a valid ID (numeric string)
-    const priorityOption = metadata.priority.find(p => String(p.id) === priorityValue);
-    if (priorityOption) return String(priorityValue);
+    const priorityOption = metadata.priority.find(p => String(p.id) === valueStr);
+    if (priorityOption) return valueStr;
     
     // Try to find by name (case-insensitive)
     const matchByName = metadata.priority.find(
-      p => p.name.toLowerCase() === priorityValue.toLowerCase()
+      p => p.name.toLowerCase() === valueStr.toLowerCase()
     );
     return matchByName ? String(matchByName.id) : "";
   };
