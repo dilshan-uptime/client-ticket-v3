@@ -1,5 +1,5 @@
 import { useMsal } from '@azure/msal-react';
-import { LogOut, Bell, Settings, User } from 'lucide-react';
+import { LogOut, Bell, Settings } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 export const Navbar = () => {

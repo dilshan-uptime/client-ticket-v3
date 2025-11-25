@@ -110,7 +110,9 @@ const TicketPage = () => {
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">Scored Tickets</h2>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {_isTriageMode ? "NEXT TRIAGE TICKET" : "NEXT TICKET"}
+                    </h2>
                     <p className="text-sm text-muted-foreground">Completed and evaluated tickets</p>
                   </div>
                 </div>
@@ -135,7 +137,7 @@ const TicketPage = () => {
                     <ClipboardList className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">Company To Do List</h2>
+                    <h2 className="text-2xl font-bold text-foreground">UPCOMING TO-DOS</h2>
                     <p className="text-sm text-muted-foreground">Upcoming tasks and deadlines</p>
                   </div>
                 </div>
@@ -173,7 +175,7 @@ const TicketPage = () => {
                     <Activity className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">In Progress Tickets</h2>
+                    <h2 className="text-2xl font-bold text-foreground">TICKET IN PROGRESS</h2>
                     <p className="text-sm text-muted-foreground">Active tickets requiring attention</p>
                   </div>
                 </div>
