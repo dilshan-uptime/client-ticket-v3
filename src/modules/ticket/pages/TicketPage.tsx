@@ -123,9 +123,9 @@ const TicketPage = () => {
               </div>
 
               {inProgressTicketList.length > 0 && (
-                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800 rounded-xl smooth-transition">
-                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/50 dark:to-cyan-900/50 border border-blue-200 dark:border-blue-700 rounded-xl smooth-transition">
+                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-300 flex-shrink-0" />
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-50">
                     You currently have {inProgressTicketList.length} ticket(s) marked as "In Progress"
                   </p>
                 </div>
@@ -204,9 +204,9 @@ const TicketPage = () => {
               </div>
 
               {_isTriageMode && (
-                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-200 dark:border-amber-800 rounded-xl smooth-transition">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0" />
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/50 dark:to-yellow-900/50 border border-amber-200 dark:border-amber-700 rounded-xl smooth-transition">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-300 flex-shrink-0" />
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-50">
                     Triage Mode: Ticket require triage
                   </p>
                 </div>
