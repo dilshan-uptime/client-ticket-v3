@@ -3,7 +3,7 @@ import { HomePage } from "@/modules/auth/other/pages/HomePage";
 import { TicketDetailsPage } from "@/modules/ticket/pages/TicketDetailsPage";
 
 export const HOME = "/home";
-export const TICKET_DETAILS = "/ticket-details";
+export const TICKET_DETAILS = "/ticket-details/:id";
 
 export const ClientRoutes: AppRouteDto[] = [
   {

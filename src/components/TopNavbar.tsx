@@ -27,13 +27,8 @@ export const TopNavbar = () => {
             });
           } else {
             const ticket = results[0];
-            const url = window.location.origin + "/ticket-details";
-            const newWindow = window.open(url, "_blank");
-            if (newWindow) {
-              setTimeout(() => {
-                newWindow.postMessage({ type: "TICKET_DATA", ticket }, window.location.origin);
-              }, 500);
-            }
+            const url = `/ticket-details/${ticket.id}`;
+            window.open(url, "_blank");
             setTicketNumber("");
           }
         },

@@ -1,29 +1,112 @@
 import { useEffect, useState } from "react";
-import { FileText, ExternalLink } from "lucide-react";
-import type { TicketSearchResult } from "@/services/api/ticket-api";
+import { useParams } from "react-router-dom";
+import { 
+  FileText, 
+  Calendar, 
+  Clock, 
+  User, 
+  AlertCircle,
+  Building2,
+  Tag,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAppSelector } from "@/hooks/store-hooks";
+import { getMetadata } from "@/app/redux/metadataSlice";
+import { getTicketByIdAPI, type TicketDetails } from "@/services/api/ticket-api";
 
 export const TicketDetailsPage = () => {
-  const [ticketData, setTicketData] = useState<TicketSearchResult | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const metadata = useAppSelector(getMetadata);
+  const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "TICKET_DATA") {
-        setTicketData(event.data.ticket);
+    if (id) {
+      const ticketId = parseInt(id, 10);
+      if (!isNaN(ticketId)) {
+        setIsLoading(true);
+        getTicketByIdAPI(ticketId).subscribe({
+          next: (data) => {
+            setTicketData(data);
+            setIsLoading(false);
+          },
+          error: (error) => {
+            console.error("Error fetching ticket:", error);
+            toast.error("Failed to Load Ticket", {
+              description: "Unable to fetch ticket details. Please try again.",
+              icon: <AlertCircle className="h-5 w-5" />,
+            });
+            setIsLoading(false);
+          },
+        });
       }
-    };
+    }
+  }, [id]);
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  const getIssueTypeName = (issueTypeId: number): string => {
+    const issueType = metadata?.issueType?.find((item) => item.id === issueTypeId);
+    return issueType?.name || `ID: ${issueTypeId}`;
+  };
+
+  const getSubIssueTypeName = (subIssueTypeId: number): string => {
+    if (!metadata?.subIssueTypeMap) return `ID: ${subIssueTypeId}`;
+    for (const issueTypeId in metadata.subIssueTypeMap) {
+      const subIssueTypes = metadata.subIssueTypeMap[issueTypeId];
+      const subIssue = subIssueTypes.find((item) => item.id === subIssueTypeId);
+      if (subIssue) return subIssue.name;
+    }
+    return `ID: ${subIssueTypeId}`;
+  };
+
+  const getPriorityName = (priorityId: number): string => {
+    const priority = metadata?.priority?.find((item) => item.id === priorityId);
+    return priority?.name || `ID: ${priorityId}`;
+  };
+
+  const getWorkTypeName = (workTypeId: number): string => {
+    const workType = metadata?.workType?.find((item) => item.id === workTypeId);
+    return workType?.name || `ID: ${workTypeId}`;
+  };
+
+  const getQueueName = (queueId: number): string => {
+    const queue = metadata?.queue?.find((item) => item.id === queueId);
+    return queue?.name || `ID: ${queueId}`;
+  };
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-16 w-16 text-[#ee754e] mx-auto mb-4 animate-spin" />
+          <h2 className="text-2xl font-bold text-foreground mb-2">Loading Ticket...</h2>
+          <p className="text-muted-foreground">Please wait while we fetch the ticket details.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!ticketData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">No Ticket Data</h2>
-          <p className="text-muted-foreground">No ticket information available.</p>
+          <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-foreground mb-2">Ticket Not Found</h2>
+          <p className="text-muted-foreground">The requested ticket could not be loaded.</p>
         </div>
       </div>
     );
@@ -31,59 +114,174 @@ export const TicketDetailsPage = () => {
 
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div className="bg-card rounded-2xl border border-border shadow-lg p-8">
           <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
-                <FileText className="h-6 w-6 text-white" />
+                <FileText className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Ticket Details</h1>
-                <p className="text-sm text-muted-foreground mt-1">Detailed information about the ticket</p>
+                <h1 className="text-3xl font-bold text-foreground">{ticketData.ticket_number}</h1>
+                <p className="text-sm text-muted-foreground mt-1">Ticket ID: #{ticketData.id}</p>
               </div>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 border border-[#1fb6a6]/30 rounded-xl">
+              <CheckCircle2 className="h-5 w-5 text-[#1fb6a6]" />
+              <span className="text-sm font-semibold text-[#1fb6a6]">Active</span>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl p-6 border border-[#ee754e]/20">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-2">Ticket Number</label>
-                  <p className="text-lg font-bold text-foreground">{ticketData.name}</p>
+          <div className="bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl p-6 border border-[#ee754e]/20 mb-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Title</h3>
+            <p className="text-lg font-semibold text-foreground">{ticketData.title}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#ee754e]/10">
+                  <Tag className="h-5 w-5 text-[#ee754e]" />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-2">Ticket ID</label>
-                  <p className="text-lg font-bold text-foreground">#{ticketData.id}</p>
-                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Issue Type</h4>
               </div>
+              <p className="text-base font-semibold text-foreground">{getIssueTypeName(ticketData.issue_type)}</p>
             </div>
 
-            <div className="bg-card/50 rounded-xl p-6 border border-border">
-              <label className="text-sm font-medium text-muted-foreground block mb-3">Title</label>
-              <p className="text-lg text-foreground leading-relaxed">{ticketData.title}</p>
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Sub-Issue Type</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getSubIssueTypeName(ticketData.sub_issue_type)}</p>
             </div>
 
-            <div className="flex items-center gap-3 pt-4">
-              <button
-                onClick={() => window.close()}
-                className="px-6 py-3 bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white rounded-lg font-semibold hover:shadow-xl smooth-transition flex items-center gap-2"
-              >
-                Close Tab
-              </button>
-              {ticketData.id && (
-                <a
-                  href={`https://your-ticket-system.com/tickets/${ticketData.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3 bg-white text-[#ee754e] border-2 border-[#ee754e] rounded-lg font-semibold hover:bg-[#ee754e]/5 smooth-transition flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Full Ticket
-                </a>
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <AlertCircle className="h-5 w-5 text-purple-500" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Priority</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getPriorityName(ticketData.priority_id)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#ee754e]/10">
+                  <Tag className="h-5 w-5 text-[#ee754e]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Work Type</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getWorkTypeName(ticketData.work_type_id)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Queue</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{getQueueName(ticketData.queue_id)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <User className="h-5 w-5 text-purple-500" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Worked By</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{ticketData.worked_by}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-card/50 rounded-xl p-5 border border-border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#ee754e]/10">
+                  <Calendar className="h-5 w-5 text-[#ee754e]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Created Date</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.create_date)}</p>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-5 border border-border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                  <Clock className="h-5 w-5 text-[#1fb6a6]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Due Date</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.due_date)}</p>
+            </div>
+          </div>
+
+          {ticketData.company && (
+            <div className="bg-card/50 rounded-xl p-5 border border-border mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Building2 className="h-5 w-5 text-purple-500" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{ticketData.company}</p>
+            </div>
+          )}
+
+          {ticketData.partner_ticket_number && (
+            <div className="bg-card/50 rounded-xl p-5 border border-border mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
+                </div>
+                <h4 className="text-sm font-medium text-muted-foreground">Partner Ticket Number</h4>
+              </div>
+              <p className="text-base font-semibold text-foreground">{ticketData.partner_ticket_number}</p>
+            </div>
+          )}
+
+          <div className="bg-card/50 rounded-xl p-6 border border-border">
+            <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Description
+            </h3>
+            <div className="prose prose-sm max-w-none text-foreground">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed bg-background/50 p-4 rounded-lg border border-border">
+                {ticketData.description}
+              </pre>
+            </div>
+          </div>
+
+          {ticketData.primary_resource && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="bg-card/50 rounded-xl p-5 border border-border">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-[#ee754e]/10">
+                    <User className="h-5 w-5 text-[#ee754e]" />
+                  </div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Primary Resource</h4>
+                </div>
+                <p className="text-base font-semibold text-foreground">{ticketData.primary_resource}</p>
+              </div>
+
+              {ticketData.secondary_resource && ticketData.secondary_resource.length > 0 && (
+                <div className="bg-card/50 rounded-xl p-5 border border-border">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
+                      <User className="h-5 w-5 text-[#1fb6a6]" />
+                    </div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Secondary Resources</h4>
+                  </div>
+                  <p className="text-base font-semibold text-foreground">{ticketData.secondary_resource.join(", ")}</p>
+                </div>
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

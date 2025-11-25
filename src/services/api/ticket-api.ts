@@ -43,6 +43,35 @@ export interface TicketSearchResult {
   title: string;
 }
 
+export interface TicketDetails {
+  id: number;
+  ticket_number: string;
+  title: string;
+  description: string;
+  create_date: string;
+  status_id: number;
+  priority_id: number;
+  queue_id: number;
+  issue_type: number;
+  sub_issue_type: number;
+  source_id: number;
+  due_date: string;
+  sla_id: number;
+  worked_by: string;
+  escalation_reason: string | null;
+  partner_ticket_number: string | null;
+  primary_resource: string | null;
+  secondary_resource: string[];
+  handover_region: string | null;
+  contract_id: number | null;
+  work_type_id: number;
+  company: string | null;
+}
+
 export const searchTicketByNumberAPI = (ticketNumber: string): Observable<TicketSearchResult[]> => {
   return GET(`${ROOT_PATH}/search`, { ticket_number: ticketNumber });
+};
+
+export const getTicketByIdAPI = (ticketId: number): Observable<TicketDetails> => {
+  return GET(`${ROOT_PATH}/${ticketId}`, {});
 };
