@@ -4,7 +4,7 @@ import { ArrowRight, Tag, AlertCircle, Star } from "lucide-react";
 import { acceptTicketAPI, rejectTicketAPI } from "@/services/api/ticket-api";
 import { errorHandler } from "@/services/other/error-handler";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getMetadata } from "@/app/redux/metadataSlice";
 import {
@@ -30,6 +30,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+
+  // Track if user has manually modified triage form
+  const userModifiedRef = useRef(false);
+  const currentTicketIdRef = useRef(item.id);
 
   // Helper to get priority ID from value (could be ID or name)
   const getPriorityValue = (priorityValue: string | null) => {
@@ -67,13 +71,23 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
   const [workType, setWorkType] = useState(item.workTypeId ? String(item.workTypeId) : "");
   const [queue, setQueue] = useState(item.queueId ? String(item.queueId) : "");
 
-  // Sync state when item prop changes
+  // Sync state when item changes or metadata loads (but preserve user edits)
   useEffect(() => {
-    setIssueType(item.issueTypeId ? String(item.issueTypeId) : "");
-    setSubIssueType(getValidatedSubIssueType(item.issueTypeId, item.subIssueTypeId));
-    setPriority(getPriorityValue(item.priority));
-    setWorkType(item.workTypeId ? String(item.workTypeId) : "");
-    setQueue(item.queueId ? String(item.queueId) : "");
+    // Reset modification flag if we're loading a different ticket
+    if (currentTicketIdRef.current !== item.id) {
+      userModifiedRef.current = false;
+      currentTicketIdRef.current = item.id;
+    }
+
+    // Only sync if user hasn't manually modified the form
+    if (!userModifiedRef.current) {
+      setIssueType(item.issueTypeId ? String(item.issueTypeId) : "");
+      setSubIssueType(getValidatedSubIssueType(item.issueTypeId, item.subIssueTypeId));
+      setPriority(getPriorityValue(item.priority));
+      setWorkType(item.workTypeId ? String(item.workTypeId) : "");
+      setQueue(item.queueId ? String(item.queueId) : "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id, item.issueTypeId, item.subIssueTypeId, item.priority, item.workTypeId, item.queueId, metadata]);
 
   const formatDateTime = (dateString?: string) => {
@@ -232,6 +246,7 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <select
                   value={issueType}
                   onChange={(e) => {
+                    userModifiedRef.current = true;
                     setIssueType(e.target.value);
                     // Clear sub-issue type when issue type changes
                     setSubIssueType("");
@@ -251,7 +266,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <label className="text-sm font-semibold text-card-foreground">Sub-Issue Type</label>
                 <select
                   value={subIssueType}
-                  onChange={(e) => setSubIssueType(e.target.value)}
+                  onChange={(e) => {
+                    userModifiedRef.current = true;
+                    setSubIssueType(e.target.value);
+                  }}
                   disabled={!issueType}
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -270,7 +288,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <label className="text-sm font-semibold text-card-foreground">Priority</label>
                 <select
                   value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
+                  onChange={(e) => {
+                    userModifiedRef.current = true;
+                    setPriority(e.target.value);
+                  }}
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Priority</option>
@@ -286,7 +307,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <label className="text-sm font-semibold text-card-foreground">Work Type</label>
                 <select
                   value={workType}
-                  onChange={(e) => setWorkType(e.target.value)}
+                  onChange={(e) => {
+                    userModifiedRef.current = true;
+                    setWorkType(e.target.value);
+                  }}
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Work Type</option>
@@ -302,7 +326,10 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <label className="text-sm font-semibold text-card-foreground">Queue</label>
                 <select
                   value={queue}
-                  onChange={(e) => setQueue(e.target.value)}
+                  onChange={(e) => {
+                    userModifiedRef.current = true;
+                    setQueue(e.target.value);
+                  }}
                   className="px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e] focus:border-transparent smooth-transition"
                 >
                   <option value="">Select Queue</option>
