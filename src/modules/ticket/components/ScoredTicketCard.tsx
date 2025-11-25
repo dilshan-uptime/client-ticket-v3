@@ -231,10 +231,12 @@ const ScoredTicketCard = ({ item }: ScoredTicketCardProp) => {
                 <Tag className="h-3 w-3" />
                 {item.ticketNumber}
               </span>
-              <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white px-3 py-1.5 rounded-full font-bold shadow-md">
-                <Star className="h-3 w-3 fill-white" />
-                {item.score}
-              </span>
+              {!item.isTriage && (
+                <span className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white px-3 py-1.5 rounded-full font-bold shadow-md">
+                  <Star className="h-3 w-3 fill-white" />
+                  {item.score}
+                </span>
+              )}
             </div>
             <span className="text-xs text-muted-foreground font-medium">
               {formatDateTime(item.scoredAt || item.createdAt)}
