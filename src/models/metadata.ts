@@ -9,7 +9,7 @@ export interface SystemMetadata {
   queue: MetadataOption[];
   priority: MetadataOption[];
   workType: MetadataOption[];
-  status?: MetadataOption[];
-  source?: MetadataOption[];
-  sla?: MetadataOption[];
+  status: MetadataOption[];
+  source: MetadataOption[];
+  sla: MetadataOption[];
 }

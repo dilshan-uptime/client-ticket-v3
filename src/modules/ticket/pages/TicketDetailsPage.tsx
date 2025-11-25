@@ -30,6 +30,8 @@ export const TicketDetailsPage = () => {
         setIsLoading(true);
         getTicketByIdAPI(ticketId).subscribe({
           next: (data) => {
+            console.log("[TicketDetails] Ticket data received:", data);
+            console.log("[TicketDetails] Metadata available:", metadata);
             setTicketData(data);
             setIsLoading(false);
           },
@@ -44,19 +46,24 @@ export const TicketDetailsPage = () => {
         });
       }
     }
-  }, [id]);
+  }, [id, metadata]);
 
-  const getStatusName = (statusId: number): string => {
-    const status = metadata?.status?.find((item) => item.id === statusId);
+  const getStatusName = (statusId: number | null | undefined): string => {
+    if (!statusId && statusId !== 0) return "Not Set";
+    if (!metadata?.status) return `ID: ${statusId}`;
+    const status = metadata.status.find((item) => item.id === statusId);
     return status?.name || `ID: ${statusId}`;
   };
 
-  const getIssueTypeName = (issueTypeId: number): string => {
-    const issueType = metadata?.issueType?.find((item) => item.id === issueTypeId);
+  const getIssueTypeName = (issueTypeId: number | null | undefined): string => {
+    if (!issueTypeId && issueTypeId !== 0) return "Not Set";
+    if (!metadata?.issueType) return `ID: ${issueTypeId}`;
+    const issueType = metadata.issueType.find((item) => item.id === issueTypeId);
     return issueType?.name || `ID: ${issueTypeId}`;
   };
 
-  const getSubIssueTypeName = (subIssueTypeId: number): string => {
+  const getSubIssueTypeName = (subIssueTypeId: number | null | undefined): string => {
+    if (!subIssueTypeId && subIssueTypeId !== 0) return "Not Set";
     if (!metadata?.subIssueTypeMap) return `ID: ${subIssueTypeId}`;
     for (const issueTypeId in metadata.subIssueTypeMap) {
       const subIssueTypes = metadata.subIssueTypeMap[issueTypeId];
@@ -66,41 +73,57 @@ export const TicketDetailsPage = () => {
     return `ID: ${subIssueTypeId}`;
   };
 
-  const getPriorityName = (priorityId: number): string => {
-    const priority = metadata?.priority?.find((item) => item.id === priorityId);
+  const getPriorityName = (priorityId: number | null | undefined): string => {
+    if (!priorityId && priorityId !== 0) return "Not Set";
+    if (!metadata?.priority) return `ID: ${priorityId}`;
+    const priority = metadata.priority.find((item) => item.id === priorityId);
     return priority?.name || `ID: ${priorityId}`;
   };
 
-  const getWorkTypeName = (workTypeId: number): string => {
-    const workType = metadata?.workType?.find((item) => item.id === workTypeId);
+  const getWorkTypeName = (workTypeId: number | null | undefined): string => {
+    if (!workTypeId && workTypeId !== 0) return "Not Set";
+    if (!metadata?.workType) return `ID: ${workTypeId}`;
+    const workType = metadata.workType.find((item) => item.id === workTypeId);
     return workType?.name || `ID: ${workTypeId}`;
   };
 
-  const getQueueName = (queueId: number): string => {
-    const queue = metadata?.queue?.find((item) => item.id === queueId);
+  const getQueueName = (queueId: number | null | undefined): string => {
+    if (!queueId && queueId !== 0) return "Not Set";
+    if (!metadata?.queue) return `ID: ${queueId}`;
+    const queue = metadata.queue.find((item) => item.id === queueId);
     return queue?.name || `ID: ${queueId}`;
   };
 
-  const getSourceName = (sourceId: number): string => {
-    const source = metadata?.source?.find((item) => item.id === sourceId);
+  const getSourceName = (sourceId: number | null | undefined): string => {
+    if (!sourceId && sourceId !== 0) return "Not Set";
+    if (!metadata?.source) return `ID: ${sourceId}`;
+    const source = metadata.source.find((item) => item.id === sourceId);
     return source?.name || `ID: ${sourceId}`;
   };
 
-  const getSlaName = (slaId: number): string => {
-    const sla = metadata?.sla?.find((item) => item.id === slaId);
+  const getSlaName = (slaId: number | null | undefined): string => {
+    if (!slaId && slaId !== 0) return "Not Set";
+    if (!metadata?.sla) return `ID: ${slaId}`;
+    const sla = metadata.sla.find((item) => item.id === slaId);
     return sla?.name || `ID: ${slaId}`;
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | null | undefined): string => {
     if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
+    }
   };
 
   if (isLoading) {
