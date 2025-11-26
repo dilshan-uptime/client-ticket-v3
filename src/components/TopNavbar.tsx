@@ -2,10 +2,58 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getAuth } from "@/app/redux/authSlice";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { Search, Plus, AlertCircle, FileSearch } from "lucide-react";
+import { Search, Plus, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { searchTicketByNumberAPI, searchByPartnerTicketNumberAPI, type TicketSearchResult } from "@/services/api/ticket-api";
 import { TicketSelectionDialog } from "./TicketSelectionDialog";
+
+const TicketNotFoundToast = ({ ticketNumber }: { ticketNumber: string }) => (
+  <div className="flex items-start gap-4">
+    <div className="flex-shrink-0">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="22" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="2"/>
+        <path d="M16 20C16 17.7909 17.7909 16 20 16H28C30.2091 16 32 17.7909 32 20V28C32 30.2091 30.2091 32 28 32H20C17.7909 32 16 30.2091 16 28V20Z" fill="#FEE2E2" stroke="#EF4444" strokeWidth="1.5"/>
+        <path d="M20 22L28 22" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M20 26L25 26" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="35" cy="35" r="8" fill="#EF4444"/>
+        <path d="M32.5 35L37.5 35" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+        Ticket Not Found
+      </p>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        Ticket number "<span className="font-medium text-[#ee754e]">{ticketNumber}</span>" is not available in the system.
+      </p>
+    </div>
+  </div>
+);
+
+const PartnerTicketNotFoundToast = ({ partnerTicketNumber }: { partnerTicketNumber: string }) => (
+  <div className="flex items-start gap-4">
+    <div className="flex-shrink-0">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="22" fill="#FFFBEB" stroke="#FCD34D" strokeWidth="2"/>
+        <circle cx="22" cy="22" r="8" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="1.5"/>
+        <path d="M28 28L34 34" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M19 22H25" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M22 19V25" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="36" cy="36" r="6" fill="#F59E0B"/>
+        <path d="M36 33.5V36.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="36" cy="38.5" r="0.75" fill="white"/>
+      </svg>
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+        No Tickets Found
+      </p>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        No tickets found for partner ticket number "<span className="font-medium text-[#ee754e]">{partnerTicketNumber}</span>".
+      </p>
+    </div>
+  </div>
+);
 
 export const TopNavbar = () => {
   const auth = useAppSelector(getAuth);
@@ -32,10 +80,9 @@ export const TopNavbar = () => {
         next: (results) => {
           setIsSearching(false);
           if (results.length === 0) {
-            toast.error("Ticket Not Found", {
-              description: `Ticket number "${ticketNumber}" is not available in the system.`,
-              icon: <AlertCircle className="h-5 w-5" />,
-              duration: 4000,
+            toast.custom(() => <TicketNotFoundToast ticketNumber={ticketNumber} />, {
+              duration: 5000,
+              className: "bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4",
             });
           } else {
             const ticket = results[0];
@@ -61,10 +108,9 @@ export const TopNavbar = () => {
         next: (results) => {
           setIsSearching(false);
           if (results.length === 0) {
-            toast("No Tickets Found", {
-              description: `No tickets found for partner ticket number "${partnerTicketNumber}".`,
-              icon: <FileSearch className="h-5 w-5 text-amber-500" />,
-              duration: 4000,
+            toast.custom(() => <PartnerTicketNotFoundToast partnerTicketNumber={partnerTicketNumber} />, {
+              duration: 5000,
+              className: "bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4",
             });
           } else if (results.length === 1) {
             const ticket = results[0];
