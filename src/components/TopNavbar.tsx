@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getAuth } from "@/app/redux/authSlice";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { Search, Plus, AlertCircle } from "lucide-react";
+import { Search, Plus, AlertCircle, FileSearch } from "lucide-react";
 import { toast } from "sonner";
-import { searchTicketByNumberAPI } from "@/services/api/ticket-api";
+import { searchTicketByNumberAPI, searchByPartnerTicketNumberAPI, type TicketSearchResult } from "@/services/api/ticket-api";
+import { TicketSelectionDialog } from "./TicketSelectionDialog";
 
 export const TopNavbar = () => {
   const auth = useAppSelector(getAuth);
@@ -12,6 +13,17 @@ export const TopNavbar = () => {
   const [ticketNumber, setTicketNumber] = useState("");
   const [partnerTicketNumber, setPartnerTicketNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [showTicketSelectionDialog, setShowTicketSelectionDialog] = useState(false);
+  const [partnerSearchResults, setPartnerSearchResults] = useState<TicketSearchResult[]>([]);
+  const [searchedPartnerTicketNumber, setSearchedPartnerTicketNumber] = useState("");
+
+  const handleSelectTicket = (ticketId: number) => {
+    const url = `/ticket-details/${ticketId}`;
+    window.open(url, "_blank");
+    setShowTicketSelectionDialog(false);
+    setPartnerTicketNumber("");
+    setPartnerSearchResults([]);
+  };
 
   const handleSearch = () => {
     if (ticketNumber.trim()) {
@@ -43,8 +55,37 @@ export const TopNavbar = () => {
         },
       });
     } else if (partnerTicketNumber.trim()) {
-      console.log("Searching Partner Ticket Number:", partnerTicketNumber);
-      // TODO: Implement partner ticket number search
+      setIsSearching(true);
+      setSearchedPartnerTicketNumber(partnerTicketNumber.trim());
+      searchByPartnerTicketNumberAPI(partnerTicketNumber.trim()).subscribe({
+        next: (results) => {
+          setIsSearching(false);
+          if (results.length === 0) {
+            toast("No Tickets Found", {
+              description: `No tickets found for partner ticket number "${partnerTicketNumber}".`,
+              icon: <FileSearch className="h-5 w-5 text-amber-500" />,
+              duration: 4000,
+            });
+          } else if (results.length === 1) {
+            const ticket = results[0];
+            const url = `/ticket-details/${ticket.id}`;
+            window.open(url, "_blank");
+            setPartnerTicketNumber("");
+          } else {
+            setPartnerSearchResults(results);
+            setShowTicketSelectionDialog(true);
+          }
+        },
+        error: (error) => {
+          setIsSearching(false);
+          console.error("Partner ticket search error:", error);
+          toast.error("Search Failed", {
+            description: "An error occurred while searching for the partner ticket. Please try again.",
+            icon: <AlertCircle className="h-5 w-5" />,
+            duration: 4000,
+          });
+        },
+      });
     }
   };
 
@@ -60,64 +101,75 @@ export const TopNavbar = () => {
   };
 
   return (
-    <div className={`fixed top-0 ${collapsed ? 'left-20' : 'left-64'} right-0 h-16 bg-gradient-to-r from-[#ee754e] to-[#f49b71] shadow-lg z-40 flex items-center px-6 gap-3 smooth-transition`}>
-      {/* Welcome Message */}
-      <div className="text-white font-semibold text-sm whitespace-nowrap">
-        Welcome, {auth?.user?.firstName || 'User'}
+    <>
+      <div className={`fixed top-0 ${collapsed ? 'left-20' : 'left-64'} right-0 h-16 bg-gradient-to-r from-[#ee754e] to-[#f49b71] shadow-lg z-40 flex items-center px-6 gap-3 smooth-transition`}>
+        {/* Welcome Message */}
+        <div className="text-white font-semibold text-sm whitespace-nowrap">
+          Welcome, {auth?.user?.firstName || 'User'}
+        </div>
+
+        {/* Divider */}
+        <div className="h-8 w-px bg-white/20"></div>
+
+        {/* Ticket Number Search Input */}
+        <div className="flex-1 max-w-xs">
+          <input
+            type="text"
+            placeholder="Search Ticket Number"
+            value={ticketNumber}
+            onChange={(e) => setTicketNumber(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={partnerTicketNumber.trim().length > 0}
+            className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+        {/* Partner Ticket Number Search Input */}
+        <div className="flex-1 max-w-xs">
+          <input
+            type="text"
+            placeholder="Partner Ticket Number"
+            value={partnerTicketNumber}
+            onChange={(e) => setPartnerTicketNumber(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={ticketNumber.trim().length > 0}
+            className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+        {/* Search Button */}
+        <button
+          onClick={handleSearch}
+          disabled={isSearching}
+          className="px-4 py-2 bg-white text-[#ee754e] rounded-lg font-semibold hover:bg-white/90 smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Search className="h-4 w-4" />
+          {isSearching ? "Searching..." : "Search"}
+        </button>
+
+        {/* New Ticket Button */}
+        <button
+          onClick={handleNewTicket}
+          className="px-4 py-2 bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white rounded-lg font-semibold hover:shadow-xl smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap flex-shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+          New Ticket
+        </button>
+
+        {/* App Identifier */}
+        <div className="text-white font-bold text-sm px-3 py-2 bg-white/10 rounded-lg whitespace-nowrap flex-shrink-0">
+          UPTIME
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="h-8 w-px bg-white/20"></div>
-
-      {/* Ticket Number Search Input */}
-      <div className="flex-1 max-w-xs">
-        <input
-          type="text"
-          placeholder="Search Ticket Number"
-          value={ticketNumber}
-          onChange={(e) => setTicketNumber(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={partnerTicketNumber.trim().length > 0}
-          className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-      </div>
-
-      {/* Partner Ticket Number Search Input */}
-      <div className="flex-1 max-w-xs">
-        <input
-          type="text"
-          placeholder="Partner Ticket Number"
-          value={partnerTicketNumber}
-          onChange={(e) => setPartnerTicketNumber(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={ticketNumber.trim().length > 0}
-          className="w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white smooth-transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-      </div>
-
-      {/* Search Button */}
-      <button
-        onClick={handleSearch}
-        disabled={isSearching}
-        className="px-4 py-2 bg-white text-[#ee754e] rounded-lg font-semibold hover:bg-white/90 smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Search className="h-4 w-4" />
-        {isSearching ? "Searching..." : "Search"}
-      </button>
-
-      {/* New Ticket Button */}
-      <button
-        onClick={handleNewTicket}
-        className="px-4 py-2 bg-gradient-to-r from-[#ee754e] to-[#f49b71] text-white rounded-lg font-semibold hover:shadow-xl smooth-transition flex items-center gap-2 text-sm shadow-md whitespace-nowrap flex-shrink-0"
-      >
-        <Plus className="h-4 w-4" />
-        New Ticket
-      </button>
-
-      {/* App Identifier */}
-      <div className="text-white font-bold text-sm px-3 py-2 bg-white/10 rounded-lg whitespace-nowrap flex-shrink-0">
-        UPTIME
-      </div>
-    </div>
+      {/* Partner Ticket Selection Dialog */}
+      <TicketSelectionDialog
+        open={showTicketSelectionDialog}
+        onOpenChange={setShowTicketSelectionDialog}
+        tickets={partnerSearchResults}
+        partnerTicketNumber={searchedPartnerTicketNumber}
+        onSelectTicket={handleSelectTicket}
+      />
+    </>
   );
 };

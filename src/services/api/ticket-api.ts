@@ -72,6 +72,10 @@ export const searchTicketByNumberAPI = (ticketNumber: string): Observable<Ticket
   return GET(`${ROOT_PATH}/search`, { ticket_number: ticketNumber });
 };
 
+export const searchByPartnerTicketNumberAPI = (partnerTicketNumber: string): Observable<TicketSearchResult[]> => {
+  return GET(`${ROOT_PATH}/search`, { partner_ticket_number: partnerTicketNumber });
+};
+
 export const getTicketByIdAPI = (ticketId: number): Observable<TicketDetails> => {
   return GET(`${ROOT_PATH}/${ticketId}`, {});
 };
