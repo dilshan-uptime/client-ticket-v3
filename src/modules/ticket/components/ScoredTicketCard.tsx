@@ -130,6 +130,9 @@ const ScoredTicketCard = ({ item, onRefresh }: ScoredTicketCardProp) => {
       next: () => {
         toast.success("Ticket approved successfully!");
         setIsApproving(false);
+        if (onRefresh) {
+          onRefresh();
+        }
       },
       error: (e) => {
         errorHandler(e);
@@ -161,6 +164,9 @@ const ScoredTicketCard = ({ item, onRefresh }: ScoredTicketCardProp) => {
         toast.success("Ticket rejected successfully!");
         setIsRejecting(false);
         setRejectReason("");
+        if (onRefresh) {
+          onRefresh();
+        }
       },
       error: (e) => {
         errorHandler(e);

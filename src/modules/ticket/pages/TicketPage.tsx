@@ -181,7 +181,7 @@ const TicketPage = () => {
               ) : companyTodoList.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   {companyTodoList.map((item: CompanyTodoItem) => (
-                    <CompanyToDoCard key={item.id} item={item} />
+                    <CompanyToDoCard key={item.id} item={item} onRefresh={() => fetchCompanyTodoData(false)} />
                   ))}
                 </div>
               ) : (

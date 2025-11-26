@@ -16,9 +16,10 @@ import {
 
 interface CompanyToDoCardProps {
   item: CompanyTodoItem;
+  onRefresh?: () => void;
 }
 
-const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
+const CompanyToDoCard = ({ item, onRefresh }: CompanyToDoCardProps) => {
   const [isApproving, setIsApproving] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const isPastDue = () => {
@@ -59,6 +60,9 @@ const CompanyToDoCard = ({ item }: CompanyToDoCardProps) => {
       next: () => {
         toast.success("To-Do approved successfully!");
         setIsApproving(false);
+        if (onRefresh) {
+          onRefresh();
+        }
       },
       error: (e) => {
         errorHandler(e);
