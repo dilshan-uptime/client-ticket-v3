@@ -129,6 +129,25 @@ export const TicketDetailsPage = () => {
     }
   };
 
+  const getResourceName = (resource: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null | undefined): string => {
+    if (!resource) return "N/A";
+    if (typeof resource === "string") return resource;
+    if (typeof resource === "object" && resource.name) return resource.name;
+    return "N/A";
+  };
+
+  const getSecondaryResourceNames = (resources: (string | { id?: number; autotaskId?: number; name?: string; email?: string })[] | null | undefined): string => {
+    if (!resources || !Array.isArray(resources) || resources.length === 0) return "";
+    return resources
+      .map((resource) => {
+        if (typeof resource === "string") return resource;
+        if (typeof resource === "object" && resource.name) return resource.name;
+        return "";
+      })
+      .filter(Boolean)
+      .join(", ");
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen bg-background smooth-transition">
@@ -252,7 +271,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Worked By</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{ticketData.workedBy}</p>
+              <p className="text-base font-semibold text-foreground">{getResourceName(ticketData.workedBy)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
@@ -353,7 +372,7 @@ export const TicketDetailsPage = () => {
                   </div>
                   <h4 className="text-sm font-medium text-muted-foreground">Primary Resource</h4>
                 </div>
-                <p className="text-base font-semibold text-foreground">{ticketData.primaryResource}</p>
+                <p className="text-base font-semibold text-foreground">{getResourceName(ticketData.primaryResource)}</p>
               </div>
 
               {ticketData.secondaryResource && ticketData.secondaryResource.length > 0 && (
@@ -364,7 +383,7 @@ export const TicketDetailsPage = () => {
                     </div>
                     <h4 className="text-sm font-medium text-muted-foreground">Secondary Resources</h4>
                   </div>
-                  <p className="text-base font-semibold text-foreground">{ticketData.secondaryResource.join(", ")}</p>
+                  <p className="text-base font-semibold text-foreground">{getSecondaryResourceNames(ticketData.secondaryResource)}</p>
                 </div>
               )}
             </div>
