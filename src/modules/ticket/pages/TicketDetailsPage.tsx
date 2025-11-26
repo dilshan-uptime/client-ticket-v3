@@ -16,10 +16,14 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
 import { getTicketByIdAPI, type TicketDetails } from "@/services/api/ticket-api";
+import { Sidebar } from "@/components/Sidebar";
+import { TopNavbar } from "@/components/TopNavbar";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export const TicketDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const metadata = useAppSelector(getMetadata);
+  const { collapsed } = useSidebar();
   const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -127,31 +131,47 @@ export const TicketDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-16 w-16 text-[#ee754e] mx-auto mb-4 animate-spin" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">Loading Ticket...</h2>
-          <p className="text-muted-foreground">Please wait while we fetch the ticket details.</p>
-        </div>
+      <div className="flex min-h-screen bg-background smooth-transition">
+        <Sidebar />
+        <TopNavbar />
+        <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} mt-16 bg-background smooth-transition`}>
+          <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <div className="text-center">
+              <Loader2 className="h-16 w-16 text-[#ee754e] mx-auto mb-4 animate-spin" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">Loading Ticket...</h2>
+              <p className="text-muted-foreground">Please wait while we fetch the ticket details.</p>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (!ticketData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">Ticket Not Found</h2>
-          <p className="text-muted-foreground">The requested ticket could not be loaded.</p>
-        </div>
+      <div className="flex min-h-screen bg-background smooth-transition">
+        <Sidebar />
+        <TopNavbar />
+        <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} mt-16 bg-background smooth-transition`}>
+          <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <div className="text-center">
+              <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">Ticket Not Found</h2>
+              <p className="text-muted-foreground">The requested ticket could not be loaded.</p>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="flex min-h-screen bg-background smooth-transition">
+      <Sidebar />
+      <TopNavbar />
+      <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} mt-16 bg-background smooth-transition`}>
+        <div className="container mx-auto px-6 py-8">
+          <div className="max-w-6xl mx-auto space-y-6">
         <div className="bg-card rounded-2xl border border-border shadow-lg p-8">
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
@@ -350,7 +370,9 @@ export const TicketDetailsPage = () => {
             </div>
           )}
         </div>
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
