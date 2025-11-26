@@ -211,7 +211,7 @@ const TicketPage = () => {
                 <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/50 dark:to-yellow-900/50 border border-amber-200 dark:border-amber-700 rounded-xl smooth-transition">
                   <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-300 flex-shrink-0" />
                   <p className="text-sm font-medium text-amber-900 dark:text-amber-50">
-                    Triage Mode: Ticket require triage
+                    Triage Mode: {scoredTicketList.length} ticket{scoredTicketList.length !== 1 ? 's' : ''} require triage
                   </p>
                 </div>
               )}
