@@ -30,25 +30,7 @@ export const TicketDetailsPage = () => {
         setIsLoading(true);
         getTicketByIdAPI(ticketId).subscribe({
           next: (data) => {
-            console.log("[TicketDetails] === TICKET DATA RECEIVED ===");
-            console.log("[TicketDetails] Ticket ID:", data.id);
-            console.log("[TicketDetails] Status ID:", data.status_id);
-            console.log("[TicketDetails] Priority ID:", data.priority_id);
-            console.log("[TicketDetails] Issue Type:", data.issue_type);
-            console.log("[TicketDetails] Sub Issue Type:", data.sub_issue_type);
-            console.log("[TicketDetails] Queue ID:", data.queue_id);
-            console.log("[TicketDetails] Work Type ID:", data.work_type_id);
-            console.log("[TicketDetails] Source ID:", data.source_id);
-            console.log("[TicketDetails] SLA ID:", data.sla_id);
-            console.log("[TicketDetails] === METADATA AVAILABLE ===");
-            console.log("[TicketDetails] Status array:", metadata?.status);
-            console.log("[TicketDetails] Priority array:", metadata?.priority);
-            console.log("[TicketDetails] IssueType array:", metadata?.issueType);
-            console.log("[TicketDetails] Queue array:", metadata?.queue);
-            console.log("[TicketDetails] WorkType array:", metadata?.workType);
-            console.log("[TicketDetails] Source array:", metadata?.source);
-            console.log("[TicketDetails] SLA array:", metadata?.sla);
-            console.log("[TicketDetails] SubIssueTypeMap:", metadata?.subIssueTypeMap);
+            console.log("[TicketDetails] Ticket data received:", data);
             setTicketData(data);
             setIsLoading(false);
           },
@@ -177,7 +159,7 @@ export const TicketDetailsPage = () => {
                 <FileText className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{ticketData.ticket_number}</h1>
+                <h1 className="text-3xl font-bold text-foreground">{ticketData.ticketNumber}</h1>
                 <p className="text-sm text-muted-foreground mt-1">Ticket ID: #{ticketData.id}</p>
               </div>
             </div>
@@ -200,7 +182,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Issue Type</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getIssueTypeName(ticketData.issue_type)}</p>
+              <p className="text-base font-semibold text-foreground">{getIssueTypeName(ticketData.issueType)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
@@ -210,7 +192,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Sub-Issue Type</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getSubIssueTypeName(ticketData.sub_issue_type)}</p>
+              <p className="text-base font-semibold text-foreground">{getSubIssueTypeName(ticketData.subIssueType)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
@@ -220,7 +202,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Priority</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getPriorityName(ticketData.priority_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getPriorityName(ticketData.priorityId)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
@@ -230,7 +212,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Work Type</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getWorkTypeName(ticketData.work_type_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
@@ -240,7 +222,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Queue</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getQueueName(ticketData.queue_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getQueueName(ticketData.queueId)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
@@ -250,7 +232,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Worked By</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{ticketData.worked_by}</p>
+              <p className="text-base font-semibold text-foreground">{ticketData.workedBy}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
@@ -260,7 +242,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getStatusName(ticketData.status_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getStatusName(ticketData.statusId)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
@@ -270,7 +252,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Source</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getSourceName(ticketData.source_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getSourceName(ticketData.sourceId)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
@@ -280,7 +262,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">SLA</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{getSlaName(ticketData.sla_id)}</p>
+              <p className="text-base font-semibold text-foreground">{getSlaName(ticketData.slaId)}</p>
             </div>
           </div>
 
@@ -292,7 +274,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Created Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.create_date)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDate)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border">
@@ -302,7 +284,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Due Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.due_date)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDate)}</p>
             </div>
           </div>
 
@@ -318,7 +300,7 @@ export const TicketDetailsPage = () => {
             </div>
           )}
 
-          {ticketData.partner_ticket_number && (
+          {ticketData.partnerTicketNumber && (
             <div className="bg-card/50 rounded-xl p-5 border border-border mb-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
@@ -326,7 +308,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Partner Ticket Number</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{ticketData.partner_ticket_number}</p>
+              <p className="text-base font-semibold text-foreground">{ticketData.partnerTicketNumber}</p>
             </div>
           )}
 
@@ -342,7 +324,7 @@ export const TicketDetailsPage = () => {
             </div>
           </div>
 
-          {ticketData.primary_resource && (
+          {ticketData.primaryResource && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div className="bg-card/50 rounded-xl p-5 border border-border">
                 <div className="flex items-center gap-3 mb-3">
@@ -351,10 +333,10 @@ export const TicketDetailsPage = () => {
                   </div>
                   <h4 className="text-sm font-medium text-muted-foreground">Primary Resource</h4>
                 </div>
-                <p className="text-base font-semibold text-foreground">{ticketData.primary_resource}</p>
+                <p className="text-base font-semibold text-foreground">{ticketData.primaryResource}</p>
               </div>
 
-              {ticketData.secondary_resource && ticketData.secondary_resource.length > 0 && (
+              {ticketData.secondaryResource && ticketData.secondaryResource.length > 0 && (
                 <div className="bg-card/50 rounded-xl p-5 border border-border">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
@@ -362,7 +344,7 @@ export const TicketDetailsPage = () => {
                     </div>
                     <h4 className="text-sm font-medium text-muted-foreground">Secondary Resources</h4>
                   </div>
-                  <p className="text-base font-semibold text-foreground">{ticketData.secondary_resource.join(", ")}</p>
+                  <p className="text-base font-semibold text-foreground">{ticketData.secondaryResource.join(", ")}</p>
                 </div>
               )}
             </div>

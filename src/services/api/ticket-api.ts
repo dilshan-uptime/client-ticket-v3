@@ -45,26 +45,26 @@ export interface TicketSearchResult {
 
 export interface TicketDetails {
   id: number;
-  ticket_number: string;
+  ticketNumber: string;
   title: string;
   description: string;
-  create_date: string;
-  status_id: number;
-  priority_id: number;
-  queue_id: number;
-  issue_type: number;
-  sub_issue_type: number;
-  source_id: number;
-  due_date: string;
-  sla_id: number;
-  worked_by: string;
-  escalation_reason: string | null;
-  partner_ticket_number: string | null;
-  primary_resource: string | null;
-  secondary_resource: string[];
-  handover_region: string | null;
-  contract_id: number | null;
-  work_type_id: number;
+  createDate: string;
+  statusId: number;
+  priorityId: number;
+  queueId: number;
+  issueType: number;
+  subIssueType: number;
+  sourceId: number;
+  dueDate: string;
+  slaId: number;
+  workedBy: string;
+  escalationReason: string | null;
+  partnerTicketNumber: string | null;
+  primaryResource: string | null;
+  secondaryResource: string[];
+  handoverRegion: string | null;
+  contractId: number | null;
+  workTypeId: number;
   company: string | null;
 }
 
