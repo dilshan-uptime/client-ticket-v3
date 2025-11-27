@@ -43,6 +43,21 @@ export interface TicketSearchResult {
   title: string;
 }
 
+export interface CompanyInfo {
+  id: number;
+  autotaskId: number;
+  name: string;
+  phoneNumber?: string;
+  parentAutotaskId?: number | null;
+}
+
+export interface ContactInfo {
+  id?: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface TicketDetails {
   id: number;
   ticketNumber: string;
@@ -66,6 +81,9 @@ export interface TicketDetails {
   contractId: number | null;
   workTypeId: number;
   company: string | null;
+  partnerCompany?: CompanyInfo | null;
+  parentCompany?: CompanyInfo | null;
+  contact?: ContactInfo | null;
   firstResponseDateTime?: string | null;
   firstResponseDueDateTime?: string | null;
   resolvedPlanDateTime?: string | null;

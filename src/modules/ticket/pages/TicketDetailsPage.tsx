@@ -2,15 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { 
   FileText, 
-  Calendar, 
-  Clock, 
-  User, 
   AlertCircle,
-  Building2,
-  Tag,
   Loader2,
-  CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Phone,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
@@ -26,6 +24,8 @@ export const TicketDetailsPage = () => {
   const { collapsed } = useSidebar();
   const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTicketInfoExpanded, setIsTicketInfoExpanded] = useState(true);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
 
   useEffect(() => {
     if (id) {
@@ -116,15 +116,30 @@ export const TicketDetailsPage = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "Invalid Date";
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
         year: "numeric",
-        month: "long",
-        day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
       });
     } catch (error) {
       console.error("Error formatting date:", error);
+      return "Invalid Date";
+    }
+  };
+
+  const formatShortDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch (error) {
       return "Invalid Date";
     }
   };
@@ -136,16 +151,35 @@ export const TicketDetailsPage = () => {
     return "N/A";
   };
 
-  const getSecondaryResourceNames = (resources: (string | { id?: number; autotaskId?: number; name?: string; email?: string })[] | null | undefined): string => {
-    if (!resources || !Array.isArray(resources) || resources.length === 0) return "";
-    return resources
-      .map((resource) => {
-        if (typeof resource === "string") return resource;
-        if (typeof resource === "object" && resource.name) return resource.name;
-        return "";
-      })
-      .filter(Boolean)
-      .join(", ");
+  const getStatusBadgeColor = (statusName: string): string => {
+    const lowerStatus = statusName.toLowerCase();
+    if (lowerStatus.includes("progress") || lowerStatus.includes("open")) {
+      return "bg-[#1fb6a6] text-white";
+    }
+    if (lowerStatus.includes("new")) {
+      return "bg-blue-500 text-white";
+    }
+    if (lowerStatus.includes("complete") || lowerStatus.includes("closed")) {
+      return "bg-gray-500 text-white";
+    }
+    if (lowerStatus.includes("hold") || lowerStatus.includes("wait")) {
+      return "bg-amber-500 text-white";
+    }
+    return "bg-[#1fb6a6] text-white";
+  };
+
+  const getPriorityBadgeColor = (priorityName: string): string => {
+    const lowerPriority = priorityName.toLowerCase();
+    if (lowerPriority.includes("critical") || lowerPriority.includes("high")) {
+      return "bg-[#ee754e] text-white";
+    }
+    if (lowerPriority.includes("medium")) {
+      return "bg-amber-500 text-white";
+    }
+    if (lowerPriority.includes("low")) {
+      return "bg-blue-500 text-white";
+    }
+    return "bg-blue-500 text-white";
   };
 
   if (isLoading) {
@@ -184,211 +218,289 @@ export const TicketDetailsPage = () => {
     );
   }
 
+  const statusName = getStatusName(ticketData.statusId);
+  const priorityName = getPriorityName(ticketData.priorityId);
+  const companyName = ticketData.partnerCompany?.name || ticketData.company || "N/A";
+  const contactName = ticketData.contact?.name || "No Contact";
+
   return (
     <div className="flex min-h-screen bg-background smooth-transition">
       <Sidebar />
       <TopNavbar />
       <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} mt-16 bg-background smooth-transition`}>
-        <div className="container mx-auto px-6 py-8">
-          <div className="max-w-6xl mx-auto space-y-6">
-        <div className="bg-card rounded-2xl border border-border shadow-lg p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] shadow-lg">
-                <FileText className="h-8 w-8 text-white" />
-              </div>
+        <div className="h-[calc(100vh-4rem)] overflow-auto">
+          <div className="flex gap-0 min-h-full">
+            
+            {/* LEFT SIDEBAR */}
+            <div className="w-64 flex-shrink-0 bg-card border-r border-border p-4 space-y-4">
+              {/* Company */}
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{ticketData.ticketNumber}</h1>
-                <p className="text-sm text-muted-foreground mt-1">Ticket ID: #{ticketData.id}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1fb6a6]/10 to-[#17a397]/10 border border-[#1fb6a6]/30 rounded-xl">
-              <CheckCircle2 className="h-5 w-5 text-[#1fb6a6]" />
-              <span className="text-sm font-semibold text-[#1fb6a6]">Active</span>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-[#ee754e]/10 to-[#f49b71]/10 rounded-xl p-6 border border-[#ee754e]/20 mb-6">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">Title</h3>
-            <p className="text-lg font-semibold text-foreground">{ticketData.title}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#ee754e]/10">
-                  <Tag className="h-5 w-5 text-[#ee754e]" />
+                <p className="text-xs text-muted-foreground mb-1">Company</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                  <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
                 </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Issue Type</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getIssueTypeName(ticketData.issueType)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Sub-Issue Type</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getSubIssueTypeName(ticketData.subIssueType)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <AlertCircle className="h-5 w-5 text-purple-500" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Priority</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getPriorityName(ticketData.priorityId)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#ee754e]/10">
-                  <Tag className="h-5 w-5 text-[#ee754e]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Work Type</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Queue</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getQueueName(ticketData.queueId)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <User className="h-5 w-5 text-purple-500" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Worked By</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getResourceName(ticketData.workedBy)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#ee754e]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#ee754e]/10">
-                  <CheckCircle2 className="h-5 w-5 text-[#ee754e]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getStatusName(ticketData.statusId)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-[#1fb6a6]/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Source</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getSourceName(ticketData.sourceId)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border hover:border-purple-500/30 smooth-transition">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <Clock className="h-5 w-5 text-purple-500" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">SLA</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{getSlaName(ticketData.slaId)}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-card/50 rounded-xl p-5 border border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#ee754e]/10">
-                  <Calendar className="h-5 w-5 text-[#ee754e]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Created Date</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDateTime)}</p>
-            </div>
-
-            <div className="bg-card/50 rounded-xl p-5 border border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                  <Clock className="h-5 w-5 text-[#1fb6a6]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Due Date</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDateTime)}</p>
-            </div>
-          </div>
-
-          {ticketData.company && (
-            <div className="bg-card/50 rounded-xl p-5 border border-border mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <Building2 className="h-5 w-5 text-purple-500" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Company</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{ticketData.company}</p>
-            </div>
-          )}
-
-          {ticketData.partnerTicketNumber && (
-            <div className="bg-card/50 rounded-xl p-5 border border-border mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                  <Tag className="h-5 w-5 text-[#1fb6a6]" />
-                </div>
-                <h4 className="text-sm font-medium text-muted-foreground">Partner Ticket Number</h4>
-              </div>
-              <p className="text-base font-semibold text-foreground">{ticketData.partnerTicketNumber}</p>
-            </div>
-          )}
-
-          <div className="bg-card/50 rounded-xl p-6 border border-border">
-            <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Description
-            </h3>
-            <div className="prose prose-sm max-w-none text-foreground">
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed bg-background/50 p-4 rounded-lg border border-border">
-                {ticketData.description}
-              </pre>
-            </div>
-          </div>
-
-          {ticketData.primaryResource && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="bg-card/50 rounded-xl p-5 border border-border">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-[#ee754e]/10">
-                    <User className="h-5 w-5 text-[#ee754e]" />
-                  </div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Primary Resource</h4>
-                </div>
-                <p className="text-base font-semibold text-foreground">{getResourceName(ticketData.primaryResource)}</p>
               </div>
 
-              {ticketData.secondaryResource && ticketData.secondaryResource.length > 0 && (
-                <div className="bg-card/50 rounded-xl p-5 border border-border">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 rounded-lg bg-[#1fb6a6]/10">
-                      <User className="h-5 w-5 text-[#1fb6a6]" />
+              {/* Contact */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Contact</p>
+                <p className="text-sm font-medium text-foreground">{contactName}</p>
+              </div>
+
+              {/* Status */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Status</p>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getStatusBadgeColor(statusName)}`}>
+                  {statusName}
+                </span>
+              </div>
+
+              {/* Priority */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Priority</p>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getPriorityBadgeColor(priorityName)}`}>
+                  {priorityName}
+                </span>
+              </div>
+
+              {/* Ticket Information Section */}
+              <div className="border-t border-border pt-4">
+                <button
+                  onClick={() => setIsTicketInfoExpanded(!isTicketInfoExpanded)}
+                  className="flex items-center justify-between w-full text-left mb-3"
+                >
+                  <span className="text-sm font-semibold text-foreground">Ticket Information</span>
+                  {isTicketInfoExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+
+                {isTicketInfoExpanded && (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Issue Type</p>
+                      <p className="text-sm font-medium text-foreground">{getIssueTypeName(ticketData.issueType)}</p>
                     </div>
-                    <h4 className="text-sm font-medium text-muted-foreground">Secondary Resources</h4>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Sub-Issue Type</p>
+                      <p className="text-sm font-medium text-foreground">{getSubIssueTypeName(ticketData.subIssueType)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Worked by</p>
+                      <p className="text-sm font-medium text-foreground">{getResourceName(ticketData.workedBy)}</p>
+                    </div>
+
+                    {ticketData.escalationReason && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Escalation Reason</p>
+                        <p className="text-sm font-medium text-foreground">{ticketData.escalationReason}</p>
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Partner Ticket Number</p>
+                      <p className="text-sm font-medium text-foreground">{ticketData.partnerTicketNumber || "N/A"}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Source</p>
+                      <p className="text-sm font-medium text-foreground">{getSourceName(ticketData.sourceId)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Due Date</p>
+                      <p className="text-sm font-medium text-[#ee754e]">{formatShortDate(ticketData.dueDateTime)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Service Level Agreement</p>
+                      <p className="text-sm font-medium text-foreground">{getSlaName(ticketData.slaId)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Work Type</p>
+                      <p className="text-sm font-medium text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">Queue</p>
+                      <p className="text-sm font-medium text-foreground">{getQueueName(ticketData.queueId)}</p>
+                    </div>
                   </div>
-                  <p className="text-base font-semibold text-foreground">{getSecondaryResourceNames(ticketData.secondaryResource)}</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* MAIN CONTENT AREA */}
+            <div className="flex-1 bg-background p-6 overflow-auto">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-[#ee754e] to-[#f49b71]">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 bg-[#1fb6a6] text-white text-xs font-medium rounded">Standard</span>
+                      <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">Service Request</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-xl font-bold text-foreground">{ticketData.ticketNumber}</h1>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-foreground">{ticketData.title}</h2>
+              </div>
+
+              {/* Created Date */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                <span className="font-medium">Created</span>
+                <span>{formatDate(ticketData.createDateTime)}</span>
+                {ticketData.workedBy && (
+                  <>
+                    <span>-</span>
+                    <span>{getResourceName(ticketData.workedBy)}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </>
+                )}
+              </div>
+
+              {/* Description Section */}
+              <div className="border border-border rounded-lg mb-4">
+                <button
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition"
+                >
+                  {isDescriptionExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium text-foreground">Description</span>
+                </button>
+                {isDescriptionExpanded && (
+                  <div className="px-4 pb-4">
+                    <div className="bg-card/50 rounded-lg p-4 border border-border">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed">
+                        {ticketData.description || "No description available."}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Timeline Section (Placeholder) */}
+              <div className="border border-border rounded-lg mb-4">
+                <button className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition">
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Timeline</span>
+                </button>
+              </div>
+
+              {/* Resolution Section (Placeholder) */}
+              <div className="border border-border rounded-lg mb-6">
+                <button className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition">
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Resolution</span>
+                </button>
+              </div>
+
+              {/* Activity Tabs */}
+              <div className="border border-border rounded-lg">
+                <div className="flex border-b border-border">
+                  <button className="px-4 py-3 text-sm font-medium text-[#ee754e] border-b-2 border-[#ee754e]">
+                    Activity
+                  </button>
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Attachments (0)
+                  </button>
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Charges & Expenses (0)
+                  </button>
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Service Calls & To-Dos (0)
+                  </button>
+                </div>
+                <div className="p-6 text-center text-muted-foreground">
+                  <p className="text-sm">No items to display</p>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT SIDEBAR */}
+            <div className="w-72 flex-shrink-0 bg-card border-l border-border p-4 space-y-6">
+              {/* Company/Contact Section */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-foreground">Company/Contact</h3>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                  </div>
+                  {ticketData.partnerCompany?.phoneNumber && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Phone className="h-3 w-3" />
+                      <span>{ticketData.partnerCompany.phoneNumber}</span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">{contactName}</p>
+                </div>
+              </div>
+
+              {/* Time Summary Section */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-foreground">Time Summary</h3>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Worked</p>
+                    <p className="text-lg font-semibold text-foreground">0</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Estimated</p>
+                    <p className="text-lg font-semibold text-foreground">2h</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2">2h Remaining</p>
+              </div>
+
+              {/* Configuration Item */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-foreground">Configuration Item</h3>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">Nothing to display</p>
+              </div>
+
+              {/* Company Section */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-foreground">Company</h3>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
