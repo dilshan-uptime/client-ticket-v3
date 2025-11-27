@@ -48,24 +48,30 @@ export interface TicketDetails {
   ticketNumber: string;
   title: string;
   description: string;
-  createDate: string;
+  createDateTime: string;
   statusId: number;
   priorityId: number;
   queueId: number;
   issueType: number;
   subIssueType: number;
   sourceId: number;
-  dueDate: string;
+  dueDateTime: string;
   slaId: number;
-  workedBy: string;
+  workedBy: string | { id?: number; autotaskId?: number; name?: string; email?: string };
   escalationReason: string | null;
   partnerTicketNumber: string | null;
-  primaryResource: string | null;
-  secondaryResource: string[];
+  primaryResource: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null;
+  secondaryResource: (string | { id?: number; autotaskId?: number; name?: string; email?: string })[];
   handoverRegion: string | null;
   contractId: number | null;
   workTypeId: number;
   company: string | null;
+  firstResponseDateTime?: string | null;
+  firstResponseDueDateTime?: string | null;
+  resolvedPlanDateTime?: string | null;
+  resolvedPlanDueDateTime?: string | null;
+  resolvedDateTime?: string | null;
+  resolvedDueDateTime?: string | null;
 }
 
 export const searchTicketByNumberAPI = (ticketNumber: string): Observable<TicketSearchResult[]> => {

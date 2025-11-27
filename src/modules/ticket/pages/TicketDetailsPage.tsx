@@ -35,9 +35,6 @@ export const TicketDetailsPage = () => {
         getTicketByIdAPI(ticketId).subscribe({
           next: (data) => {
             console.log("[TicketDetails] Ticket data received:", data);
-            console.log("[TicketDetails] Date fields - createDate:", data.createDate, "| createdAt:", (data as any).createdAt, "| create_date:", (data as any).create_date, "| created_at:", (data as any).created_at);
-            console.log("[TicketDetails] Due date fields - dueDate:", data.dueDate, "| due_date:", (data as any).due_date, "| dueDateTime:", (data as any).dueDateTime);
-            console.log("[TicketDetails] All keys:", Object.keys(data));
             setTicketData(data);
             setIsLoading(false);
           },
@@ -316,7 +313,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Created Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDate || (ticketData as any).createdAt || (ticketData as any).create_date || (ticketData as any).created_at)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDateTime)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border">
@@ -326,7 +323,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Due Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDate || (ticketData as any).dueDateTime || (ticketData as any).due_date || (ticketData as any).due_date_time)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDateTime)}</p>
             </div>
           </div>
 
