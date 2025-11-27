@@ -313,7 +313,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Created Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDate)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.createDate || (ticketData as any).create_date)}</p>
             </div>
 
             <div className="bg-card/50 rounded-xl p-5 border border-border">
@@ -323,7 +323,7 @@ export const TicketDetailsPage = () => {
                 </div>
                 <h4 className="text-sm font-medium text-muted-foreground">Due Date</h4>
               </div>
-              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDate)}</p>
+              <p className="text-base font-semibold text-foreground">{formatDate(ticketData.dueDate || (ticketData as any).due_date)}</p>
             </div>
           </div>
 
