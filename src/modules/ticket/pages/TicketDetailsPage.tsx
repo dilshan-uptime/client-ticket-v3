@@ -26,6 +26,10 @@ export const TicketDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isTicketInfoExpanded, setIsTicketInfoExpanded] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
+  const [isCompanyContactExpanded, setIsCompanyContactExpanded] = useState(true);
+  const [isTimeSummaryExpanded, setIsTimeSummaryExpanded] = useState(true);
+  const [isConfigItemExpanded, setIsConfigItemExpanded] = useState(true);
+  const [isCompanyExpanded, setIsCompanyExpanded] = useState(true);
 
   useEffect(() => {
     if (id) {
@@ -174,7 +178,7 @@ export const TicketDetailsPage = () => {
       return "bg-[#ee754e] text-white";
     }
     if (lowerPriority.includes("medium")) {
-      return "bg-amber-500 text-white";
+      return "bg-[#ee754e] text-white";
     }
     if (lowerPriority.includes("low")) {
       return "bg-blue-500 text-white";
@@ -232,43 +236,49 @@ export const TicketDetailsPage = () => {
           <div className="flex gap-0 min-h-full">
             
             {/* LEFT SIDEBAR */}
-            <div className="w-64 flex-shrink-0 bg-card border-r border-border p-4 space-y-4">
-              {/* Company */}
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Company</p>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
-                  <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+            <div className="w-56 flex-shrink-0 bg-card border-r border-border overflow-y-auto">
+              <div className="p-4 space-y-1">
+                {/* Company */}
+                <div className="py-2">
+                  <p className="text-[11px] text-muted-foreground text-center mb-1">Company</p>
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                  </div>
+                </div>
+
+                {/* Contact */}
+                <div className="py-2">
+                  <p className="text-[11px] text-muted-foreground text-center mb-1">Contact</p>
+                  <p className="text-sm font-medium text-foreground text-center">{contactName}</p>
+                </div>
+
+                {/* Status */}
+                <div className="py-2">
+                  <p className="text-[11px] text-muted-foreground text-center mb-1">Status</p>
+                  <div className="flex justify-center">
+                    <span className={`inline-flex items-center px-3 py-1 rounded text-xs font-semibold ${getStatusBadgeColor(statusName)}`}>
+                      {statusName}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Priority */}
+                <div className="py-2">
+                  <p className="text-[11px] text-muted-foreground text-center mb-1">Priority</p>
+                  <div className="flex justify-center">
+                    <span className={`inline-flex items-center px-3 py-1 rounded text-xs font-semibold ${getPriorityBadgeColor(priorityName)}`}>
+                      {priorityName}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Contact */}
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Contact</p>
-                <p className="text-sm font-medium text-foreground">{contactName}</p>
-              </div>
-
-              {/* Status */}
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Status</p>
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getStatusBadgeColor(statusName)}`}>
-                  {statusName}
-                </span>
-              </div>
-
-              {/* Priority */}
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Priority</p>
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getPriorityBadgeColor(priorityName)}`}>
-                  {priorityName}
-                </span>
-              </div>
-
               {/* Ticket Information Section */}
-              <div className="border-t border-border pt-4">
+              <div className="border-t border-border">
                 <button
                   onClick={() => setIsTicketInfoExpanded(!isTicketInfoExpanded)}
-                  className="flex items-center justify-between w-full text-left mb-3"
+                  className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
                 >
                   <span className="text-sm font-semibold text-foreground">Ticket Information</span>
                   {isTicketInfoExpanded ? (
@@ -279,56 +289,56 @@ export const TicketDetailsPage = () => {
                 </button>
 
                 {isTicketInfoExpanded && (
-                  <div className="space-y-3">
+                  <div className="px-4 pb-4 space-y-3">
                     <div>
-                      <p className="text-xs text-muted-foreground">Issue Type</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Issue Type</p>
                       <p className="text-sm font-medium text-foreground">{getIssueTypeName(ticketData.issueType)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Sub-Issue Type</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Sub-Issue Type</p>
                       <p className="text-sm font-medium text-foreground">{getSubIssueTypeName(ticketData.subIssueType)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Worked by</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Worked by</p>
                       <p className="text-sm font-medium text-foreground">{getResourceName(ticketData.workedBy)}</p>
                     </div>
 
                     {ticketData.escalationReason && (
                       <div>
-                        <p className="text-xs text-muted-foreground">Escalation Reason</p>
+                        <p className="text-[11px] text-muted-foreground mb-0.5">Escalation Reason</p>
                         <p className="text-sm font-medium text-foreground">{ticketData.escalationReason}</p>
                       </div>
                     )}
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Partner Ticket Number</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Partner Ticket Number</p>
                       <p className="text-sm font-medium text-foreground">{ticketData.partnerTicketNumber || "N/A"}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Source</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Source</p>
                       <p className="text-sm font-medium text-foreground">{getSourceName(ticketData.sourceId)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Due Date</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Due Date</p>
                       <p className="text-sm font-medium text-[#ee754e]">{formatShortDate(ticketData.dueDateTime)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Service Level Agreement</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Service Level Agreement</p>
                       <p className="text-sm font-medium text-foreground">{getSlaName(ticketData.slaId)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Work Type</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Work Type</p>
                       <p className="text-sm font-medium text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">Queue</p>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Queue</p>
                       <p className="text-sm font-medium text-foreground">{getQueueName(ticketData.queueId)}</p>
                     </div>
                   </div>
@@ -339,7 +349,7 @@ export const TicketDetailsPage = () => {
             {/* MAIN CONTENT AREA */}
             <div className="flex-1 bg-background p-6 overflow-auto">
               {/* Header */}
-              <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-gradient-to-br from-[#ee754e] to-[#f49b71]">
                     <FileText className="h-6 w-6 text-white" />
@@ -347,7 +357,7 @@ export const TicketDetailsPage = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="px-2 py-0.5 bg-[#1fb6a6] text-white text-xs font-medium rounded">Standard</span>
-                      <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">Service Request</span>
+                      <span className="px-2 py-0.5 bg-[#ee754e] text-white text-xs font-medium rounded">Service Request</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <h1 className="text-xl font-bold text-foreground">{ticketData.ticketNumber}</h1>
@@ -357,28 +367,28 @@ export const TicketDetailsPage = () => {
               </div>
 
               {/* Title */}
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-foreground">{ticketData.title}</h2>
+              <div className="mb-2">
+                <h2 className="text-xl font-semibold text-foreground">[{ticketData.title.replace(/^\[|\]$/g, '')}]</h2>
               </div>
 
               {/* Created Date */}
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                <span className="font-medium">Created</span>
+                <span className="font-medium">Created:</span>
                 <span>{formatDate(ticketData.createDateTime)}</span>
                 {ticketData.workedBy && (
                   <>
                     <span>-</span>
-                    <span>{getResourceName(ticketData.workedBy)}</span>
-                    <ExternalLink className="h-3 w-3" />
+                    <span className="text-[#1fb6a6]">{getResourceName(ticketData.workedBy)}</span>
+                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
                   </>
                 )}
               </div>
 
               {/* Description Section */}
-              <div className="border border-border rounded-lg mb-4">
+              <div className="border border-border rounded-lg mb-4 bg-card">
                 <button
                   onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                  className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition"
+                  className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
                 >
                   {isDescriptionExpanded ? (
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -389,7 +399,7 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isDescriptionExpanded && (
                   <div className="px-4 pb-4">
-                    <div className="bg-card/50 rounded-lg p-4 border border-border">
+                    <div className="bg-background rounded-lg p-4 border border-border">
                       <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed">
                         {ticketData.description || "No description available."}
                       </pre>
@@ -398,107 +408,147 @@ export const TicketDetailsPage = () => {
                 )}
               </div>
 
-              {/* Timeline Section (Placeholder) */}
-              <div className="border border-border rounded-lg mb-4">
-                <button className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition">
+              {/* Timeline Section */}
+              <div className="border border-border rounded-lg mb-4 bg-card">
+                <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition">
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium text-foreground">Timeline</span>
                 </button>
               </div>
 
-              {/* Resolution Section (Placeholder) */}
-              <div className="border border-border rounded-lg mb-6">
-                <button className="flex items-center gap-2 w-full p-4 text-left hover:bg-accent/50 smooth-transition">
+              {/* Resolution Section */}
+              <div className="border border-border rounded-lg mb-6 bg-card">
+                <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition">
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium text-foreground">Resolution</span>
                 </button>
               </div>
 
               {/* Activity Tabs */}
-              <div className="border border-border rounded-lg">
+              <div className="border border-border rounded-lg bg-card">
                 <div className="flex border-b border-border">
-                  <button className="px-4 py-3 text-sm font-medium text-[#ee754e] border-b-2 border-[#ee754e]">
+                  <button className="px-4 py-3 text-sm font-medium text-[#1fb6a6] border-b-2 border-[#1fb6a6]">
                     Activity
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
                     Attachments (0)
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
                     Charges & Expenses (0)
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
                     Service Calls & To-Dos (0)
                   </button>
                 </div>
-                <div className="p-6 text-center text-muted-foreground">
+                <div className="p-8 text-center text-muted-foreground">
                   <p className="text-sm">No items to display</p>
                 </div>
               </div>
             </div>
 
             {/* RIGHT SIDEBAR */}
-            <div className="w-72 flex-shrink-0 bg-card border-l border-border p-4 space-y-6">
+            <div className="w-64 flex-shrink-0 bg-card border-l border-border overflow-y-auto">
               {/* Company/Contact Section */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-foreground">Company/Contact</h3>
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
-                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
-                  </div>
-                  {ticketData.partnerCompany?.phoneNumber && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Phone className="h-3 w-3" />
-                      <span>{ticketData.partnerCompany.phoneNumber}</span>
-                    </div>
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setIsCompanyContactExpanded(!isCompanyContactExpanded)}
+                  className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  <span className="text-sm font-semibold text-foreground">Company/Contact</span>
+                  {isCompanyContactExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
-                  <p className="text-xs text-muted-foreground">{contactName}</p>
-                </div>
+                </button>
+                {isCompanyContactExpanded && (
+                  <div className="px-4 pb-4 space-y-2">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                      <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                    </div>
+                    {ticketData.partnerCompany?.phoneNumber && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Phone className="h-3.5 w-3.5" />
+                        <span>{ticketData.partnerCompany.phoneNumber}</span>
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground">{contactName}</p>
+                  </div>
+                )}
               </div>
 
               {/* Time Summary Section */}
-              <div className="border-t border-border pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-foreground">Time Summary</h3>
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Worked</p>
-                    <p className="text-lg font-semibold text-foreground">0</p>
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setIsTimeSummaryExpanded(!isTimeSummaryExpanded)}
+                  className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  <span className="text-sm font-semibold text-foreground">Time Summary</span>
+                  {isTimeSummaryExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                {isTimeSummaryExpanded && (
+                  <div className="px-4 pb-4">
+                    <div className="grid grid-cols-2 gap-4 text-center mb-2">
+                      <div>
+                        <p className="text-[11px] text-muted-foreground">Worked</p>
+                        <p className="text-xl font-bold text-foreground">0</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] text-muted-foreground">Estimated</p>
+                        <p className="text-xl font-bold text-foreground">2h</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">2h Remaining</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Estimated</p>
-                    <p className="text-lg font-semibold text-foreground">2h</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground text-center mt-2">2h Remaining</p>
+                )}
               </div>
 
               {/* Configuration Item */}
-              <div className="border-t border-border pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-foreground">Configuration Item</h3>
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-sm text-muted-foreground">Nothing to display</p>
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setIsConfigItemExpanded(!isConfigItemExpanded)}
+                  className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  <span className="text-sm font-semibold text-foreground">Configuration Item</span>
+                  {isConfigItemExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                {isConfigItemExpanded && (
+                  <div className="px-4 pb-4">
+                    <p className="text-sm text-muted-foreground">Nothing to display</p>
+                  </div>
+                )}
               </div>
 
               {/* Company Section */}
-              <div className="border-t border-border pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-foreground">Company</h3>
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
-                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+              <div>
+                <button
+                  onClick={() => setIsCompanyExpanded(!isCompanyExpanded)}
+                  className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  <span className="text-sm font-semibold text-foreground">Company</span>
+                  {isCompanyExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                {isCompanyExpanded && (
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-[#1fb6a6] hover:underline cursor-pointer">{companyName}</span>
+                      <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
