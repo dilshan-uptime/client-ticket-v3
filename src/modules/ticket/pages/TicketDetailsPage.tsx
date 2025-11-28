@@ -8,7 +8,10 @@ import {
   Phone,
   ChevronDown,
   ChevronUp,
-  ExternalLink
+  ExternalLink,
+  Clock,
+  Target,
+  Pin
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
@@ -26,10 +29,20 @@ export const TicketDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isTicketInfoExpanded, setIsTicketInfoExpanded] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
+  const [isTimelineExpanded, setIsTimelineExpanded] = useState(true);
+  const [isResolutionExpanded, setIsResolutionExpanded] = useState(true);
+  const [hoveredMilestone, setHoveredMilestone] = useState<number | null>(null);
   const [isCompanyContactExpanded, setIsCompanyContactExpanded] = useState(true);
   const [isTimeSummaryExpanded, setIsTimeSummaryExpanded] = useState(true);
   const [isConfigItemExpanded, setIsConfigItemExpanded] = useState(true);
   const [isCompanyExpanded, setIsCompanyExpanded] = useState(true);
+
+  const timelineMilestones = [
+    { id: 1, type: 'sla', label: 'Ticket Created', subLabel: 'SLA Start', date: '26/11/2025 08:42', completed: true, position: 0 },
+    { id: 2, type: 'target', label: 'First Response', subLabel: '', date: '26/11/2025 12:42', completed: true, position: 25 },
+    { id: 3, type: 'target', label: 'Resolution Plan', subLabel: 'Resolution', date: '26/11/2025 16:42', completed: true, position: 50 },
+    { id: 4, type: 'target', label: 'Complete', subLabel: '', date: '27/11/2025 08:40', completed: false, position: 75 },
+  ];
 
   useEffect(() => {
     if (id) {
@@ -411,16 +424,112 @@ export const TicketDetailsPage = () => {
 
               {/* Timeline Section */}
               <div className="border border-border rounded-lg mb-4 bg-card">
-                <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition">
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                <button
+                  onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
+                  className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  {isTimelineExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  )}
                   <span className="text-sm font-medium text-foreground">Timeline</span>
                 </button>
+                {isTimelineExpanded && (
+                  <div className="px-6 pb-6 pt-2">
+                    <div className="relative py-8">
+                      {/* Progress Bar Background */}
+                      <div className="absolute left-12 right-12 top-1/2 -translate-y-1/2 h-1 bg-border rounded-full" />
+                      
+                      {/* Progress Bar Filled (teal) */}
+                      <div 
+                        className="absolute left-12 top-1/2 -translate-y-1/2 h-1 bg-[#1fb6a6] rounded-full"
+                        style={{ width: 'calc(75% - 48px)' }}
+                      />
+
+                      {/* Milestone Points */}
+                      <div className="relative flex justify-between items-center px-6">
+                        {timelineMilestones.map((milestone) => (
+                          <div
+                            key={milestone.id}
+                            className="relative flex flex-col items-center"
+                            onMouseEnter={() => setHoveredMilestone(milestone.id)}
+                            onMouseLeave={() => setHoveredMilestone(null)}
+                          >
+                            {/* Tooltip */}
+                            {hoveredMilestone === milestone.id && (
+                              <div className="absolute bottom-full mb-3 z-20">
+                                <div className="bg-[#1a2332] text-white px-4 py-3 rounded-lg shadow-xl min-w-[160px] text-center">
+                                  <div className="flex items-center justify-center gap-2 mb-1">
+                                    {milestone.type === 'sla' ? (
+                                      <Clock className="h-4 w-4 text-white" />
+                                    ) : (
+                                      <Target className="h-4 w-4 text-[#ee754e]" />
+                                    )}
+                                    <span className={`text-sm font-semibold ${milestone.type === 'sla' ? 'text-white' : 'text-[#ee754e]'}`}>
+                                      {milestone.label}
+                                    </span>
+                                  </div>
+                                  {milestone.subLabel && (
+                                    <div className="flex items-center justify-center gap-2 mb-1">
+                                      <Target className="h-4 w-4 text-[#ee754e]" />
+                                      <span className="text-sm font-semibold text-[#ee754e]">{milestone.subLabel}</span>
+                                    </div>
+                                  )}
+                                  <p className="text-xs text-gray-300">{milestone.date}</p>
+                                </div>
+                                {/* Tooltip Arrow */}
+                                <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#1a2332]" />
+                              </div>
+                            )}
+
+                            {/* Milestone Icon */}
+                            <div
+                              className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                                milestone.type === 'sla'
+                                  ? 'bg-[#1fb6a6]/20 border-2 border-[#1fb6a6] hover:bg-[#1fb6a6]/30'
+                                  : milestone.completed
+                                  ? 'bg-white border-2 border-[#1fb6a6] hover:bg-[#1fb6a6]/10'
+                                  : 'bg-white border-2 border-border hover:bg-accent/30'
+                              }`}
+                            >
+                              {milestone.type === 'sla' ? (
+                                <span className="text-[10px] font-bold text-[#1fb6a6]">SLA</span>
+                              ) : (
+                                <Target className={`h-5 w-5 ${milestone.completed ? 'text-[#1fb6a6]' : 'text-muted-foreground'}`} />
+                              )}
+                            </div>
+
+                            {/* Small indicator under target icons */}
+                            {milestone.type === 'target' && !milestone.completed && (
+                              <span className="absolute -bottom-4 text-[10px] text-muted-foreground">(2)</span>
+                            )}
+                          </div>
+                        ))}
+
+                        {/* Pin Icon at the end */}
+                        <div className="relative flex flex-col items-center">
+                          <div className="w-8 h-8 flex items-center justify-center">
+                            <Pin className="h-5 w-5 text-[#1fb6a6] rotate-45" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Resolution Section */}
               <div className="border border-border rounded-lg mb-6 bg-card">
-                <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition">
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                <button
+                  onClick={() => setIsResolutionExpanded(!isResolutionExpanded)}
+                  className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
+                >
+                  {isResolutionExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  )}
                   <span className="text-sm font-medium text-foreground">Resolution</span>
                 </button>
               </div>
