@@ -438,13 +438,16 @@ export const TicketDetailsPage = () => {
                 {isTimelineExpanded && (
                   <div className="px-6 pb-6 pt-2">
                     <div className="relative py-8">
-                      {/* Progress Bar Background */}
-                      <div className="absolute left-12 right-12 top-1/2 -translate-y-1/2 h-1 bg-border rounded-full" />
-                      
-                      {/* Progress Bar Filled (teal) */}
+                      {/* Teal Line (completed portion) */}
                       <div 
-                        className="absolute left-12 top-1/2 -translate-y-1/2 h-1 bg-[#1fb6a6] rounded-full"
-                        style={{ width: 'calc(75% - 48px)' }}
+                        className="absolute left-[52px] top-1/2 -translate-y-1/2 h-[3px] bg-[#1fb6a6] rounded-full"
+                        style={{ width: 'calc(40% - 20px)' }}
+                      />
+                      
+                      {/* Gray Line (pending portion) */}
+                      <div 
+                        className="absolute top-1/2 -translate-y-1/2 h-[3px] bg-gray-300 rounded-full right-[40px]"
+                        style={{ left: 'calc(40% + 32px)', width: 'calc(60% - 72px)' }}
                       />
 
                       {/* Milestone Points */}
