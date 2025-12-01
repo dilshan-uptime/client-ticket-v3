@@ -49,12 +49,89 @@ export const TicketDetailsPage = () => {
   const [showSystemNotes, setShowSystemNotes] = useState(false);
   const [showBillingData, setShowBillingData] = useState(false);
 
-  const timelineMilestones = [
-    { id: 1, type: 'sla', label: 'Ticket Created', subLabel: 'SLA Start', date: '26/11/2025 08:42', completed: true, position: 0 },
-    { id: 2, type: 'target', label: 'First Response', subLabel: '', date: '26/11/2025 12:42', completed: true, position: 25 },
-    { id: 3, type: 'target', label: 'Resolution Plan', subLabel: 'Resolution', date: '26/11/2025 16:42', completed: true, position: 50 },
-    { id: 4, type: 'target', label: 'Complete', subLabel: '', date: '27/11/2025 08:40', completed: false, position: 75 },
-  ];
+  const formatTimelineDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "N/A";
+    }
+  };
+
+  const getTimelineMilestones = () => {
+    if (!ticketData) return [];
+    
+    const milestones = [
+      { 
+        id: 1, 
+        type: 'sla', 
+        label: 'Ticket Created', 
+        subLabel: 'SLA Start', 
+        date: formatTimelineDate(ticketData.createDateTime),
+        targetDate: ticketData.createDateTime,
+        actualDate: ticketData.createDateTime,
+        completed: !!ticketData.createDateTime, 
+        position: 0 
+      },
+      { 
+        id: 2, 
+        type: 'target', 
+        label: 'First Response', 
+        subLabel: ticketData.firstResponseDateTime ? 'Completed' : 'Due', 
+        date: formatTimelineDate(ticketData.firstResponseDateTime || ticketData.firstResponseDueDateTime),
+        targetDate: ticketData.firstResponseDueDateTime,
+        actualDate: ticketData.firstResponseDateTime,
+        completed: !!ticketData.firstResponseDateTime, 
+        position: 33 
+      },
+      { 
+        id: 3, 
+        type: 'target', 
+        label: 'Resolution Plan', 
+        subLabel: ticketData.resolvedPlanDateTime ? 'Completed' : 'Due', 
+        date: formatTimelineDate(ticketData.resolvedPlanDateTime || ticketData.resolvedPlanDueDateTime),
+        targetDate: ticketData.resolvedPlanDueDateTime,
+        actualDate: ticketData.resolvedPlanDateTime,
+        completed: !!ticketData.resolvedPlanDateTime, 
+        position: 66 
+      },
+      { 
+        id: 4, 
+        type: 'target', 
+        label: 'Complete', 
+        subLabel: ticketData.resolvedDateTime ? 'Resolved' : 'Due', 
+        date: formatTimelineDate(ticketData.resolvedDateTime || ticketData.resolvedDueDateTime),
+        targetDate: ticketData.resolvedDueDateTime,
+        actualDate: ticketData.resolvedDateTime,
+        completed: !!ticketData.resolvedDateTime, 
+        position: 100 
+      },
+    ];
+    
+    return milestones;
+  };
+
+  const getTimelineProgress = (): number => {
+    const milestones = getTimelineMilestones();
+    if (milestones.length === 0) return 0;
+    
+    const completedCount = milestones.filter(m => m.completed).length;
+    if (completedCount === 0) return 0;
+    if (completedCount === milestones.length) return 100;
+    
+    const lastCompletedIndex = milestones.reduce((lastIdx, m, idx) => m.completed ? idx : lastIdx, -1);
+    if (lastCompletedIndex === -1) return 0;
+    
+    return milestones[lastCompletedIndex].position;
+  };
 
   useEffect(() => {
     if (id) {
@@ -691,18 +768,18 @@ export const TicketDetailsPage = () => {
                       {/* Teal Line (completed portion) */}
                       <div 
                         className="absolute left-[52px] top-1/2 -translate-y-1/2 h-[3px] bg-[#1fb6a6] rounded-full"
-                        style={{ width: 'calc(40% - 20px)' }}
+                        style={{ width: `calc(${getTimelineProgress()}% - 20px)` }}
                       />
                       
                       {/* Gray Line (pending portion) */}
                       <div 
                         className="absolute top-1/2 -translate-y-1/2 h-[3px] bg-gray-300 rounded-full right-[40px]"
-                        style={{ left: 'calc(40% + 32px)', width: 'calc(60% - 72px)' }}
+                        style={{ left: `calc(${getTimelineProgress()}% + 32px)`, width: `calc(${100 - getTimelineProgress()}% - 72px)` }}
                       />
 
                       {/* Milestone Points */}
                       <div className="relative flex justify-between items-center px-6">
-                        {timelineMilestones.map((milestone) => (
+                        {getTimelineMilestones().map((milestone) => (
                           <div
                             key={milestone.id}
                             className="relative flex flex-col items-center"
@@ -712,7 +789,7 @@ export const TicketDetailsPage = () => {
                             {/* Tooltip */}
                             {hoveredMilestone === milestone.id && (
                               <div className="absolute bottom-full mb-3 z-20">
-                                <div className="bg-[#1a2332] text-white px-4 py-3 rounded-lg shadow-xl min-w-[160px] text-center">
+                                <div className="bg-[#1a2332] text-white px-4 py-3 rounded-lg shadow-xl min-w-[180px] text-center">
                                   <div className="flex items-center justify-center gap-2 mb-1">
                                     {milestone.type === 'sla' ? (
                                       <Clock className="h-4 w-4 text-white" />
@@ -724,12 +801,21 @@ export const TicketDetailsPage = () => {
                                     </span>
                                   </div>
                                   {milestone.subLabel && (
-                                    <div className="flex items-center justify-center gap-2 mb-1">
-                                      <Target className="h-4 w-4 text-[#ee754e]" />
-                                      <span className="text-sm font-semibold text-[#ee754e]">{milestone.subLabel}</span>
-                                    </div>
+                                    <p className="text-xs text-gray-400 mb-1">{milestone.subLabel}</p>
                                   )}
                                   <p className="text-xs text-gray-300">{milestone.date}</p>
+                                  {milestone.targetDate && milestone.actualDate && milestone.type !== 'sla' && (
+                                    <div className="mt-2 pt-2 border-t border-gray-600">
+                                      <p className="text-[10px] text-gray-400">Target: {formatTimelineDate(milestone.targetDate)}</p>
+                                      <p className="text-[10px] text-[#1fb6a6]">Actual: {formatTimelineDate(milestone.actualDate)}</p>
+                                    </div>
+                                  )}
+                                  {milestone.targetDate && !milestone.actualDate && milestone.type !== 'sla' && (
+                                    <div className="mt-2 pt-2 border-t border-gray-600">
+                                      <p className="text-[10px] text-gray-400">Target: {formatTimelineDate(milestone.targetDate)}</p>
+                                      <p className="text-[10px] text-amber-400">Pending</p>
+                                    </div>
+                                  )}
                                 </div>
                                 {/* Tooltip Arrow */}
                                 <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#1a2332]" />
@@ -753,10 +839,10 @@ export const TicketDetailsPage = () => {
                               )}
                             </div>
 
-                            {/* Small indicator under target icons */}
-                            {milestone.type === 'target' && !milestone.completed && (
-                              <span className="absolute -bottom-4 text-[10px] text-muted-foreground">(2)</span>
-                            )}
+                            {/* Label under milestone */}
+                            <span className="absolute -bottom-6 text-[10px] text-muted-foreground whitespace-nowrap">
+                              {milestone.label}
+                            </span>
                           </div>
                         ))}
 
