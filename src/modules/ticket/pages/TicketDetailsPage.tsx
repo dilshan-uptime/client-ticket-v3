@@ -11,7 +11,11 @@ import {
   ExternalLink,
   Clock,
   Target,
-  Pin
+  Pin,
+  Filter,
+  Search,
+  Paperclip,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
@@ -36,6 +40,12 @@ export const TicketDetailsPage = () => {
   const [isTimeSummaryExpanded, setIsTimeSummaryExpanded] = useState(true);
   const [isConfigItemExpanded, setIsConfigItemExpanded] = useState(true);
   const [isCompanyExpanded, setIsCompanyExpanded] = useState(true);
+  const [isAssignmentExpanded, setIsAssignmentExpanded] = useState(true);
+  const [isBillingExpanded, setIsBillingExpanded] = useState(true);
+  const [isUserDefinedExpanded, setIsUserDefinedExpanded] = useState(true);
+  const [activeActivityTab, setActiveActivityTab] = useState<'activity' | 'attachments' | 'charges' | 'serviceCalls'>('activity');
+  const [showSystemNotes, setShowSystemNotes] = useState(false);
+  const [showBillingData, setShowBillingData] = useState(false);
 
   const timelineMilestones = [
     { id: 1, type: 'sla', label: 'Ticket Created', subLabel: 'SLA Start', date: '26/11/2025 08:42', completed: true, position: 0 },
@@ -358,6 +368,186 @@ export const TicketDetailsPage = () => {
                   </div>
                 )}
               </div>
+
+              {/* Assignment Section */}
+              <div className="border-t border-border">
+                <button
+                  onClick={() => setIsAssignmentExpanded(!isAssignmentExpanded)}
+                  className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-accent/40 transition-colors"
+                >
+                  <span className="text-sm font-bold text-foreground">Assignment</span>
+                  {isAssignmentExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+
+                {isAssignmentExpanded && (
+                  <div className="px-5 pb-5 space-y-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Queue</p>
+                      <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-[#1fb6a6] text-white shadow-sm">
+                        {getQueueName(ticketData.queueId)}
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Primary Resource (Role)</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-[10px] font-bold">
+                          {getResourceName(ticketData.primaryResource)?.substring(0, 2).toUpperCase() || 'NA'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">{getResourceName(ticketData.primaryResource)}</span>
+                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                          </div>
+                          <p className="text-xs text-muted-foreground">(Desktop Engineer)</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Secondary Resources (Role)</p>
+                      {ticketData.secondaryResource && ticketData.secondaryResource.length > 0 ? (
+                        ticketData.secondaryResource.map((resource, index) => (
+                          <div key={index} className="flex items-center gap-2 mb-1">
+                            <div className="w-6 h-6 rounded-full bg-purple-400 flex items-center justify-center text-white text-[10px] font-bold">
+                              {getResourceName(resource)?.substring(0, 2).toUpperCase() || 'NA'}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">{getResourceName(resource)}</span>
+                              <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">None assigned</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Configuration Item Section (Left Sidebar) */}
+              <div className="border-t border-border">
+                <button
+                  onClick={() => setIsConfigItemExpanded(!isConfigItemExpanded)}
+                  className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-accent/40 transition-colors"
+                >
+                  <span className="text-sm font-bold text-foreground">Configuration Item</span>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Billing Section */}
+              <div className="border-t border-border">
+                <button
+                  onClick={() => setIsBillingExpanded(!isBillingExpanded)}
+                  className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-accent/40 transition-colors"
+                >
+                  <span className="text-sm font-bold text-foreground">Billing</span>
+                  {isBillingExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+
+                {isBillingExpanded && (
+                  <div className="px-5 pb-5 space-y-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Contract</p>
+                      <p className="text-sm font-semibold text-foreground">{ticketData.contractId || 'N/A'}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Service/Bundle</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Work Type</p>
+                      <p className="text-sm font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">IMAC Approval Received</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Purchase Order Number</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User-Defined Fields Section */}
+              <div className="border-t border-border">
+                <button
+                  onClick={() => setIsUserDefinedExpanded(!isUserDefinedExpanded)}
+                  className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-accent/40 transition-colors"
+                >
+                  <span className="text-sm font-bold text-foreground">User-Defined Fields</span>
+                  {isUserDefinedExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+
+                {isUserDefinedExpanded && (
+                  <div className="px-5 pb-5 space-y-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Out of Hours action</p>
+                      <p className="text-sm font-semibold text-foreground">Reassign</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">SDM Check</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Triaged by ML</p>
+                      <p className="text-sm font-semibold text-foreground">False</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">SyncTicket</p>
+                      <p className="text-sm font-semibold text-foreground">Yes</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">CS Ticket Reviewed?</p>
+                      <p className="text-sm font-semibold text-foreground">No</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">CS Escalation Reminders</p>
+                      <p className="text-sm font-semibold text-foreground">No Follow Up Required</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ticket Escalated</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason Detail</p>
+                      <p className="text-sm font-semibold text-foreground">{ticketData.escalationReason || 'N/A'}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason NOC</p>
+                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* MAIN CONTENT AREA */}
@@ -413,8 +603,8 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isDescriptionExpanded && (
                   <div className="px-4 pb-4">
-                    <div className="bg-background rounded-lg p-4 border border-border">
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed">
+                    <div className="bg-background rounded-lg p-4 border border-border text-left">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed text-left">
                         {ticketData.description || "No description available."}
                       </pre>
                     </div>
@@ -540,22 +730,208 @@ export const TicketDetailsPage = () => {
               {/* Activity Tabs */}
               <div className="border border-border rounded-lg bg-card">
                 <div className="flex border-b border-border">
-                  <button className="px-4 py-3 text-sm font-medium text-[#1fb6a6] border-b-2 border-[#1fb6a6]">
+                  <button 
+                    onClick={() => setActiveActivityTab('activity')}
+                    className={`px-4 py-3 text-sm font-medium ${activeActivityTab === 'activity' ? 'text-[#1fb6a6] border-b-2 border-[#1fb6a6]' : 'text-muted-foreground hover:text-foreground'} smooth-transition`}
+                  >
                     Activity
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
-                    Attachments (0)
+                  <button 
+                    onClick={() => setActiveActivityTab('attachments')}
+                    className={`px-4 py-3 text-sm font-medium ${activeActivityTab === 'attachments' ? 'text-[#1fb6a6] border-b-2 border-[#1fb6a6]' : 'text-muted-foreground hover:text-foreground'} smooth-transition`}
+                  >
+                    Attachments (4)
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
+                  <button 
+                    onClick={() => setActiveActivityTab('charges')}
+                    className={`px-4 py-3 text-sm font-medium ${activeActivityTab === 'charges' ? 'text-[#1fb6a6] border-b-2 border-[#1fb6a6]' : 'text-muted-foreground hover:text-foreground'} smooth-transition`}
+                  >
                     Charges & Expenses (0)
                   </button>
-                  <button className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground smooth-transition">
+                  <button 
+                    onClick={() => setActiveActivityTab('serviceCalls')}
+                    className={`px-4 py-3 text-sm font-medium ${activeActivityTab === 'serviceCalls' ? 'text-[#1fb6a6] border-b-2 border-[#1fb6a6]' : 'text-muted-foreground hover:text-foreground'} smooth-transition`}
+                  >
                     Service Calls & To-Dos (0)
                   </button>
                 </div>
-                <div className="p-8 text-center text-muted-foreground">
-                  <p className="text-sm">No items to display</p>
-                </div>
+
+                {/* Activity Tab Content */}
+                {activeActivityTab === 'activity' && (
+                  <div className="p-4">
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                        <Clock className="h-4 w-4" />
+                        New Time Entry
+                      </button>
+                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                        <FileText className="h-4 w-4" />
+                        New Note
+                      </button>
+                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                        <Paperclip className="h-4 w-4" />
+                        New Attachment
+                      </button>
+                      <button className="p-2 border border-border rounded-md text-muted-foreground hover:bg-accent/30 transition-colors">
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {/* Note Input */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        DS
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="Add a note..." 
+                        className="flex-1 px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30"
+                      />
+                      <button className="px-4 py-2 bg-gray-200 text-gray-500 rounded-md text-sm font-medium cursor-not-allowed">
+                        Minutes
+                      </button>
+                    </div>
+
+                    {/* Checkboxes and Filter */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={showSystemNotes}
+                            onChange={(e) => setShowSystemNotes(e.target.checked)}
+                            className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6]"
+                          />
+                          <span className="text-sm text-foreground">Show System Notes</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={showBillingData}
+                            onChange={(e) => setShowBillingData(e.target.checked)}
+                            className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6]"
+                          />
+                          <span className="text-sm text-foreground">Show Billing Data</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Filter and Search Row */}
+                    <div className="flex items-center justify-between mb-4 border-t border-border pt-4">
+                      <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Filter</span>
+                        <span className="w-5 h-5 rounded-full bg-accent flex items-center justify-center text-xs text-muted-foreground">0</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <input 
+                            type="text" 
+                            placeholder="Search..." 
+                            className="pl-9 pr-3 py-2 border border-border rounded-md text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 w-48"
+                          />
+                        </div>
+                        <select className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30">
+                          <option>Newest First with Escalation</option>
+                          <option>Newest First</option>
+                          <option>Oldest First</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Activity Entries - Sample Data */}
+                    <div className="space-y-4">
+                      {/* Activity Entry 1 */}
+                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          GG
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                            <span className="text-xs text-muted-foreground">→</span>
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                          </div>
+                          <p className="text-sm text-foreground font-medium mb-1">uploaded</p>
+                          <p className="text-xs text-muted-foreground mb-2">uploaded</p>
+                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 09:20 (last action 26/11/2025 17:52)</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
+                            <span className="text-xs text-muted-foreground">...</span>
+                          </div>
+                          <p className="text-xs text-[#1fb6a6] mt-2">4 Replies</p>
+                        </div>
+                      </div>
+
+                      {/* Activity Entry 2 */}
+                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          GG
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                            <span className="text-xs text-muted-foreground">→</span>
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                          </div>
+                          <p className="text-sm text-foreground font-medium mb-1">this is reply</p>
+                          <p className="text-xs text-muted-foreground mb-2">this is reply</p>
+                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 15:51</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Activity Entry 3 */}
+                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          GG
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                            <span className="text-xs text-muted-foreground">→</span>
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                          </div>
+                          <p className="text-sm text-foreground font-medium mb-1">sample 2</p>
+                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 16:36</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
+                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Other tab contents */}
+                {activeActivityTab === 'attachments' && (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p className="text-sm">4 attachments available</p>
+                  </div>
+                )}
+                {activeActivityTab === 'charges' && (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p className="text-sm">No charges & expenses to display</p>
+                  </div>
+                )}
+                {activeActivityTab === 'serviceCalls' && (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p className="text-sm">No service calls & to-dos to display</p>
+                  </div>
+                )}
               </div>
             </div>
 
