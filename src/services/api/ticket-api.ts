@@ -103,3 +103,27 @@ export const searchByPartnerTicketNumberAPI = (partnerTicketNumber: string): Obs
 export const getTicketByIdAPI = (ticketId: number): Observable<TicketDetails> => {
   return GET(`${ROOT_PATH}/${ticketId}`, {});
 };
+
+export interface NoteAttachment {
+  id: number;
+  fileName: string;
+  fileSize: number;
+  createdDateTime: string;
+  creator: string | null;
+  imageUrl?: string;
+}
+
+export interface TicketNote {
+  id: number;
+  title: string;
+  description: string;
+  creator: string | null;
+  noteTypeId: number;
+  publishId: number;
+  createDateTime: string;
+  attachments: NoteAttachment[];
+}
+
+export const getTicketNotesAPI = (ticketId: number): Observable<TicketNote[]> => {
+  return GET(`${ROOT_PATH}/${ticketId}/notes`, {});
+};

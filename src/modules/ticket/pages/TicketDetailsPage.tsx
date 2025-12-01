@@ -20,7 +20,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, type TicketDetails } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, type TicketDetails, type TicketNote } from "@/services/api/ticket-api";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -30,7 +30,9 @@ export const TicketDetailsPage = () => {
   const metadata = useAppSelector(getMetadata);
   const { collapsed } = useSidebar();
   const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
+  const [ticketNotes, setTicketNotes] = useState<TicketNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNotesLoading, setIsNotesLoading] = useState(true);
   const [isTicketInfoExpanded, setIsTicketInfoExpanded] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true);
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(true);
@@ -77,6 +79,64 @@ export const TicketDetailsPage = () => {
       }
     }
   }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      const ticketId = parseInt(id, 10);
+      if (!isNaN(ticketId)) {
+        setIsNotesLoading(true);
+        getTicketNotesAPI(ticketId).subscribe({
+          next: (notes) => {
+            console.log("[TicketDetails] Notes received:", notes);
+            setTicketNotes(notes);
+            setIsNotesLoading(false);
+          },
+          error: (error) => {
+            console.error("Error fetching notes:", error);
+            setIsNotesLoading(false);
+          },
+        });
+      }
+    }
+  }, [id]);
+
+  const formatNoteDate = (dateString: string): string => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "Invalid Date";
+    }
+  };
+
+  const getFilteredNotes = (): TicketNote[] => {
+    let notes = ticketNotes;
+    if (!showSystemNotes) {
+      notes = notes.filter(note => note.noteTypeId !== 13);
+    }
+    return notes.sort((a, b) => new Date(b.createDateTime).getTime() - new Date(a.createDateTime).getTime());
+  };
+
+  const getAttachmentCount = (): number => {
+    return ticketNotes.reduce((count, note) => count + note.attachments.length, 0);
+  };
+
+  const getCreatorInitials = (creator: string | null): string => {
+    if (!creator) return "SY";
+    const parts = creator.split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return creator.substring(0, 2).toUpperCase();
+  };
 
   const getStatusName = (statusId: number | null | undefined): string => {
     if (statusId === null || statusId === undefined) return "Not Set";
@@ -740,7 +800,7 @@ export const TicketDetailsPage = () => {
                     onClick={() => setActiveActivityTab('attachments')}
                     className={`px-4 py-3 text-sm font-medium ${activeActivityTab === 'attachments' ? 'text-[#1fb6a6] border-b-2 border-[#1fb6a6]' : 'text-muted-foreground hover:text-foreground'} smooth-transition`}
                   >
-                    Attachments (4)
+                    Attachments ({getAttachmentCount()})
                   </button>
                   <button 
                     onClick={() => setActiveActivityTab('charges')}
@@ -841,85 +901,105 @@ export const TicketDetailsPage = () => {
                       </div>
                     </div>
 
-                    {/* Activity Entries - Sample Data */}
+                    {/* Activity Entries */}
                     <div className="space-y-4">
-                      {/* Activity Entry 1 */}
-                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
-                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                          GG
+                      {isNotesLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 text-[#1fb6a6] animate-spin" />
+                          <span className="ml-2 text-sm text-muted-foreground">Loading notes...</span>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
-                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
-                            <span className="text-xs text-muted-foreground">→</span>
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
-                          </div>
-                          <p className="text-sm text-foreground font-medium mb-1">uploaded</p>
-                          <p className="text-xs text-muted-foreground mb-2">uploaded</p>
-                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 09:20 (last action 26/11/2025 17:52)</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
-                            <span className="text-xs text-muted-foreground">...</span>
-                          </div>
-                          <p className="text-xs text-[#1fb6a6] mt-2">4 Replies</p>
+                      ) : getFilteredNotes().length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <p className="text-sm">No activity to display</p>
                         </div>
-                      </div>
+                      ) : (
+                        getFilteredNotes().map((note) => (
+                          <div key={note.id} className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                            <div className={`w-8 h-8 rounded-full ${note.noteTypeId === 13 ? 'bg-gray-500' : 'bg-purple-500'} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                              {getCreatorInitials(note.creator)}
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="flex items-center gap-2 mb-1">
+                                {note.creator ? (
+                                  <>
+                                    <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">{note.creator}</span>
+                                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                                  </>
+                                ) : (
+                                  <span className="text-sm font-semibold text-muted-foreground">System</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-foreground font-medium mb-1">{note.title}</p>
+                              {note.description !== note.title && (
+                                <p className="text-xs text-muted-foreground mb-2 whitespace-pre-wrap">{note.description}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground mb-2">{formatNoteDate(note.createDateTime)}</p>
+                              
+                              {/* Attachments */}
+                              {note.attachments && note.attachments.length > 0 && (
+                                <div className="mb-2">
+                                  <p className="text-xs text-muted-foreground mb-1">Attachments ({note.attachments.length}):</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {note.attachments.map((attachment) => (
+                                      <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-accent/30 rounded text-xs">
+                                        <Paperclip className="h-3 w-3 text-muted-foreground" />
+                                        <span className="text-foreground">{attachment.fileName}</span>
+                                        <span className="text-muted-foreground">({Math.round(attachment.fileSize / 1024)}KB)</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
 
-                      {/* Activity Entry 2 */}
-                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
-                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                          GG
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
-                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
-                            <span className="text-xs text-muted-foreground">→</span>
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
+                                <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
+                                {note.attachments && note.attachments.length > 0 && (
+                                  <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-foreground font-medium mb-1">this is reply</p>
-                          <p className="text-xs text-muted-foreground mb-2">this is reply</p>
-                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 15:51</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Activity Entry 3 */}
-                      <div className="flex gap-3 p-3 bg-background rounded-lg border border-border">
-                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                          GG
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
-                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
-                            <span className="text-xs text-muted-foreground">→</span>
-                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">Gihan Gunarathne</span>
-                          </div>
-                          <p className="text-sm text-foreground font-medium mb-1">sample 2</p>
-                          <p className="text-xs text-muted-foreground mb-2">26/11/2025 16:36</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
-                            <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
-                          </div>
-                        </div>
-                      </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
 
-                {/* Other tab contents */}
+                {/* Attachments Tab Content */}
                 {activeActivityTab === 'attachments' && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    <p className="text-sm">4 attachments available</p>
+                  <div className="p-4">
+                    {isNotesLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 text-[#1fb6a6] animate-spin" />
+                        <span className="ml-2 text-sm text-muted-foreground">Loading attachments...</span>
+                      </div>
+                    ) : getAttachmentCount() === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No attachments to display</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {ticketNotes.filter(note => note.attachments && note.attachments.length > 0).map((note) => (
+                          note.attachments.map((attachment) => (
+                            <div key={attachment.id} className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
+                              <div className="w-10 h-10 rounded bg-accent/30 flex items-center justify-center flex-shrink-0">
+                                <Paperclip className="h-5 w-5 text-muted-foreground" />
+                              </div>
+                              <div className="flex-1 text-left">
+                                <p className="text-sm font-medium text-foreground">{attachment.fileName}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {Math.round(attachment.fileSize / 1024)}KB • {formatNoteDate(attachment.createdDateTime)}
+                                </p>
+                              </div>
+                              <button className="px-3 py-1.5 text-xs font-medium text-[#1fb6a6] border border-[#1fb6a6] rounded hover:bg-[#1fb6a6]/10 transition-colors">
+                                Download
+                              </button>
+                            </div>
+                          ))
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
                 {activeActivityTab === 'charges' && (
