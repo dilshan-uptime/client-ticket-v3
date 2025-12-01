@@ -15,7 +15,8 @@ import {
   Filter,
   Search,
   Paperclip,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
@@ -385,7 +386,9 @@ export const TicketDetailsPage = () => {
   const statusName = getStatusName(ticketData.statusId);
   const priorityName = getPriorityName(ticketData.priorityId);
   const companyName = ticketData.partnerCompany?.name || ticketData.company || "N/A";
-  const contactName = ticketData.contact?.name || "No Contact";
+  const contactName = ticketData.contact 
+    ? `${ticketData.contact.firstName || ''} ${ticketData.contact.lastName || ''}`.trim() || "No Contact"
+    : "No Contact";
 
   return (
     <div className="flex min-h-screen bg-background smooth-transition">
@@ -1117,18 +1120,73 @@ export const TicketDetailsPage = () => {
                   )}
                 </button>
                 {isCompanyContactExpanded && (
-                  <div className="px-5 pb-5 space-y-3">
+                  <div className="px-5 pb-5 space-y-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer transition-colors">{companyName}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <span>Manager: Autotask Administrator</span>
                       <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
                     </div>
+                    <span className="text-sm text-[#1fb6a6] hover:underline cursor-pointer">Site Configuration</span>
+                    
+                    <div className="pt-2 space-y-1">
+                      <p className="text-sm text-muted-foreground">First Floor, Saxon House</p>
+                      <p className="text-sm text-muted-foreground">Crawley, Suffolk RH10 1 TN</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    
                     {ticketData.partnerCompany?.phoneNumber && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-4 w-4" />
-                        <span className="font-medium">{ticketData.partnerCompany.phoneNumber}</span>
-                      </div>
+                      <p className="text-sm text-muted-foreground">{ticketData.partnerCompany.phoneNumber}</p>
                     )}
-                    <p className="text-sm text-muted-foreground">{contactName}</p>
+                    
+                    <div className="space-y-1 pt-1">
+                      <p className="text-sm">
+                        <span className="text-[#1fb6a6] hover:underline cursor-pointer">All Open Tickets</span>
+                        <span className="text-muted-foreground"> (43 + 2)</span>
+                      </p>
+                      <p className="text-sm">
+                        <span className="text-[#1fb6a6] hover:underline cursor-pointer">Last 30 Days</span>
+                        <span className="text-muted-foreground"> (9 + 0)</span>
+                      </p>
+                    </div>
+                    
+                    <div className="border-t border-border pt-3 mt-3">
+                      {ticketData.contact ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">
+                              {ticketData.contact.firstName} {ticketData.contact.lastName}
+                            </span>
+                            <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                          </div>
+                          {ticketData.contact.phoneNumber && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5" />
+                              <span>{ticketData.contact.phoneNumber}</span>
+                            </div>
+                          )}
+                          {ticketData.contact.mobileNumber && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5" />
+                              <span>{ticketData.contact.mobileNumber}</span>
+                            </div>
+                          )}
+                          {ticketData.contact.email1 && (
+                            <p className="text-sm text-[#1fb6a6] hover:underline cursor-pointer truncate">{ticketData.contact.email1}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center">No Contact</p>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-end pt-2">
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-[#1fb6a6] cursor-pointer" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -1148,17 +1206,26 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isTimeSummaryExpanded && (
                   <div className="px-5 pb-5">
-                    <div className="grid grid-cols-2 gap-4 text-center mb-3">
+                    <div className="grid grid-cols-2 gap-2 text-center mb-3">
                       <div className="py-2">
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Worked</p>
                         <p className="text-2xl font-bold text-foreground">0</p>
                       </div>
-                      <div className="py-2">
+                      <div className="py-2 border-l border-border">
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Estimated</p>
                         <p className="text-2xl font-bold text-foreground">2h</p>
                       </div>
                     </div>
+                    
+                    <div className="w-full h-2 bg-gray-200 rounded-full mb-2">
+                      <div className="h-full bg-[#1fb6a6] rounded-full" style={{ width: '0%' }}></div>
+                    </div>
+                    
                     <p className="text-xs text-muted-foreground text-center font-medium">2h Remaining</p>
+                    
+                    <div className="flex justify-end pt-2">
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-[#1fb6a6] cursor-pointer" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -1178,7 +1245,10 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isConfigItemExpanded && (
                   <div className="px-5 pb-5">
-                    <p className="text-sm text-muted-foreground italic">Nothing to display</p>
+                    <p className="text-sm text-muted-foreground text-center">Nothing to display</p>
+                    <div className="flex justify-end pt-2">
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-[#1fb6a6] cursor-pointer" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -1197,10 +1267,44 @@ export const TicketDetailsPage = () => {
                   )}
                 </button>
                 {isCompanyExpanded && (
-                  <div className="px-5 pb-5">
+                  <div className="px-5 pb-5 space-y-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer transition-colors">{companyName}</span>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">
+                      Number: {ticketData.partnerCompany?.autotaskId || 0}
+                    </p>
+                    
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <span>Manager: Autotask Administrator</span>
                       <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                    </div>
+                    
+                    <span className="text-sm text-[#1fb6a6] hover:underline cursor-pointer block">Site Configuration</span>
+                    
+                    <div className="pt-2 space-y-1">
+                      <p className="text-sm text-muted-foreground">First Floor, Saxon House</p>
+                      <p className="text-sm text-muted-foreground">Crawley, Suffolk RH10 1 TN</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    
+                    {ticketData.partnerCompany?.phoneNumber && (
+                      <p className="text-sm text-muted-foreground">{ticketData.partnerCompany.phoneNumber}</p>
+                    )}
+                    
+                    <div className="space-y-1 pt-1">
+                      <p className="text-sm">
+                        <span className="text-[#1fb6a6] hover:underline cursor-pointer">All Open Tickets</span>
+                        <span className="text-muted-foreground"> (43 + 2)</span>
+                      </p>
+                      <p className="text-sm">
+                        <span className="text-[#1fb6a6] hover:underline cursor-pointer">Last 30 Days</span>
+                        <span className="text-muted-foreground"> (9 + 0)</span>
+                      </p>
                     </div>
                   </div>
                 )}

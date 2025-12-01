@@ -53,9 +53,13 @@ export interface CompanyInfo {
 
 export interface ContactInfo {
   id?: number;
-  name?: string;
-  email?: string;
-  phone?: string;
+  autotaskId?: number;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  mobileNumber?: string;
+  email1?: string;
+  email2?: string;
 }
 
 export interface TicketDetails {
