@@ -1729,7 +1729,9 @@ export const TicketDetailsPage = () => {
                               <div className="flex items-center gap-2 mb-1">
                                 {note.creator ? (
                                   <>
-                                    <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">{note.creator}</span>
+                                    <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">
+                                      {typeof note.creator === 'object' ? note.creator.name : note.creator}
+                                    </span>
                                     <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
                                   </>
                                 ) : (
