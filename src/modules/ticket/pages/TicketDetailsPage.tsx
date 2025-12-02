@@ -596,7 +596,7 @@ export const TicketDetailsPage = () => {
           <div className="flex gap-0 min-h-full">
             
             {/* LEFT SIDEBAR */}
-            <div className="w-[185px] min-w-[185px] flex-shrink-0 bg-card border-r border-border overflow-y-auto">
+            <div className="w-[220px] min-w-[220px] flex-shrink-0 bg-card border-r border-border overflow-y-auto">
               {/* Top Section - Company, Contact, Status, Priority */}
               <div className="p-4 space-y-3">
                 {/* Company */}
