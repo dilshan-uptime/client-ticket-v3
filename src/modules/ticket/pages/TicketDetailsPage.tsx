@@ -95,14 +95,9 @@ export const TicketDetailsPage = () => {
     secondaryResourceIds: [] as number[],
     outOfHoursAction: 'Reassign',
     sdmCheck: '',
-    triagedByMl: 'False',
-    syncTicket: 'Yes',
-    csTicketReviewed: 'No',
-    csEscalationReminders: 'No Follow Up Required',
-    ticketEscalated: '',
-    escalationReasonDetail: '',
-    escalationReasonNoc: '',
-    imacApprovalReceived: '',
+    contract: '',
+    serviceBundle: '',
+    imacApproval: '',
     purchaseOrderNumber: '',
   });
   
@@ -435,14 +430,9 @@ export const TicketDetailsPage = () => {
       secondaryResourceIds: [],
       outOfHoursAction: 'Reassign',
       sdmCheck: '',
-      triagedByMl: 'False',
-      syncTicket: 'Yes',
-      csTicketReviewed: 'No',
-      csEscalationReminders: 'No Follow Up Required',
-      ticketEscalated: '',
-      escalationReasonDetail: '',
-      escalationReasonNoc: '',
-      imacApprovalReceived: '',
+      contract: '',
+      serviceBundle: '',
+      imacApproval: '',
       purchaseOrderNumber: '',
     });
     setIsEditMode(true);
@@ -1070,29 +1060,92 @@ export const TicketDetailsPage = () => {
 
                 {isBillingExpanded && (
                   <div className="px-5 pb-5 space-y-4">
+                    {/* Contract */}
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Contract</p>
-                      <p className="text-sm font-semibold text-foreground">{ticketData.contractId || 'N/A'}</p>
+                      {isEditMode ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={editForm.contract || ''}
+                            onChange={(e) => updateFormField('contract', e.target.value)}
+                            className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                            placeholder="Type to search..."
+                          />
+                          <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">{ticketData.contractId || 'N/A'}</p>
+                      )}
                     </div>
 
+                    {/* Service/Bundle */}
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Service/Bundle</p>
-                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                      {isEditMode ? (
+                        <select
+                          value={editForm.serviceBundle || ''}
+                          onChange={(e) => updateFormField('serviceBundle', e.target.value)}
+                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                        >
+                          <option value="">Choose Contract</option>
+                        </select>
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">N/A</p>
+                      )}
                     </div>
 
+                    {/* Work Type */}
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Work Type</p>
-                      <p className="text-sm font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Work Type{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                      {isEditMode ? (
+                        <div className="flex items-center gap-1">
+                          <div className="flex-1 flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent rounded text-xs text-foreground">
+                              {getWorkTypeName(ticketData.workTypeId) || 'Onsite Support'}
+                              <X className="h-3 w-3 cursor-pointer hover:text-foreground" />
+                            </span>
+                          </div>
+                          <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
+                      )}
                     </div>
 
+                    {/* IMAC Approval Received */}
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">IMAC Approval Received</p>
-                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                      {isEditMode ? (
+                        <select
+                          value={editForm.imacApproval || ''}
+                          onChange={(e) => updateFormField('imacApproval', e.target.value)}
+                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                        >
+                          <option value=""></option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                          <option value="Pending">Pending</option>
+                        </select>
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">N/A</p>
+                      )}
                     </div>
 
+                    {/* Purchase Order Number */}
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Purchase Order Number</p>
-                      <p className="text-sm font-semibold text-foreground">N/A</p>
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={editForm.purchaseOrderNumber || ''}
+                          onChange={(e) => updateFormField('purchaseOrderNumber', e.target.value)}
+                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                          placeholder=""
+                        />
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">N/A</p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1136,136 +1189,16 @@ export const TicketDetailsPage = () => {
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">SDM Check</p>
                       {isEditMode ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <input
                             type="text"
                             value={editForm.sdmCheck}
                             onChange={(e) => updateFormField('sdmCheck', e.target.value)}
                             className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                            placeholder="Enter value..."
+                            placeholder=""
                           />
                           <button className="p-1.5 border border-border rounded hover:bg-accent"><Calendar className="h-3 w-3" /></button>
                         </div>
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">N/A</p>
-                      )}
-                    </div>
-
-                    {/* Triaged by ML */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Triaged by ML</p>
-                      {isEditMode ? (
-                        <select
-                          value={editForm.triagedByMl}
-                          onChange={(e) => updateFormField('triagedByMl', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                        >
-                          <option value="False">False</option>
-                          <option value="True">True</option>
-                        </select>
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">False</p>
-                      )}
-                    </div>
-
-                    {/* SyncTicket */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">SyncTicket</p>
-                      {isEditMode ? (
-                        <select
-                          value={editForm.syncTicket}
-                          onChange={(e) => updateFormField('syncTicket', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                        >
-                          <option value="Yes">Yes</option>
-                          <option value="No">No</option>
-                        </select>
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">Yes</p>
-                      )}
-                    </div>
-
-                    {/* CS Ticket Reviewed? */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">CS Ticket Reviewed?</p>
-                      {isEditMode ? (
-                        <select
-                          value={editForm.csTicketReviewed}
-                          onChange={(e) => updateFormField('csTicketReviewed', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                        >
-                          <option value="No">No</option>
-                          <option value="Yes">Yes</option>
-                        </select>
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">No</p>
-                      )}
-                    </div>
-
-                    {/* CS Escalation Reminders */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">CS Escalation Reminders</p>
-                      {isEditMode ? (
-                        <select
-                          value={editForm.csEscalationReminders}
-                          onChange={(e) => updateFormField('csEscalationReminders', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                        >
-                          <option value="No Follow Up Required">No Follow Up Required</option>
-                          <option value="Follow Up Required">Follow Up Required</option>
-                          <option value="Follow Up Sent">Follow Up Sent</option>
-                        </select>
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">No Follow Up Required</p>
-                      )}
-                    </div>
-
-                    {/* Ticket Escalated */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ticket Escalated</p>
-                      {isEditMode ? (
-                        <input
-                          type="text"
-                          value={editForm.ticketEscalated}
-                          onChange={(e) => updateFormField('ticketEscalated', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                          placeholder="Enter value..."
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">N/A</p>
-                      )}
-                    </div>
-
-                    {/* Escalation Reason Detail */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason Detail</p>
-                      {isEditMode ? (
-                        <textarea
-                          value={editForm.escalationReasonDetail}
-                          onChange={(e) => updateFormField('escalationReasonDetail', e.target.value)}
-                          rows={3}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6] resize-none"
-                          placeholder="Enter details..."
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-foreground">{ticketData.escalationReason || 'N/A'}</p>
-                      )}
-                    </div>
-
-                    {/* Escalation Reason NOC */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason NOC</p>
-                      {isEditMode ? (
-                        <select
-                          value={editForm.escalationReasonNoc}
-                          onChange={(e) => updateFormField('escalationReasonNoc', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Technical Issue">Technical Issue</option>
-                          <option value="Customer Request">Customer Request</option>
-                          <option value="SLA Breach">SLA Breach</option>
-                        </select>
                       ) : (
                         <p className="text-sm font-semibold text-foreground">N/A</p>
                       )}
