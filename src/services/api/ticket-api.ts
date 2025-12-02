@@ -94,6 +94,8 @@ export interface TicketDetails {
   resolvedPlanDueDateTime?: string | null;
   resolvedDateTime?: string | null;
   resolvedDueDateTime?: string | null;
+  resolution?: string | null;
+  estimatedHours?: number | null;
 }
 
 export const searchTicketByNumberAPI = (ticketNumber: string): Observable<TicketSearchResult[]> => {
