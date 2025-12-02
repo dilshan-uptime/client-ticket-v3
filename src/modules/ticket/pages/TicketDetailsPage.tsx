@@ -834,20 +834,18 @@ export const TicketDetailsPage = () => {
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Due Date{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                       {isEditMode ? (
-                        <div className="flex gap-1">
-                          <div className="relative flex-1">
-                            <input
-                              type="date"
-                              value={editForm.dueDate}
-                              onChange={(e) => updateFormField('dueDate', e.target.value)}
-                              className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                            />
-                          </div>
+                        <div className="space-y-1">
+                          <input
+                            type="date"
+                            value={editForm.dueDate}
+                            onChange={(e) => updateFormField('dueDate', e.target.value)}
+                            className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                          />
                           <input
                             type="time"
                             value={editForm.dueTime}
                             onChange={(e) => updateFormField('dueTime', e.target.value)}
-                            className="w-20 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                            className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
                           />
                         </div>
                       ) : (
@@ -1358,14 +1356,6 @@ export const TicketDetailsPage = () => {
                   </div>
                 </div>
                 
-                {/* Timer - shown in edit mode */}
-                {isEditMode && (
-                  <div className="flex items-center gap-2 text-lg font-mono">
-                    <span className="text-foreground">00:04:00</span>
-                    <button className="p-1 rounded hover:bg-accent"><Clock className="h-4 w-4" /></button>
-                    <button className="p-1 rounded-full bg-[#ee754e] text-white"><X className="h-3 w-3" /></button>
-                  </div>
-                )}
               </div>
 
               {/* Title */}
