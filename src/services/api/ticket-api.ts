@@ -77,7 +77,10 @@ export interface TicketDetails {
   dueDateTime: string;
   slaId: number;
   workedBy: string | { id?: number; autotaskId?: number; name?: string; email?: string };
+  workedById: number | null;
   escalationReason: string | null;
+  escalationReasonId: number | null;
+  automaticChaseId: number | null;
   partnerTicketNumber: string | null;
   primaryResource: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null;
   secondaryResource: (string | { id?: number; autotaskId?: number; name?: string; email?: string })[];
@@ -123,7 +126,7 @@ export interface TicketNote {
   id: number;
   title: string;
   description: string;
-  creator: string | null;
+  creator: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null;
   noteTypeId: number;
   publishId: number;
   createDateTime: string;

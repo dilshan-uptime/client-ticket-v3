@@ -12,4 +12,7 @@ export interface SystemMetadata {
   status: MetadataOption[];
   source: MetadataOption[];
   sla: MetadataOption[];
+  automaticChase: MetadataOption[];
+  workedBy: MetadataOption[];
+  escalationReason: MetadataOption[];
 }

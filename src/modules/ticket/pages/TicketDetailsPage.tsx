@@ -86,8 +86,9 @@ export const TicketDetailsPage = () => {
     dueTime: '',
     estimatedHours: '',
     partnerTicketNumber: '',
-    automaticChase: 'No',
-    escalationReason: '',
+    automaticChaseId: 0,
+    workedById: 0,
+    escalationReasonId: 0,
     ticketCategory: 'Standard',
     ticketType: 'Service Request',
     additionalContacts: '',
@@ -331,6 +332,27 @@ export const TicketDetailsPage = () => {
     return sla?.name || `ID: ${slaId}`;
   };
 
+  const getAutomaticChaseName = (automaticChaseId: number | null | undefined): string => {
+    if (automaticChaseId === null || automaticChaseId === undefined) return "Not Set";
+    if (!metadata?.automaticChase || !Array.isArray(metadata.automaticChase)) return `ID: ${automaticChaseId}`;
+    const automaticChase = metadata.automaticChase.find((item) => item.id === automaticChaseId);
+    return automaticChase?.name || `ID: ${automaticChaseId}`;
+  };
+
+  const getWorkedByName = (workedById: number | null | undefined): string => {
+    if (workedById === null || workedById === undefined) return "Not Set";
+    if (!metadata?.workedBy || !Array.isArray(metadata.workedBy)) return `ID: ${workedById}`;
+    const workedBy = metadata.workedBy.find((item) => item.id === workedById);
+    return workedBy?.name || `ID: ${workedById}`;
+  };
+
+  const getEscalationReasonName = (escalationReasonId: number | null | undefined): string => {
+    if (escalationReasonId === null || escalationReasonId === undefined) return "Not Set";
+    if (!metadata?.escalationReason || !Array.isArray(metadata.escalationReason)) return `ID: ${escalationReasonId}`;
+    const escalationReason = metadata.escalationReason.find((item) => item.id === escalationReasonId);
+    return escalationReason?.name || `ID: ${escalationReasonId}`;
+  };
+
   const formatDate = (dateString: string | null | undefined): string => {
     if (!dateString) return "N/A";
     try {
@@ -423,8 +445,9 @@ export const TicketDetailsPage = () => {
       dueTime: dueDateObj ? dueDateObj.toTimeString().slice(0, 5) : '',
       estimatedHours: ticketData.estimatedHours?.toString() || '',
       partnerTicketNumber: ticketData.partnerTicketNumber || '',
-      automaticChase: 'No',
-      escalationReason: ticketData.escalationReason || '',
+      automaticChaseId: ticketData.automaticChaseId || 0,
+      workedById: ticketData.workedById || 0,
+      escalationReasonId: ticketData.escalationReasonId || 0,
       ticketCategory: 'Standard',
       ticketType: 'Service Request',
       additionalContacts: '',
@@ -693,20 +716,24 @@ export const TicketDetailsPage = () => {
 
                 {isTicketInfoExpanded && (
                   <div className="px-5 pb-5 space-y-4">
-                    {/* Automatic chase? - Edit mode only */}
-                    {isEditMode && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Automatic chase?</p>
+                    {/* Automatic chase? */}
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Automatic chase?</p>
+                      {isEditMode ? (
                         <select
-                          value={editForm.automaticChase}
-                          onChange={(e) => updateFormField('automaticChase', e.target.value)}
+                          value={editForm.automaticChaseId}
+                          onChange={(e) => updateFormField('automaticChaseId', parseInt(e.target.value))}
                           className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
                         >
-                          <option value="No">No</option>
-                          <option value="Yes">Yes</option>
+                          <option value={0}>Select Automatic Chase</option>
+                          {metadata?.automaticChase?.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                          ))}
                         </select>
-                      </div>
-                    )}
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">{getAutomaticChaseName(ticketData.automaticChaseId)}</p>
+                      )}
+                    </div>
 
                     {/* Issue Type */}
                     <div>
@@ -752,40 +779,38 @@ export const TicketDetailsPage = () => {
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Worked by</p>
                       {isEditMode ? (
                         <select
-                          value={editForm.workTypeId}
-                          onChange={(e) => updateFormField('workTypeId', parseInt(e.target.value))}
+                          value={editForm.workedById}
+                          onChange={(e) => updateFormField('workedById', parseInt(e.target.value))}
                           className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
                         >
-                          <option value={0}>Select Work Type</option>
-                          {metadata?.workType?.map((workType) => (
-                            <option key={workType.id} value={workType.id}>{workType.name}</option>
+                          <option value={0}>Select Worked By</option>
+                          {metadata?.workedBy?.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
                           ))}
                         </select>
                       ) : (
-                        <p className="text-sm font-semibold text-foreground">{getResourceName(ticketData.workedBy)}</p>
+                        <p className="text-sm font-semibold text-foreground">{getWorkedByName(ticketData.workedById)}</p>
                       )}
                     </div>
 
                     {/* Escalation Reason */}
-                    {(ticketData.escalationReason || isEditMode) && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason</p>
-                        {isEditMode ? (
-                          <select
-                            value={editForm.escalationReason}
-                            onChange={(e) => updateFormField('escalationReason', e.target.value)}
-                            className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                          >
-                            <option value="">Select Escalation Reason</option>
-                            <option value="Account Management requirement">Account Management requirement</option>
-                            <option value="Technical escalation">Technical escalation</option>
-                            <option value="Customer request">Customer request</option>
-                          </select>
-                        ) : (
-                          <p className="text-sm font-semibold text-foreground">{ticketData.escalationReason}</p>
-                        )}
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Escalation Reason</p>
+                      {isEditMode ? (
+                        <select
+                          value={editForm.escalationReasonId}
+                          onChange={(e) => updateFormField('escalationReasonId', parseInt(e.target.value))}
+                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                        >
+                          <option value={0}>Select Escalation Reason</option>
+                          {metadata?.escalationReason?.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <p className="text-sm font-semibold text-foreground">{getEscalationReasonName(ticketData.escalationReasonId)}</p>
+                      )}
+                    </div>
 
                     {/* Partner Ticket Number */}
                     <div>
