@@ -608,19 +608,14 @@ export const TicketDetailsPage = () => {
             {/* LEFT SIDEBAR */}
             <div className="w-[185px] min-w-[185px] flex-shrink-0 bg-card border-r border-border overflow-y-auto">
               {/* Top Section - Company, Contact, Status, Priority */}
-              <div className="p-5 space-y-4">
+              <div className="p-4 space-y-3">
                 {/* Company */}
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
-                    <div className="flex items-center gap-1">
-                      <div className="flex-1 flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
-                        <span className="flex-1 truncate text-foreground">{companyName}</span>
-                        <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" />
-                      </div>
-                      <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
-                      <button className="p-1.5 border border-border rounded hover:bg-accent"><FileText className="h-3 w-3" /></button>
-                      <button className="p-1.5 border border-border rounded hover:bg-accent"><Plus className="h-3 w-3" /></button>
+                    <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
+                      <span className="flex-1 truncate text-foreground text-xs">{companyName}</span>
+                      <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground flex-shrink-0" />
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-1.5">
@@ -632,14 +627,11 @@ export const TicketDetailsPage = () => {
 
                 {/* Contact */}
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Contact</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Contact</p>
                   {isEditMode ? (
-                    <div className="flex items-center gap-1">
-                      <div className="flex-1 flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
-                        <span className="flex-1 truncate text-foreground">{contactName}</span>
-                        <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" />
-                      </div>
-                      <button className="p-1.5 border border-border rounded hover:bg-accent"><Plus className="h-3 w-3" /></button>
+                    <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
+                      <span className="flex-1 truncate text-foreground text-xs">{contactName}</span>
+                      <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground flex-shrink-0" />
                     </div>
                   ) : (
                     <p className="text-sm font-semibold text-foreground text-center">{contactName}</p>
@@ -648,12 +640,12 @@ export const TicketDetailsPage = () => {
 
                 {/* Status */}
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.statusId}
                       onChange={(e) => updateFormField('statusId', parseInt(e.target.value))}
-                      className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                      className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
                     >
                       <option value={0}>Select Status</option>
                       {metadata?.status?.map((status) => (
@@ -671,12 +663,12 @@ export const TicketDetailsPage = () => {
 
                 {/* Priority */}
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.priorityId}
                       onChange={(e) => updateFormField('priorityId', parseInt(e.target.value))}
-                      className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                      className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
                     >
                       <option value={0}>Select Priority</option>
                       {metadata?.priority?.map((priority) => (
