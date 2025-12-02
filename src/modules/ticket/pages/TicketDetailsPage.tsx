@@ -260,13 +260,15 @@ export const TicketDetailsPage = () => {
     return ticketNotes.reduce((count, note) => count + note.attachments.length, 0);
   };
 
-  const getCreatorInitials = (creator: string | null): string => {
+  const getCreatorInitials = (creator: string | { id?: number; name?: string; email?: string } | null): string => {
     if (!creator) return "SY";
-    const parts = creator.split(" ");
+    const creatorName = typeof creator === 'object' ? creator.name : creator;
+    if (!creatorName) return "SY";
+    const parts = creatorName.split(" ");
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
-    return creator.substring(0, 2).toUpperCase();
+    return creatorName.substring(0, 2).toUpperCase();
   };
 
   const getStatusName = (statusId: number | null | undefined): string => {
