@@ -67,6 +67,8 @@ export const TicketDetailsPage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isChecklistExpanded, setIsChecklistExpanded] = useState(true);
+  const [isNewAttachmentModalOpen, setIsNewAttachmentModalOpen] = useState(false);
+  const [newAttachment, setNewAttachment] = useState({ type: 'Attachment (10 MB maximum)', file: null as File | null, name: '' });
   
   const [editForm, setEditForm] = useState({
     title: '',
@@ -1714,7 +1716,10 @@ export const TicketDetailsPage = () => {
                         <FileText className="h-4 w-4" />
                         New Note
                       </button>
-                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                      <button 
+                        onClick={() => setIsNewAttachmentModalOpen(true)}
+                        className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
+                      >
                         <Paperclip className="h-4 w-4" />
                         New Attachment
                       </button>
@@ -1823,16 +1828,28 @@ export const TicketDetailsPage = () => {
                               {/* Attachments */}
                               {note.attachments && note.attachments.length > 0 && (
                                 <div className="mb-2">
-                                  <p className="text-xs text-muted-foreground mb-1">Attachments ({note.attachments.length}):</p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {note.attachments.map((attachment) => (
-                                      <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-accent/30 rounded text-xs">
+                                  {note.attachments.map((attachment) => {
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(attachment.fileName);
+                                    return isImage && attachment.imageUrl ? (
+                                      <div key={attachment.id} className="mb-2">
+                                        <img 
+                                          src={attachment.imageUrl} 
+                                          alt={attachment.fileName}
+                                          className="w-full max-w-[500px] rounded-lg border border-border"
+                                        />
+                                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                          <span>{attachment.fileName}</span>
+                                          <span>Size (KB)</span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-accent/30 rounded text-xs mb-1">
                                         <Paperclip className="h-3 w-3 text-muted-foreground" />
                                         <span className="text-foreground">{attachment.fileName}</span>
                                         <span className="text-muted-foreground">({Math.round(attachment.fileSize / 1024)}KB)</span>
                                       </div>
-                                    ))}
-                                  </div>
+                                    );
+                                  })}
                                 </div>
                               )}
 
@@ -2109,6 +2126,113 @@ export const TicketDetailsPage = () => {
           </div>
         </div>
       </main>
+
+      {/* New Attachment Modal */}
+      {isNewAttachmentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-card rounded-lg shadow-xl w-[500px] max-w-[90vw]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground">New Attachment</h3>
+              <button
+                onClick={() => setIsNewAttachmentModalOpen(false)}
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 space-y-4">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pb-3 border-b border-border">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & Close
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & New
+                </button>
+                <button
+                  onClick={() => setIsNewAttachmentModalOpen(false)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </button>
+              </div>
+
+              {/* Type Field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Type</label>
+                <select
+                  value={newAttachment.type}
+                  onChange={(e) => setNewAttachment({ ...newAttachment, type: e.target.value })}
+                  className="w-full px-3 py-2 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30"
+                >
+                  <option value="Attachment (10 MB maximum)">Attachment (10 MB maximum)</option>
+                  <option value="Document (20 MB maximum)">Document (20 MB maximum)</option>
+                </select>
+              </div>
+
+              {/* File Field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  File <span className="text-[#ee754e]">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setNewAttachment({ ...newAttachment, file, name: file?.name || '' });
+                    }}
+                    className="hidden"
+                    id="attachment-file-input"
+                  />
+                  <label
+                    htmlFor="attachment-file-input"
+                    className="flex items-center gap-2 px-3 py-2 bg-background border border-border rounded text-sm text-muted-foreground cursor-pointer hover:bg-accent transition-colors"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    {newAttachment.file ? newAttachment.file.name : 'No file chosen'}
+                  </label>
+                </div>
+                
+                {/* Image Preview */}
+                {newAttachment.file && /\.(jpg|jpeg|png|gif|webp)$/i.test(newAttachment.file.name) && (
+                  <div className="mt-3 border border-border rounded-lg overflow-hidden">
+                    <img
+                      src={URL.createObjectURL(newAttachment.file)}
+                      alt="Preview"
+                      className="w-full max-h-[300px] object-contain"
+                    />
+                    <div className="flex items-center justify-between px-3 py-2 bg-accent/30 text-xs text-muted-foreground">
+                      <span>File/Folder/URL</span>
+                      <span>Size (KB)</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Name <span className="text-[#ee754e]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAttachment.name}
+                  onChange={(e) => setNewAttachment({ ...newAttachment, name: e.target.value })}
+                  placeholder="Enter attachment name"
+                  className="w-full px-3 py-2 bg-background border border-border rounded text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
