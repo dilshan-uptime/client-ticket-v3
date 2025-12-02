@@ -1126,15 +1126,16 @@ export const TicketDetailsPage = () => {
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Work Type{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                       {isEditMode ? (
-                        <div className="flex items-center gap-1">
-                          <div className="flex-1 flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent rounded text-xs text-foreground">
-                              {getWorkTypeName(ticketData.workTypeId) || 'Onsite Support'}
-                              <X className="h-3 w-3 cursor-pointer hover:text-foreground" />
-                            </span>
-                          </div>
-                          <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
-                        </div>
+                        <select
+                          value={editForm.workTypeId}
+                          onChange={(e) => updateFormField('workTypeId', parseInt(e.target.value))}
+                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                        >
+                          <option value={0}>Select Work Type</option>
+                          {metadata?.workType?.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                          ))}
+                        </select>
                       ) : (
                         <p className="text-sm font-semibold text-foreground">{getWorkTypeName(ticketData.workTypeId)}</p>
                       )}
