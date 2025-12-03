@@ -99,11 +99,9 @@ export interface TicketDetails {
   sourceId: number;
   dueDateTime: string;
   slaId: number;
-  workedBy: string | { id?: number; autotaskId?: number; name?: string; email?: string };
-  workedById: number | null;
+  automaticChase: boolean | null;
+  workedBy: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null;
   escalationReason: string | null;
-  escalationReasonId: number | null;
-  automaticChaseId: number | null;
   partnerTicketNumber: string | null;
   primaryResource: string | { id?: number; autotaskId?: number; name?: string; email?: string } | null;
   secondaryResource: (string | { id?: number; autotaskId?: number; name?: string; email?: string })[];

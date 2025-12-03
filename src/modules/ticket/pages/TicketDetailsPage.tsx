@@ -332,11 +332,9 @@ export const TicketDetailsPage = () => {
     return sla?.name || `ID: ${slaId}`;
   };
 
-  const getAutomaticChaseName = (automaticChaseId: number | null | undefined): string => {
-    if (automaticChaseId === null || automaticChaseId === undefined) return "Not Set";
-    if (!metadata?.automaticChase || !Array.isArray(metadata.automaticChase)) return `ID: ${automaticChaseId}`;
-    const automaticChase = metadata.automaticChase.find((item) => item.id === automaticChaseId);
-    return automaticChase?.name || `ID: ${automaticChaseId}`;
+  const getAutomaticChaseDisplayName = (): string => {
+    if (ticketData?.automaticChase === null || ticketData?.automaticChase === undefined) return "Not Set";
+    return ticketData.automaticChase ? 'Yes' : 'No';
   };
 
   const getWorkedByDisplayName = (): string => {
@@ -347,22 +345,12 @@ export const TicketDetailsPage = () => {
         return ticketData.workedBy.name;
       }
     }
-    if (ticketData?.workedById) {
-      if (!metadata?.workedBy || !Array.isArray(metadata.workedBy)) return `ID: ${ticketData.workedById}`;
-      const workedBy = metadata.workedBy.find((item) => item.id === ticketData.workedById);
-      return workedBy?.name || `ID: ${ticketData.workedById}`;
-    }
     return "Not Set";
   };
 
   const getEscalationReasonDisplayName = (): string => {
     if (ticketData?.escalationReason) {
       return ticketData.escalationReason;
-    }
-    if (ticketData?.escalationReasonId) {
-      if (!metadata?.escalationReason || !Array.isArray(metadata.escalationReason)) return `ID: ${ticketData.escalationReasonId}`;
-      const escalationReason = metadata.escalationReason.find((item) => item.id === ticketData.escalationReasonId);
-      return escalationReason?.name || `ID: ${ticketData.escalationReasonId}`;
     }
     return "Not Set";
   };
@@ -438,10 +426,33 @@ export const TicketDetailsPage = () => {
     return "bg-blue-500 text-white";
   };
 
+  const getAutomaticChaseIdFromBoolean = (automaticChase: boolean | null): number => {
+    if (automaticChase === null || automaticChase === undefined) return 0;
+    if (!metadata?.automaticChase || !Array.isArray(metadata.automaticChase)) return 0;
+    const targetName = automaticChase ? 'Yes' : 'No';
+    const found = metadata.automaticChase.find(item => item.name === targetName);
+    return found?.id || 0;
+  };
+
+  const getWorkedByIdFromName = (workedByName: string): number => {
+    if (!metadata?.workedBy || !workedByName) return 0;
+    const selected = metadata.workedBy.find(item => item.name === workedByName);
+    return selected?.id || 0;
+  };
+
+  const getEscalationReasonIdFromName = (escalationReasonName: string): number => {
+    if (!metadata?.escalationReason || !escalationReasonName) return 0;
+    const selected = metadata.escalationReason.find(item => item.name === escalationReasonName);
+    return selected?.id || 0;
+  };
+
   const enterEditMode = () => {
     if (!ticketData) return;
     
     const dueDateObj = ticketData.dueDateTime ? new Date(ticketData.dueDateTime) : null;
+    const workedByName = typeof ticketData.workedBy === 'string' 
+      ? ticketData.workedBy 
+      : ticketData.workedBy?.name || '';
     
     setEditForm({
       title: ticketData.title || '',
@@ -459,9 +470,9 @@ export const TicketDetailsPage = () => {
       dueTime: dueDateObj ? dueDateObj.toTimeString().slice(0, 5) : '',
       estimatedHours: ticketData.estimatedHours?.toString() || '',
       partnerTicketNumber: ticketData.partnerTicketNumber || '',
-      automaticChaseId: ticketData.automaticChaseId || 0,
-      workedById: ticketData.workedById || 0,
-      escalationReasonId: ticketData.escalationReasonId || 0,
+      automaticChaseId: getAutomaticChaseIdFromBoolean(ticketData.automaticChase),
+      workedById: getWorkedByIdFromName(workedByName),
+      escalationReasonId: getEscalationReasonIdFromName(ticketData.escalationReason || ''),
       ticketCategory: 'Standard',
       ticketType: 'Service Request',
       additionalContacts: '',
@@ -500,18 +511,6 @@ export const TicketDetailsPage = () => {
     return selected?.name || '';
   };
 
-  const getWorkedByIdFromName = (workedByName: string): number => {
-    if (!metadata?.workedBy || !workedByName) return 0;
-    const selected = metadata.workedBy.find(item => item.name === workedByName);
-    return selected?.id || 0;
-  };
-
-  const getEscalationReasonIdFromName = (escalationReasonName: string): number => {
-    if (!metadata?.escalationReason || !escalationReasonName) return 0;
-    const selected = metadata.escalationReason.find(item => item.name === escalationReasonName);
-    return selected?.id || 0;
-  };
-
   const refetchTicketData = () => {
     if (!id) return;
     
@@ -523,6 +522,26 @@ export const TicketDetailsPage = () => {
         const workedByName = typeof response.workedBy === 'string' 
           ? response.workedBy 
           : response.workedBy?.name || '';
+        
+        const getAutomaticChaseIdFromBooleanLocal = (automaticChase: boolean | null): number => {
+          if (automaticChase === null || automaticChase === undefined) return 0;
+          if (!metadata?.automaticChase || !Array.isArray(metadata.automaticChase)) return 0;
+          const targetName = automaticChase ? 'Yes' : 'No';
+          const found = metadata.automaticChase.find(item => item.name === targetName);
+          return found?.id || 0;
+        };
+
+        const getWorkedByIdFromNameLocal = (name: string): number => {
+          if (!metadata?.workedBy || !name) return 0;
+          const selected = metadata.workedBy.find(item => item.name === name);
+          return selected?.id || 0;
+        };
+
+        const getEscalationReasonIdFromNameLocal = (name: string): number => {
+          if (!metadata?.escalationReason || !name) return 0;
+          const selected = metadata.escalationReason.find(item => item.name === name);
+          return selected?.id || 0;
+        };
         
         setEditForm(prev => ({
           ...prev,
@@ -540,9 +559,9 @@ export const TicketDetailsPage = () => {
           dueTime: dueDateObj ? dueDateObj.toTimeString().slice(0, 5) : '',
           estimatedHours: response.estimatedHours?.toString() || '',
           partnerTicketNumber: response.partnerTicketNumber || '',
-          automaticChaseId: response.automaticChaseId || 0,
-          workedById: getWorkedByIdFromName(workedByName),
-          escalationReasonId: getEscalationReasonIdFromName(response.escalationReason || ''),
+          automaticChaseId: getAutomaticChaseIdFromBooleanLocal(response.automaticChase),
+          workedById: getWorkedByIdFromNameLocal(workedByName),
+          escalationReasonId: getEscalationReasonIdFromNameLocal(response.escalationReason || ''),
         }));
       },
       error: (error) => {
@@ -861,7 +880,7 @@ export const TicketDetailsPage = () => {
                           ))}
                         </select>
                       ) : (
-                        <p className="text-sm font-semibold text-foreground">{getAutomaticChaseName(ticketData.automaticChaseId)}</p>
+                        <p className="text-sm font-semibold text-foreground">{getAutomaticChaseDisplayName()}</p>
                       )}
                     </div>
 
