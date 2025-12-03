@@ -2087,7 +2087,7 @@ export const TicketDetailsPage = () => {
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center">No Contact</p>
+                        <p className="text-sm text-muted-foreground">No Contact</p>
                       )}
                     </div>
                     
@@ -2113,12 +2113,12 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isTimeSummaryExpanded && (
                   <div className="px-5 pb-5">
-                    <div className="grid grid-cols-2 gap-2 text-center mb-3">
+                    <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="py-2">
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Worked</p>
                         <p className="text-2xl font-bold text-foreground">0</p>
                       </div>
-                      <div className="py-2 border-l border-border">
+                      <div className="py-2 border-l border-border pl-3">
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Estimated</p>
                         <p className="text-2xl font-bold text-foreground">2h</p>
                       </div>
@@ -2128,7 +2128,7 @@ export const TicketDetailsPage = () => {
                       <div className="h-full bg-[#1fb6a6] rounded-full" style={{ width: '0%' }}></div>
                     </div>
                     
-                    <p className="text-xs text-muted-foreground text-center font-medium">2h Remaining</p>
+                    <p className="text-xs text-muted-foreground font-medium">2h Remaining</p>
                     
                     <div className="flex justify-end pt-2">
                       <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-[#1fb6a6] cursor-pointer" />
@@ -2152,7 +2152,7 @@ export const TicketDetailsPage = () => {
                 </button>
                 {isConfigItemExpanded && (
                   <div className="px-5 pb-5">
-                    <p className="text-sm text-muted-foreground text-center">Nothing to display</p>
+                    <p className="text-sm text-muted-foreground">Nothing to display</p>
                     <div className="flex justify-end pt-2">
                       <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-[#1fb6a6] cursor-pointer" />
                     </div>
