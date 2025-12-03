@@ -775,14 +775,14 @@ export const TicketDetailsPage = () => {
               <div className="p-4 space-y-3">
                 {/* Company */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
                       <span className="flex-1 truncate text-foreground text-xs">{companyName}</span>
                       <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground flex-shrink-0" />
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer transition-colors">{companyName}</span>
                       <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
                     </div>
@@ -791,20 +791,20 @@ export const TicketDetailsPage = () => {
 
                 {/* Contact */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Contact</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Contact</p>
                   {isEditMode ? (
                     <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
                       <span className="flex-1 truncate text-foreground text-xs">{contactName}</span>
                       <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground flex-shrink-0" />
                     </div>
                   ) : (
-                    <p className="text-sm font-semibold text-foreground text-center">{contactName}</p>
+                    <p className="text-sm font-semibold text-foreground">{contactName}</p>
                   )}
                 </div>
 
                 {/* Status */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.statusId}
@@ -817,7 +817,7 @@ export const TicketDetailsPage = () => {
                       ))}
                     </select>
                   ) : (
-                    <div className="flex justify-center">
+                    <div className="flex justify-start">
                       <span className={`inline-flex items-center px-4 py-1.5 rounded-md text-xs font-bold shadow-sm ${getStatusBadgeColor(statusName)}`}>
                         {statusName}
                       </span>
@@ -827,7 +827,7 @@ export const TicketDetailsPage = () => {
 
                 {/* Priority */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.priorityId}
@@ -840,7 +840,7 @@ export const TicketDetailsPage = () => {
                       ))}
                     </select>
                   ) : (
-                    <div className="flex justify-center">
+                    <div className="flex justify-start">
                       <span className={`inline-flex items-center px-4 py-1.5 rounded-md text-xs font-bold shadow-sm ${getPriorityBadgeColor(priorityName)}`}>
                         {priorityName}
                       </span>
