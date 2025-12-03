@@ -772,7 +772,7 @@ export const TicketDetailsPage = () => {
             {/* LEFT SIDEBAR */}
             <div className="w-[220px] min-w-[220px] flex-shrink-0 bg-card border-r border-border overflow-y-auto">
               {/* Top Section - Company, Contact, Status, Priority */}
-              <div className="px-4 pb-4 pt-0 space-y-3">
+              <div className="px-4 pb-4 pt-4 space-y-3">
                 {/* Company */}
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
@@ -2017,7 +2017,7 @@ export const TicketDetailsPage = () => {
               <div className="border-b border-border">
                 <button
                   onClick={() => setIsCompanyContactExpanded(!isCompanyContactExpanded)}
-                  className="flex items-center justify-between w-full px-5 pt-0 pb-3.5 text-left hover:bg-accent/40 transition-colors"
+                  className="flex items-center justify-between w-full px-5 pt-3.5 pb-3.5 text-left hover:bg-accent/40 transition-colors"
                 >
                   <span className="text-sm font-bold text-foreground">Company/Contact</span>
                   {isCompanyContactExpanded ? (
