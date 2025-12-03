@@ -803,8 +803,8 @@ export const TicketDetailsPage = () => {
                 </div>
 
                 {/* Status */}
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                <div className="w-full">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center w-full">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.statusId}
@@ -817,7 +817,7 @@ export const TicketDetailsPage = () => {
                       ))}
                     </select>
                   ) : (
-                    <div className="flex justify-start">
+                    <div className="w-full">
                       <span className={`inline-flex items-center px-4 py-1.5 rounded-md text-xs font-bold shadow-sm ${getStatusBadgeColor(statusName)}`}>
                         {statusName}
                       </span>
@@ -826,8 +826,8 @@ export const TicketDetailsPage = () => {
                 </div>
 
                 {/* Priority */}
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                <div className="w-full">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center w-full">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.priorityId}
@@ -840,7 +840,7 @@ export const TicketDetailsPage = () => {
                       ))}
                     </select>
                   ) : (
-                    <div className="flex justify-start">
+                    <div className="w-full">
                       <span className={`inline-flex items-center px-4 py-1.5 rounded-md text-xs font-bold shadow-sm ${getPriorityBadgeColor(priorityName)}`}>
                         {priorityName}
                       </span>
