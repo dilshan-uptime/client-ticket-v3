@@ -339,18 +339,32 @@ export const TicketDetailsPage = () => {
     return automaticChase?.name || `ID: ${automaticChaseId}`;
   };
 
-  const getWorkedByName = (workedById: number | null | undefined): string => {
-    if (workedById === null || workedById === undefined) return "Not Set";
-    if (!metadata?.workedBy || !Array.isArray(metadata.workedBy)) return `ID: ${workedById}`;
-    const workedBy = metadata.workedBy.find((item) => item.id === workedById);
-    return workedBy?.name || `ID: ${workedById}`;
+  const getWorkedByDisplayName = (): string => {
+    if (ticketData?.workedBy) {
+      if (typeof ticketData.workedBy === 'string') {
+        return ticketData.workedBy;
+      } else if (ticketData.workedBy?.name) {
+        return ticketData.workedBy.name;
+      }
+    }
+    if (ticketData?.workedById) {
+      if (!metadata?.workedBy || !Array.isArray(metadata.workedBy)) return `ID: ${ticketData.workedById}`;
+      const workedBy = metadata.workedBy.find((item) => item.id === ticketData.workedById);
+      return workedBy?.name || `ID: ${ticketData.workedById}`;
+    }
+    return "Not Set";
   };
 
-  const getEscalationReasonName = (escalationReasonId: number | null | undefined): string => {
-    if (escalationReasonId === null || escalationReasonId === undefined) return "Not Set";
-    if (!metadata?.escalationReason || !Array.isArray(metadata.escalationReason)) return `ID: ${escalationReasonId}`;
-    const escalationReason = metadata.escalationReason.find((item) => item.id === escalationReasonId);
-    return escalationReason?.name || `ID: ${escalationReasonId}`;
+  const getEscalationReasonDisplayName = (): string => {
+    if (ticketData?.escalationReason) {
+      return ticketData.escalationReason;
+    }
+    if (ticketData?.escalationReasonId) {
+      if (!metadata?.escalationReason || !Array.isArray(metadata.escalationReason)) return `ID: ${ticketData.escalationReasonId}`;
+      const escalationReason = metadata.escalationReason.find((item) => item.id === ticketData.escalationReasonId);
+      return escalationReason?.name || `ID: ${ticketData.escalationReasonId}`;
+    }
+    return "Not Set";
   };
 
   const formatDate = (dateString: string | null | undefined): string => {
@@ -905,7 +919,7 @@ export const TicketDetailsPage = () => {
                           ))}
                         </select>
                       ) : (
-                        <p className="text-sm font-semibold text-foreground">{getWorkedByName(ticketData.workedById)}</p>
+                        <p className="text-sm font-semibold text-foreground">{getWorkedByDisplayName()}</p>
                       )}
                     </div>
 
@@ -924,7 +938,7 @@ export const TicketDetailsPage = () => {
                           ))}
                         </select>
                       ) : (
-                        <p className="text-sm font-semibold text-foreground">{getEscalationReasonName(ticketData.escalationReasonId)}</p>
+                        <p className="text-sm font-semibold text-foreground">{getEscalationReasonDisplayName()}</p>
                       )}
                     </div>
 
