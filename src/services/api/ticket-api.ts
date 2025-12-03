@@ -37,6 +37,29 @@ export const completeTriageAPI = (ticketId: number, payload: CompleteTriagePaylo
   return PUT(`${ROOT_PATH}/${ticketId}`, payload as unknown as Record<string, unknown>);
 };
 
+export interface UpdateTicketPayload {
+  status_id: number;
+  priority_id: number;
+  automatic_chase: number;
+  issue_type_id: number;
+  sub_issue_type_id: number;
+  worked_by: string;
+  escalation_reason: string;
+  partner_ticket_number: string;
+  source_id: number;
+  due_date_time: string;
+  estimated_hours: number;
+  sla_id: number;
+  queue_id: number;
+  work_type_id: number;
+  title: string;
+  description: string;
+}
+
+export const updateTicketAPI = (ticketId: number, payload: UpdateTicketPayload): Observable<any> => {
+  return PUT(`${ROOT_PATH}/${ticketId}`, payload as unknown as Record<string, unknown>);
+};
+
 export interface TicketSearchResult {
   id: number;
   name: string;

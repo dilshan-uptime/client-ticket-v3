@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, type TicketDetails, type TicketNote } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload } from "@/services/api/ticket-api";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -468,24 +468,80 @@ export const TicketDetailsPage = () => {
     setChecklistItems([]);
   };
 
-  const handleSave = async () => {
+  const getAutomaticChaseValue = (automaticChaseId: number): number => {
+    if (!metadata?.automaticChase || !automaticChaseId) return 0;
+    const selected = metadata.automaticChase.find(item => item.id === automaticChaseId);
+    return selected?.name === 'Yes' ? 1 : 0;
+  };
+
+  const getWorkedByNameValue = (workedById: number): string => {
+    if (!metadata?.workedBy || !workedById) return '';
+    const selected = metadata.workedBy.find(item => item.id === workedById);
+    return selected?.name || '';
+  };
+
+  const getEscalationReasonNameValue = (escalationReasonId: number): string => {
+    if (!metadata?.escalationReason || !escalationReasonId) return '';
+    const selected = metadata.escalationReason.find(item => item.id === escalationReasonId);
+    return selected?.name || '';
+  };
+
+  const handleSave = async (closeAfterSave: boolean = false): Promise<boolean> => {
+    if (!ticketData || !id) return false;
+    
     setIsSaving(true);
-    try {
-      toast.success("Changes Saved", {
-        description: "Ticket has been updated successfully.",
+    
+    const dueDateTimeStr = editForm.dueDate && editForm.dueTime 
+      ? `${editForm.dueDate}T${editForm.dueTime}:00`
+      : editForm.dueDate 
+        ? `${editForm.dueDate}T00:00:00`
+        : '';
+
+    const payload: UpdateTicketPayload = {
+      status_id: editForm.statusId,
+      priority_id: editForm.priorityId,
+      automatic_chase: getAutomaticChaseValue(editForm.automaticChaseId),
+      issue_type_id: editForm.issueTypeId,
+      sub_issue_type_id: editForm.subIssueTypeId,
+      worked_by: getWorkedByNameValue(editForm.workedById),
+      escalation_reason: getEscalationReasonNameValue(editForm.escalationReasonId),
+      partner_ticket_number: editForm.partnerTicketNumber,
+      source_id: editForm.sourceId,
+      due_date_time: dueDateTimeStr,
+      estimated_hours: parseFloat(editForm.estimatedHours) || 0,
+      sla_id: editForm.slaId,
+      queue_id: editForm.queueId,
+      work_type_id: editForm.workTypeId,
+      title: editForm.title,
+      description: editForm.description,
+    };
+
+    return new Promise((resolve) => {
+      updateTicketAPI(parseInt(id), payload).subscribe({
+        next: () => {
+          toast.success("Changes Saved", {
+            description: "Ticket has been updated successfully.",
+          });
+          setIsSaving(false);
+          if (closeAfterSave) {
+            setIsEditMode(false);
+          }
+          resolve(true);
+        },
+        error: (error) => {
+          console.error('Save failed:', error);
+          toast.error("Save Failed", {
+            description: "Unable to save changes. Please try again.",
+          });
+          setIsSaving(false);
+          resolve(false);
+        },
       });
-      setIsEditMode(false);
-    } catch (error) {
-      toast.error("Save Failed", {
-        description: "Unable to save changes. Please try again.",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const handleSaveAndClose = async () => {
-    await handleSave();
+    await handleSave(true);
   };
 
   const updateFormField = (field: string, value: string | number) => {
@@ -573,20 +629,28 @@ export const TicketDetailsPage = () => {
           <div className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button
-                onClick={handleSave}
+                onClick={() => handleSave(false)}
                 disabled={isSaving}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors disabled:opacity-50"
               >
-                <Save className="h-4 w-4" />
-                Save
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
               <button
                 onClick={handleSaveAndClose}
                 disabled={isSaving}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded hover:bg-accent transition-colors disabled:opacity-50"
               >
-                <Save className="h-4 w-4" />
-                Save & Close
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {isSaving ? 'Saving...' : 'Save & Close'}
               </button>
               <div className="relative">
                 <button
