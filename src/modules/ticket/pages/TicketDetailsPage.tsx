@@ -486,6 +486,57 @@ export const TicketDetailsPage = () => {
     return selected?.name || '';
   };
 
+  const getWorkedByIdFromName = (workedByName: string): number => {
+    if (!metadata?.workedBy || !workedByName) return 0;
+    const selected = metadata.workedBy.find(item => item.name === workedByName);
+    return selected?.id || 0;
+  };
+
+  const getEscalationReasonIdFromName = (escalationReasonName: string): number => {
+    if (!metadata?.escalationReason || !escalationReasonName) return 0;
+    const selected = metadata.escalationReason.find(item => item.name === escalationReasonName);
+    return selected?.id || 0;
+  };
+
+  const refetchTicketData = () => {
+    if (!id) return;
+    
+    getTicketByIdAPI(parseInt(id)).subscribe({
+      next: (response) => {
+        setTicketData(response);
+        
+        const dueDateObj = response.dueDateTime ? new Date(response.dueDateTime) : null;
+        const workedByName = typeof response.workedBy === 'string' 
+          ? response.workedBy 
+          : response.workedBy?.name || '';
+        
+        setEditForm(prev => ({
+          ...prev,
+          title: response.title || '',
+          description: response.description || '',
+          statusId: response.statusId || 0,
+          priorityId: response.priorityId || 0,
+          issueTypeId: response.issueType || 0,
+          subIssueTypeId: response.subIssueType || 0,
+          queueId: response.queueId || 0,
+          sourceId: response.sourceId || 0,
+          slaId: response.slaId || 0,
+          workTypeId: response.workTypeId || 0,
+          dueDate: dueDateObj ? dueDateObj.toISOString().split('T')[0] : '',
+          dueTime: dueDateObj ? dueDateObj.toTimeString().slice(0, 5) : '',
+          estimatedHours: response.estimatedHours?.toString() || '',
+          partnerTicketNumber: response.partnerTicketNumber || '',
+          automaticChaseId: response.automaticChaseId || 0,
+          workedById: getWorkedByIdFromName(workedByName),
+          escalationReasonId: getEscalationReasonIdFromName(response.escalationReason || ''),
+        }));
+      },
+      error: (error) => {
+        console.error('Failed to refetch ticket data:', error);
+      },
+    });
+  };
+
   const handleSave = async (closeAfterSave: boolean = false): Promise<boolean> => {
     if (!ticketData || !id) return false;
     
@@ -522,6 +573,7 @@ export const TicketDetailsPage = () => {
           toast.success("Changes Saved", {
             description: "Ticket has been updated successfully.",
           });
+          refetchTicketData();
           setIsSaving(false);
           if (closeAfterSave) {
             setIsEditMode(false);
