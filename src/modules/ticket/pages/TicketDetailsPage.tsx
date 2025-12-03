@@ -775,7 +775,7 @@ export const TicketDetailsPage = () => {
               <div className="p-4 space-y-3">
                 {/* Company */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Company{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
                       <span className="flex-1 truncate text-foreground text-xs">{companyName}</span>
@@ -791,7 +791,7 @@ export const TicketDetailsPage = () => {
 
                 {/* Contact */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Contact</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Contact</p>
                   {isEditMode ? (
                     <div className="flex items-center gap-1 px-2 py-1.5 bg-background border border-border rounded text-sm">
                       <span className="flex-1 truncate text-foreground text-xs">{contactName}</span>
@@ -804,7 +804,7 @@ export const TicketDetailsPage = () => {
 
                 {/* Status */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Status{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.statusId}
@@ -827,7 +827,7 @@ export const TicketDetailsPage = () => {
 
                 {/* Priority */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 text-center">Priority{isEditMode && <span className="text-[#ee754e]">*</span>}</p>
                   {isEditMode ? (
                     <select
                       value={editForm.priorityId}
