@@ -1989,15 +1989,18 @@ export const TicketDetailsPage = () => {
                   <div className="p-4">
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3 mb-4">
-                      {statusName !== 'Complete' && (
-                        <button 
-                          onClick={() => setIsNewTimeEntryModalOpen(true)}
-                          className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
-                        >
-                          <Clock className="h-4 w-4" />
-                          New Time Entry
-                        </button>
-                      )}
+                      <button 
+                        onClick={() => setIsNewTimeEntryModalOpen(true)}
+                        disabled={statusName === 'Complete'}
+                        className={`flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium transition-colors ${
+                          statusName === 'Complete' 
+                            ? 'text-muted-foreground cursor-not-allowed opacity-50' 
+                            : 'text-foreground hover:bg-accent/30'
+                        }`}
+                      >
+                        <Clock className="h-4 w-4" />
+                        New Time Entry
+                      </button>
                       <button 
                         onClick={() => setIsNewNoteModalOpen(true)}
                         className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
