@@ -157,3 +157,14 @@ export interface TicketNote {
 export const getTicketNotesAPI = (ticketId: number): Observable<TicketNote[]> => {
   return GET(`${ROOT_PATH}/${ticketId}/notes`, {});
 };
+
+export interface CreateNotePayload {
+  title: string;
+  description: string;
+  note_type: number;
+  publish: number;
+}
+
+export const createTicketNoteAPI = (ticketId: number, payload: CreateNotePayload): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/notes`, payload as unknown as Record<string, unknown>);
+};

@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, createTicketNoteAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload, type CreateNotePayload } from "@/services/api/ticket-api";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -71,6 +71,7 @@ export const TicketDetailsPage = () => {
   const [newAttachment, setNewAttachment] = useState({ type: 'Attachment (10 MB maximum)', file: null as File | null, name: '' });
   
   const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+  const [isSavingNote, setIsSavingNote] = useState(false);
   const [newNote, setNewNote] = useState({
     title: '',
     description: '',
@@ -241,6 +242,71 @@ export const TicketDetailsPage = () => {
       }
     }
   }, [id]);
+
+  const refetchNotes = () => {
+    if (id) {
+      const ticketId = parseInt(id, 10);
+      if (!isNaN(ticketId)) {
+        setIsNotesLoading(true);
+        getTicketNotesAPI(ticketId).subscribe({
+          next: (notes) => {
+            setTicketNotes(notes);
+            setIsNotesLoading(false);
+          },
+          error: (error) => {
+            console.error("Error fetching notes:", error);
+            setIsNotesLoading(false);
+          },
+        });
+      }
+    }
+  };
+
+  const handleSaveNote = (closeModal: boolean) => {
+    if (!id || !newNote.title.trim() || !newNote.description.trim()) {
+      toast.error("Validation Error", {
+        description: "Title and Description are required.",
+        icon: <AlertCircle className="h-5 w-5" />,
+      });
+      return;
+    }
+
+    const ticketId = parseInt(id, 10);
+    if (isNaN(ticketId)) return;
+
+    setIsSavingNote(true);
+
+    const payload: CreateNotePayload = {
+      title: newNote.title,
+      description: newNote.description,
+      note_type: newNote.noteTypeId,
+      publish: newNote.isInternal ? 2 : 1,
+    };
+
+    createTicketNoteAPI(ticketId, payload).subscribe({
+      next: () => {
+        toast.success("Note Created", {
+          description: "Your note has been added successfully.",
+        });
+        setIsSavingNote(false);
+        refetchNotes();
+        if (closeModal) {
+          setIsNewNoteModalOpen(false);
+          setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+        } else {
+          setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+        }
+      },
+      error: (error) => {
+        console.error("Error creating note:", error);
+        toast.error("Failed to Create Note", {
+          description: "Unable to save note. Please try again.",
+          icon: <AlertCircle className="h-5 w-5" />,
+        });
+        setIsSavingNote(false);
+      },
+    });
+  };
 
   const formatNoteDate = (dateString: string): string => {
     if (!dateString) return "N/A";
@@ -2363,20 +2429,45 @@ export const TicketDetailsPage = () => {
             <div className="p-6">
               {/* Action Buttons */}
               <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border">
-                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors">
-                  <Save className="h-4 w-4" />
-                  Save & Close
+                <button 
+                  onClick={() => handleSaveNote(true)}
+                  disabled={isSavingNote}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingNote ? (
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                      <path d="M12 6V4M12 20V18M6 12H4M20 12H18M7.75736 7.75736L6.34315 6.34315M17.6569 17.6569L16.2426 16.2426M7.75736 16.2426L6.34315 17.6569M17.6569 6.34315L16.2426 7.75736" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {isSavingNote ? 'Saving...' : 'Save & Close'}
                 </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
-                  <Save className="h-4 w-4" />
-                  Save & New
+                <button 
+                  onClick={() => handleSaveNote(false)}
+                  disabled={isSavingNote}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingNote ? (
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                      <path d="M12 6V4M12 20V18M6 12H4M20 12H18M7.75736 7.75736L6.34315 6.34315M17.6569 17.6569L16.2426 16.2426M7.75736 16.2426L6.34315 17.6569M17.6569 6.34315L16.2426 7.75736" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {isSavingNote ? 'Saving...' : 'Save & New'}
                 </button>
                 <button
                   onClick={() => {
                     setIsNewNoteModalOpen(false);
                     setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSavingNote}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <X className="h-4 w-4" />
                   Cancel
