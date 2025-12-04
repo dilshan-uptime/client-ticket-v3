@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, createTicketNoteAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload, type CreateNotePayload } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -80,6 +80,7 @@ export const TicketDetailsPage = () => {
   });
   
   const [isNewTimeEntryModalOpen, setIsNewTimeEntryModalOpen] = useState(false);
+  const [isSavingTimeEntry, setIsSavingTimeEntry] = useState(false);
   const [newTimeEntry, setNewTimeEntry] = useState({
     date: new Date().toISOString().split('T')[0],
     startTime: '',
@@ -341,6 +342,63 @@ export const TicketDetailsPage = () => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     setNewTimeEntry(prev => ({ ...prev, timeWorkedHours: hours, timeWorkedMinutes: minutes }));
+  };
+
+  const handleSaveTimeEntry = () => {
+    if (!id) return;
+    
+    if (!newTimeEntry.summaryNotes.trim()) {
+      toast.error("Summary Notes is required");
+      return;
+    }
+    if (!newTimeEntry.date) {
+      toast.error("Date is required");
+      return;
+    }
+    if (!newTimeEntry.startTime || !newTimeEntry.endTime) {
+      toast.error("Start Time and End Time are required");
+      return;
+    }
+
+    setIsSavingTimeEntry(true);
+
+    const hoursWorked = newTimeEntry.timeWorkedHours + (newTimeEntry.timeWorkedMinutes / 60);
+    
+    const startDateTime = `${newTimeEntry.date}T${newTimeEntry.startTime}:00Z`;
+    const endDateTime = `${newTimeEntry.date}T${newTimeEntry.endTime}:00Z`;
+
+    const payload: CreateTimeEntryPayload = {
+      summary_notes: newTimeEntry.summaryNotes,
+      date_worked: newTimeEntry.date,
+      hours_worked: parseFloat(hoursWorked.toFixed(2)),
+      start_datetime: startDateTime,
+      end_datetime: endDateTime,
+    };
+
+    createTimeEntryAPI(parseInt(id), payload).subscribe({
+      next: () => {
+        toast.success("Time entry created successfully");
+        setIsNewTimeEntryModalOpen(false);
+        setNewTimeEntry({
+          date: new Date().toISOString().split('T')[0],
+          startTime: '',
+          endTime: '',
+          timeWorkedHours: 0,
+          timeWorkedMinutes: 0,
+          billingOffsetSign: '-',
+          billingOffsetHours: 0,
+          billingOffsetMinutes: 0,
+          summaryNotes: '',
+          internalNotes: '',
+        });
+        setIsSavingTimeEntry(false);
+      },
+      error: (error) => {
+        console.error("Failed to create time entry:", error);
+        toast.error("Failed to create time entry");
+        setIsSavingTimeEntry(false);
+      },
+    });
   };
 
   const formatNoteDate = (dateString: string): string => {
@@ -2672,11 +2730,25 @@ export const TicketDetailsPage = () => {
             <div className="p-6">
               {/* Action Buttons */}
               <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border">
-                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors">
-                  <Save className="h-4 w-4" />
+                <button 
+                  onClick={handleSaveTimeEntry}
+                  disabled={isSavingTimeEntry}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingTimeEntry ? (
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   Save & Close
                 </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
+                <button 
+                  disabled={isSavingTimeEntry}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <Save className="h-4 w-4" />
                   Save & New
                 </button>
@@ -2696,7 +2768,8 @@ export const TicketDetailsPage = () => {
                       internalNotes: '',
                     });
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSavingTimeEntry}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <X className="h-4 w-4" />
                   Cancel

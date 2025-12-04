@@ -168,3 +168,15 @@ export interface CreateNotePayload {
 export const createTicketNoteAPI = (ticketId: number, payload: CreateNotePayload): Observable<any> => {
   return POST(`${ROOT_PATH}/${ticketId}/notes`, payload as unknown as Record<string, unknown>);
 };
+
+export interface CreateTimeEntryPayload {
+  summary_notes: string;
+  date_worked: string;
+  hours_worked: number;
+  start_datetime: string;
+  end_datetime: string;
+}
+
+export const createTimeEntryAPI = (ticketId: number, payload: CreateTimeEntryPayload): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/time-entries`, payload as unknown as Record<string, unknown>);
+};
