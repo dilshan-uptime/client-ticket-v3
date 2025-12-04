@@ -2187,6 +2187,11 @@ export const TicketDetailsPage = () => {
                                     )}
                                   </div>
                                   <p className="text-sm text-foreground font-medium mb-1">{item.title}</p>
+                                  {item.publishId === 2 && (
+                                    <span className="inline-block px-2 py-0.5 text-xs font-medium text-green-600 border border-green-500 rounded mb-1">
+                                      Internal Only
+                                    </span>
+                                  )}
                                   {item.description !== item.title && (
                                     <p className="text-xs text-muted-foreground mb-2 whitespace-pre-wrap">{item.description}</p>
                                   )}
