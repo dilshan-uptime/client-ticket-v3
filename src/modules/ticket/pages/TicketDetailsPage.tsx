@@ -93,12 +93,8 @@ export const TicketDetailsPage = () => {
     endTime: '',
     timeWorkedHours: 0,
     timeWorkedMinutes: 0,
-    billingOffsetSign: '-',
-    billingOffsetHours: 0,
-    billingOffsetMinutes: 0,
   });
   const summaryNotesRef = useRef<HTMLTextAreaElement>(null);
-  const internalNotesRef = useRef<HTMLTextAreaElement>(null);
   
   const [editForm, setEditForm] = useState({
     title: '',
@@ -351,18 +347,6 @@ export const TicketDetailsPage = () => {
     });
   };
 
-  const calculateHoursToBill = () => {
-    const totalMinutes = (newTimeEntry.timeWorkedHours * 60) + newTimeEntry.timeWorkedMinutes;
-    const offsetMinutes = (newTimeEntry.billingOffsetHours * 60) + newTimeEntry.billingOffsetMinutes;
-    const billableMinutes = newTimeEntry.billingOffsetSign === '-' 
-      ? Math.max(0, totalMinutes - offsetMinutes) 
-      : totalMinutes + offsetMinutes;
-    const hours = Math.floor(billableMinutes / 60);
-    const minutes = billableMinutes % 60;
-    const decimalHours = (billableMinutes / 60).toFixed(1);
-    return { decimalHours, hours, minutes };
-  };
-
   const calculateTimeWorked = (start: string, end: string) => {
     if (!start || !end) return;
     const [startH, startM] = start.split(':').map(Number);
@@ -420,12 +404,8 @@ export const TicketDetailsPage = () => {
           endTime: '',
           timeWorkedHours: 0,
           timeWorkedMinutes: 0,
-          billingOffsetSign: '-',
-          billingOffsetHours: 0,
-          billingOffsetMinutes: 0,
         });
         if (summaryNotesRef.current) summaryNotesRef.current.value = '';
-        if (internalNotesRef.current) internalNotesRef.current.value = '';
         setIsSavingTimeEntry(false);
       },
       error: (error) => {
@@ -2794,12 +2774,8 @@ export const TicketDetailsPage = () => {
                     endTime: '',
                     timeWorkedHours: 0,
                     timeWorkedMinutes: 0,
-                    billingOffsetSign: '-',
-                    billingOffsetHours: 0,
-                    billingOffsetMinutes: 0,
                   });
                   if (summaryNotesRef.current) summaryNotesRef.current.value = '';
-                  if (internalNotesRef.current) internalNotesRef.current.value = '';
                 }}
                 className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -2850,12 +2826,8 @@ export const TicketDetailsPage = () => {
                       endTime: '',
                       timeWorkedHours: 0,
                       timeWorkedMinutes: 0,
-                      billingOffsetSign: '-',
-                      billingOffsetHours: 0,
-                      billingOffsetMinutes: 0,
                     });
                     if (summaryNotesRef.current) summaryNotesRef.current.value = '';
-                    if (internalNotesRef.current) internalNotesRef.current.value = '';
                   }}
                   disabled={isSavingTimeEntry}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -2954,52 +2926,6 @@ export const TicketDetailsPage = () => {
                   </div>
                 </div>
 
-                {/* Row 2: Billing Offset, Hours to Bill */}
-                <div className="grid grid-cols-4 gap-4">
-                  {/* Billing Offset */}
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Billing Offset <span className="text-[#ee754e]">*</span>
-                    </label>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setNewTimeEntry({ ...newTimeEntry, billingOffsetSign: newTimeEntry.billingOffsetSign === '-' ? '+' : '-' })}
-                        className="w-10 h-10 flex items-center justify-center bg-background border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent transition-colors"
-                      >
-                        {newTimeEntry.billingOffsetSign}
-                      </button>
-                      <input
-                        type="number"
-                        min="0"
-                        value={newTimeEntry.billingOffsetHours}
-                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, billingOffsetHours: parseInt(e.target.value) || 0 })}
-                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
-                      />
-                      <span className="text-sm text-muted-foreground">h</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="59"
-                        value={newTimeEntry.billingOffsetMinutes}
-                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, billingOffsetMinutes: Math.min(59, parseInt(e.target.value) || 0) })}
-                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
-                      />
-                      <span className="text-sm text-muted-foreground">m</span>
-                    </div>
-                  </div>
-
-                  {/* Hours to Bill */}
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-2">Hours to Bill</label>
-                    <p className="text-sm text-foreground py-2.5">
-                      <span className="font-semibold">{calculateHoursToBill().decimalHours}</span>
-                      <span className="text-muted-foreground ml-1">
-                        ({calculateHoursToBill().hours}h {calculateHoursToBill().minutes}m)
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
                 {/* Summary Notes */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
@@ -3033,44 +2959,6 @@ export const TicketDetailsPage = () => {
                   <textarea
                     ref={summaryNotesRef}
                     placeholder="Enter summary notes..."
-                    rows={5}
-                    maxLength={32000}
-                    className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">32000</p>
-                </div>
-
-                {/* Internal Notes */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Internal Notes</label>
-                  
-                  {/* Rich Text Toolbar */}
-                  <div className="flex items-center gap-1 px-2 py-1.5 border border-border border-b-0 rounded-t-md bg-accent/20">
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Bold">
-                      <Bold className="h-4 w-4 text-foreground" />
-                    </button>
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Italic">
-                      <Italic className="h-4 w-4 text-foreground" />
-                    </button>
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Underline">
-                      <Underline className="h-4 w-4 text-foreground" />
-                    </button>
-                    <div className="w-px h-5 bg-border mx-1" />
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Ordered List">
-                      <ListOrdered className="h-4 w-4 text-foreground" />
-                    </button>
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Unordered List">
-                      <List className="h-4 w-4 text-foreground" />
-                    </button>
-                    <div className="w-px h-5 bg-border mx-1" />
-                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Insert Image">
-                      <Image className="h-4 w-4 text-foreground" />
-                    </button>
-                  </div>
-                  
-                  <textarea
-                    ref={internalNotesRef}
-                    placeholder="Enter internal notes..."
                     rows={5}
                     maxLength={32000}
                     className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
