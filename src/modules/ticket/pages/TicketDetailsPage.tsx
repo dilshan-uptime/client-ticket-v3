@@ -472,7 +472,20 @@ export const TicketDetailsPage = () => {
         return true;
       });
     }
-    return items;
+    
+    // Sort: pinned notes first, then by date
+    return [...items].sort((a, b) => {
+      // Check if items are notes with is_pinned
+      const aIsPinned = a.type === 'note' && a.isPinned === true;
+      const bIsPinned = b.type === 'note' && b.isPinned === true;
+      
+      // Pinned notes come first
+      if (aIsPinned && !bIsPinned) return -1;
+      if (!aIsPinned && bIsPinned) return 1;
+      
+      // If both have same pin status, maintain original order (by date)
+      return 0;
+    });
   };
 
   const getAttachmentCount = (): number => {
@@ -2129,8 +2142,12 @@ export const TicketDetailsPage = () => {
                             {item.type === 'note' && (
                               <button
                                 onClick={() => handlePinClick(item.id)}
-                                className="absolute top-2 right-2 p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
-                                title="Toggle pin"
+                                className={`absolute top-2 right-2 p-1 rounded transition-colors ${
+                                  item.isPinned 
+                                    ? 'hover:bg-green-100 dark:hover:bg-green-900/30' 
+                                    : 'hover:bg-gray-100 dark:hover:bg-gray-700/30'
+                                }`}
+                                title={item.isPinned ? "Unpin note" : "Pin note"}
                               >
                                 <svg 
                                   width="16" 
@@ -2138,7 +2155,11 @@ export const TicketDetailsPage = () => {
                                   viewBox="0 0 24 24" 
                                   fill="none" 
                                   xmlns="http://www.w3.org/2000/svg"
-                                  className="text-purple-400 hover:text-purple-600 transition-colors"
+                                  className={`transition-colors ${
+                                    item.isPinned 
+                                      ? 'text-green-500 hover:text-green-600' 
+                                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                                  }`}
                                 >
                                   <path 
                                     d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 

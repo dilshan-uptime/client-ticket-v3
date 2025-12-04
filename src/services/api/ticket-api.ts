@@ -152,6 +152,7 @@ export interface TicketNote {
   publishId: number;
   createDateTime: string;
   attachments: NoteAttachment[];
+  isPinned?: boolean;
 }
 
 export const getTicketNotesAPI = (ticketId: number): Observable<TicketNote[]> => {
