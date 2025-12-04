@@ -180,3 +180,24 @@ export interface CreateTimeEntryPayload {
 export const createTimeEntryAPI = (ticketId: number, payload: CreateTimeEntryPayload): Observable<any> => {
   return POST(`${ROOT_PATH}/${ticketId}/time-entries`, payload as unknown as Record<string, unknown>);
 };
+
+export interface TimeEntryCreator {
+  id: number;
+  autotaskId: string;
+  name: string;
+  email: string;
+}
+
+export interface TimeEntry {
+  id: number;
+  hoursWorked: number;
+  summaryNotes: string;
+  creator: TimeEntryCreator | null;
+  createDateTime: string;
+  startDateTime: string;
+  endDateTime: string;
+}
+
+export const getTicketTimeEntriesAPI = (ticketId: number): Observable<TimeEntry[]> => {
+  return GET(`${ROOT_PATH}/${ticketId}/time-entries`, {});
+};

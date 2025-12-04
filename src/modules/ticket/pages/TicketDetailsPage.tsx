@@ -35,10 +35,15 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, type TicketDetails, type TicketNote, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
+import { forkJoin } from "rxjs";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
 import { useSidebar } from "@/contexts/SidebarContext";
+
+type ActivityItem = 
+  | (TicketNote & { type: 'note' })
+  | (TimeEntry & { type: 'timeEntry' });
 
 export const TicketDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +51,7 @@ export const TicketDetailsPage = () => {
   const { collapsed } = useSidebar();
   const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
   const [ticketNotes, setTicketNotes] = useState<TicketNote[]>([]);
+  const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isNotesLoading, setIsNotesLoading] = useState(true);
   const [isTicketInfoExpanded, setIsTicketInfoExpanded] = useState(true);
@@ -241,14 +247,26 @@ export const TicketDetailsPage = () => {
       const ticketId = parseInt(id, 10);
       if (!isNaN(ticketId)) {
         setIsNotesLoading(true);
-        getTicketNotesAPI(ticketId).subscribe({
-          next: (notes) => {
+        forkJoin({
+          notes: getTicketNotesAPI(ticketId),
+          timeEntries: getTicketTimeEntriesAPI(ticketId)
+        }).subscribe({
+          next: ({ notes, timeEntries }) => {
             console.log("[TicketDetails] Notes received:", notes);
+            console.log("[TicketDetails] Time entries received:", timeEntries);
             setTicketNotes(notes);
+            
+            const notesWithType: ActivityItem[] = notes.map(note => ({ ...note, type: 'note' as const }));
+            const timeEntriesWithType: ActivityItem[] = timeEntries.map(entry => ({ ...entry, type: 'timeEntry' as const }));
+            
+            const merged = [...notesWithType, ...timeEntriesWithType];
+            merged.sort((a, b) => new Date(b.createDateTime).getTime() - new Date(a.createDateTime).getTime());
+            
+            setActivityItems(merged);
             setIsNotesLoading(false);
           },
           error: (error) => {
-            console.error("Error fetching notes:", error);
+            console.error("Error fetching activity data:", error);
             setIsNotesLoading(false);
           },
         });
@@ -256,18 +274,29 @@ export const TicketDetailsPage = () => {
     }
   }, [id]);
 
-  const refetchNotes = () => {
+  const refetchActivity = () => {
     if (id) {
       const ticketId = parseInt(id, 10);
       if (!isNaN(ticketId)) {
         setIsNotesLoading(true);
-        getTicketNotesAPI(ticketId).subscribe({
-          next: (notes) => {
+        forkJoin({
+          notes: getTicketNotesAPI(ticketId),
+          timeEntries: getTicketTimeEntriesAPI(ticketId)
+        }).subscribe({
+          next: ({ notes, timeEntries }) => {
             setTicketNotes(notes);
+            
+            const notesWithType: ActivityItem[] = notes.map(note => ({ ...note, type: 'note' as const }));
+            const timeEntriesWithType: ActivityItem[] = timeEntries.map(entry => ({ ...entry, type: 'timeEntry' as const }));
+            
+            const merged = [...notesWithType, ...timeEntriesWithType];
+            merged.sort((a, b) => new Date(b.createDateTime).getTime() - new Date(a.createDateTime).getTime());
+            
+            setActivityItems(merged);
             setIsNotesLoading(false);
           },
           error: (error) => {
-            console.error("Error fetching notes:", error);
+            console.error("Error fetching activity data:", error);
             setIsNotesLoading(false);
           },
         });
@@ -304,7 +333,7 @@ export const TicketDetailsPage = () => {
           description: "Your note has been added successfully.",
         });
         setIsSavingNote(false);
-        refetchNotes();
+        refetchActivity();
         if (closeModal) {
           setIsNewNoteModalOpen(false);
         }
@@ -381,6 +410,7 @@ export const TicketDetailsPage = () => {
     createTimeEntryAPI(parseInt(id), payload).subscribe({
       next: () => {
         toast.success("Time entry created successfully");
+        refetchActivity();
         if (!keepOpen) {
           setIsNewTimeEntryModalOpen(false);
         }
@@ -423,12 +453,17 @@ export const TicketDetailsPage = () => {
     }
   };
 
-  const getFilteredNotes = (): TicketNote[] => {
-    let notes = ticketNotes;
+  const getFilteredActivityItems = (): ActivityItem[] => {
+    let items = activityItems;
     if (!showSystemNotes) {
-      notes = notes.filter(note => note.noteTypeId !== 13);
+      items = items.filter(item => {
+        if (item.type === 'note') {
+          return item.noteTypeId !== 13;
+        }
+        return true;
+      });
     }
-    return notes.sort((a, b) => new Date(b.createDateTime).getTime() - new Date(a.createDateTime).getTime());
+    return items;
   };
 
   const getAttachmentCount = (): number => {
@@ -2068,73 +2103,113 @@ export const TicketDetailsPage = () => {
                       {isNotesLoading ? (
                         <div className="flex items-center justify-center py-8">
                           <Loader2 className="h-6 w-6 text-[#1fb6a6] animate-spin" />
-                          <span className="ml-2 text-sm text-muted-foreground">Loading notes...</span>
+                          <span className="ml-2 text-sm text-muted-foreground">Loading activity...</span>
                         </div>
-                      ) : getFilteredNotes().length === 0 ? (
+                      ) : getFilteredActivityItems().length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <p className="text-sm">No activity to display</p>
                         </div>
                       ) : (
-                        getFilteredNotes().map((note) => (
-                          <div key={note.id} className="flex gap-3 p-3 bg-background rounded-lg border border-border">
-                            <div className={`w-8 h-8 rounded-full ${note.noteTypeId === 13 ? 'bg-gray-500' : 'bg-purple-500'} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                              {getCreatorInitials(note.creator)}
-                            </div>
-                            <div className="flex-1 text-left">
-                              <div className="flex items-center gap-2 mb-1">
-                                {note.creator ? (
-                                  <>
-                                    <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">
-                                      {typeof note.creator === 'object' ? note.creator.name : note.creator}
-                                    </span>
-                                    <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
-                                  </>
-                                ) : (
-                                  <span className="text-sm font-semibold text-muted-foreground">System</span>
-                                )}
-                              </div>
-                              <p className="text-sm text-foreground font-medium mb-1">{note.title}</p>
-                              {note.description !== note.title && (
-                                <p className="text-xs text-muted-foreground mb-2 whitespace-pre-wrap">{note.description}</p>
-                              )}
-                              <p className="text-xs text-muted-foreground mb-2">{formatNoteDate(note.createDateTime)}</p>
-                              
-                              {/* Attachments */}
-                              {note.attachments && note.attachments.length > 0 && (
-                                <div className="mb-2">
-                                  {note.attachments.map((attachment) => {
-                                    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(attachment.fileName);
-                                    return isImage && attachment.imageUrl ? (
-                                      <div key={attachment.id} className="mb-2">
-                                        <img 
-                                          src={attachment.imageUrl} 
-                                          alt={attachment.fileName}
-                                          className="w-full max-w-[500px] rounded-lg border border-border"
-                                        />
-                                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                          <span>{attachment.fileName}</span>
-                                          <span>Size (KB)</span>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-accent/30 rounded text-xs mb-1">
-                                        <Paperclip className="h-3 w-3 text-muted-foreground" />
-                                        <span className="text-foreground">{attachment.fileName}</span>
-                                        <span className="text-muted-foreground">({Math.round(attachment.fileSize / 1024)}KB)</span>
-                                      </div>
-                                    );
-                                  })}
+                        getFilteredActivityItems().map((item) => (
+                          <div key={`${item.type}-${item.id}`} className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                            {item.type === 'note' ? (
+                              <>
+                                <div className={`w-8 h-8 rounded-full ${item.noteTypeId === 13 ? 'bg-gray-500' : 'bg-purple-500'} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                                  {getCreatorInitials(item.creator)}
                                 </div>
-                              )}
+                                <div className="flex-1 text-left">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {item.creator ? (
+                                      <>
+                                        <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">
+                                          {typeof item.creator === 'object' ? item.creator.name : item.creator}
+                                        </span>
+                                        <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                                      </>
+                                    ) : (
+                                      <span className="text-sm font-semibold text-muted-foreground">System</span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-foreground font-medium mb-1">{item.title}</p>
+                                  {item.description !== item.title && (
+                                    <p className="text-xs text-muted-foreground mb-2 whitespace-pre-wrap">{item.description}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mb-2">{formatNoteDate(item.createDateTime)}</p>
+                                  
+                                  {/* Attachments */}
+                                  {item.attachments && item.attachments.length > 0 && (
+                                    <div className="mb-2">
+                                      {item.attachments.map((attachment) => {
+                                        const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(attachment.fileName);
+                                        return isImage && attachment.imageUrl ? (
+                                          <div key={attachment.id} className="mb-2">
+                                            <img 
+                                              src={attachment.imageUrl} 
+                                              alt={attachment.fileName}
+                                              className="w-full max-w-[500px] rounded-lg border border-border"
+                                            />
+                                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                              <span>{attachment.fileName}</span>
+                                              <span>Size (KB)</span>
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-accent/30 rounded text-xs mb-1">
+                                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                                            <span className="text-foreground">{attachment.fileName}</span>
+                                            <span className="text-muted-foreground">({Math.round(attachment.fileSize / 1024)}KB)</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
 
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
-                                <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
-                                {note.attachments && note.attachments.length > 0 && (
-                                  <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
-                                )}
-                              </div>
-                            </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">note</span>
+                                    {item.attachments && item.attachments.length > 0 && (
+                                      <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">attachment</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-8 h-8 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                  {item.creator ? getCreatorInitials(item.creator.name) : 'TE'}
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {item.creator ? (
+                                      <>
+                                        <span className="text-sm font-semibold text-[#1fb6a6] hover:underline cursor-pointer">
+                                          {item.creator.name}
+                                        </span>
+                                        <ExternalLink className="h-3 w-3 text-[#1fb6a6]" />
+                                      </>
+                                    ) : (
+                                      <span className="text-sm font-semibold text-muted-foreground">Unknown</span>
+                                    )}
+                                    <span className="px-2 py-0.5 bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs rounded font-medium">Time Entry</span>
+                                  </div>
+                                  <p className="text-sm text-foreground font-medium mb-1">
+                                    {item.hoursWorked.toFixed(2)} hours worked
+                                  </p>
+                                  {item.summaryNotes && (
+                                    <p className="text-xs text-muted-foreground mb-2 whitespace-pre-wrap">{item.summaryNotes}</p>
+                                  )}
+                                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                                    <span>{formatNoteDate(item.createDateTime)}</span>
+                                    <span className="text-border">|</span>
+                                    <span>
+                                      {new Date(item.startDateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} - {new Date(item.endDateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[#1fb6a6] hover:underline cursor-pointer">time</span>
+                                  </div>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))
                       )}
