@@ -74,10 +74,10 @@ export const TicketDetailsPage = () => {
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [newNote, setNewNote] = useState({
     title: '',
-    description: '',
     noteTypeId: 1,
     publishTypeId: 1,
   });
+  const noteDescriptionRef = useRef<HTMLTextAreaElement>(null);
   
   const [isNewTimeEntryModalOpen, setIsNewTimeEntryModalOpen] = useState(false);
   const [isSavingTimeEntry, setIsSavingTimeEntry] = useState(false);
@@ -276,7 +276,9 @@ export const TicketDetailsPage = () => {
   };
 
   const handleSaveNote = (closeModal: boolean) => {
-    if (!id || !newNote.title.trim() || !newNote.description.trim()) {
+    const noteDescription = noteDescriptionRef.current?.value || '';
+    
+    if (!id || !newNote.title.trim() || !noteDescription.trim()) {
       toast.error("Validation Error", {
         description: "Title and Description are required.",
         icon: <AlertCircle className="h-5 w-5" />,
@@ -291,7 +293,7 @@ export const TicketDetailsPage = () => {
 
     const payload: CreateNotePayload = {
       title: newNote.title,
-      description: newNote.description,
+      description: noteDescription,
       note_type: newNote.noteTypeId,
       publish: newNote.publishTypeId,
     };
@@ -305,10 +307,9 @@ export const TicketDetailsPage = () => {
         refetchNotes();
         if (closeModal) {
           setIsNewNoteModalOpen(false);
-          setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
-        } else {
-          setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
         }
+        setNewNote({ title: '', noteTypeId: 1, publishTypeId: 1 });
+        if (noteDescriptionRef.current) noteDescriptionRef.current.value = '';
       },
       error: (error) => {
         console.error("Error creating note:", error);
@@ -2517,7 +2518,8 @@ export const TicketDetailsPage = () => {
               <button
                 onClick={() => {
                   setIsNewNoteModalOpen(false);
-                  setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
+                  setNewNote({ title: '', noteTypeId: 1, publishTypeId: 1 });
+                  if (noteDescriptionRef.current) noteDescriptionRef.current.value = '';
                 }}
                 className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -2564,7 +2566,8 @@ export const TicketDetailsPage = () => {
                 <button
                   onClick={() => {
                     setIsNewNoteModalOpen(false);
-                    setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
+                    setNewNote({ title: '', noteTypeId: 1, publishTypeId: 1 });
+                    if (noteDescriptionRef.current) noteDescriptionRef.current.value = '';
                   }}
                   disabled={isSavingNote}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -2626,14 +2629,13 @@ export const TicketDetailsPage = () => {
                   </div>
                   
                   <textarea
-                    value={newNote.description}
-                    onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
+                    ref={noteDescriptionRef}
                     placeholder="Enter note description..."
                     rows={8}
                     maxLength={32000}
                     className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">{32000 - newNote.description.length} characters remaining</p>
+                  <p className="text-xs text-muted-foreground mt-1">32000 characters remaining</p>
                 </div>
 
                 {/* Note Type Dropdown */}
