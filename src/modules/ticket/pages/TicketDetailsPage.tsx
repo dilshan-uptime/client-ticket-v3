@@ -1989,13 +1989,15 @@ export const TicketDetailsPage = () => {
                   <div className="p-4">
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3 mb-4">
-                      <button 
-                        onClick={() => setIsNewTimeEntryModalOpen(true)}
-                        className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
-                      >
-                        <Clock className="h-4 w-4" />
-                        New Time Entry
-                      </button>
+                      {statusName !== 'Complete' && (
+                        <button 
+                          onClick={() => setIsNewTimeEntryModalOpen(true)}
+                          className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
+                        >
+                          <Clock className="h-4 w-4" />
+                          New Time Entry
+                        </button>
+                      )}
                       <button 
                         onClick={() => setIsNewNoteModalOpen(true)}
                         className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
@@ -2091,7 +2093,24 @@ export const TicketDetailsPage = () => {
                         </div>
                       ) : (
                         getFilteredActivityItems().map((item) => (
-                          <div key={`${item.type}-${item.id}`} className="flex gap-3 p-3 bg-background rounded-lg border border-border">
+                          <div key={`${item.type}-${item.id}`} className="relative flex gap-3 p-3 bg-background rounded-lg border border-border">
+                            {item.type === 'note' && (
+                              <div className="absolute top-2 right-2">
+                                <svg 
+                                  width="16" 
+                                  height="16" 
+                                  viewBox="0 0 24 24" 
+                                  fill="none" 
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="text-purple-400"
+                                >
+                                  <path 
+                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+                                    fill="currentColor"
+                                  />
+                                </svg>
+                              </div>
+                            )}
                             {item.type === 'note' ? (
                               <>
                                 <div className={`w-8 h-8 rounded-full ${item.noteTypeId === 13 ? 'bg-gray-500' : 'bg-purple-500'} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
