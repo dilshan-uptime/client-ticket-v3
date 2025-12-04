@@ -70,6 +70,16 @@ export const TicketDetailsPage = () => {
   const [isNewAttachmentModalOpen, setIsNewAttachmentModalOpen] = useState(false);
   const [newAttachment, setNewAttachment] = useState({ type: 'Attachment (10 MB maximum)', file: null as File | null, name: '' });
   
+  const [isNewNoteModalOpen, setIsNewNoteModalOpen] = useState(false);
+  const [newNote, setNewNote] = useState({
+    title: '',
+    description: '',
+    noteTypeId: 1,
+    isInternal: false,
+    visibleToCoManaging: false,
+    appendToResolution: false,
+  });
+  
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -1804,7 +1814,10 @@ export const TicketDetailsPage = () => {
                         <Clock className="h-4 w-4" />
                         New Time Entry
                       </button>
-                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                      <button 
+                        onClick={() => setIsNewNoteModalOpen(true)}
+                        className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
+                      >
                         <FileText className="h-4 w-4" />
                         New Note
                       </button>
@@ -2322,6 +2335,190 @@ export const TicketDetailsPage = () => {
                   placeholder="Enter attachment name"
                   className="w-full px-3 py-2 bg-background border border-border rounded text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Note Modal */}
+      {isNewNoteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-card rounded-lg shadow-xl w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-card z-10">
+              <h3 className="text-lg font-semibold text-foreground">New Note</h3>
+              <button
+                onClick={() => {
+                  setIsNewNoteModalOpen(false);
+                  setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+                }}
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border">
+                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & Close
+                </button>
+                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & New
+                </button>
+                <button
+                  onClick={() => {
+                    setIsNewNoteModalOpen(false);
+                    setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </button>
+              </div>
+
+              {/* General Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <h4 className="text-base font-semibold text-foreground">General</h4>
+                </div>
+
+                {/* Title Field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Title <span className="text-[#ee754e]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newNote.title}
+                    onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+                    placeholder="Enter note title"
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
+                  />
+                </div>
+
+                {/* Description Field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Description <span className="text-[#ee754e]">*</span>
+                  </label>
+                  
+                  {/* Rich Text Toolbar */}
+                  <div className="flex items-center gap-1 px-2 py-1.5 border border-border border-b-0 rounded-t-md bg-accent/20">
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Bold">
+                      <Bold className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Italic">
+                      <Italic className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Underline">
+                      <Underline className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Ordered List">
+                      <ListOrdered className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Unordered List">
+                      <List className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Insert Image">
+                      <Image className="h-4 w-4 text-foreground" />
+                    </button>
+                  </div>
+                  
+                  <textarea
+                    value={newNote.description}
+                    onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
+                    placeholder="Enter note description..."
+                    rows={8}
+                    maxLength={32000}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">{32000 - newNote.description.length} characters remaining</p>
+                </div>
+
+                {/* Note Type Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Note Type</label>
+                  <div className="relative">
+                    <select
+                      value={newNote.noteTypeId}
+                      onChange={(e) => setNewNote({ ...newNote, noteTypeId: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] appearance-none cursor-pointer"
+                    >
+                      {(metadata?.noteType || [
+                        { id: 1, name: "Task Summary" },
+                        { id: 2, name: "Task Detail" },
+                        { id: 3, name: "Task Notes" },
+                        { id: 13, name: "Workflow Rule Note - Task" },
+                        { id: 15, name: "Duplicate Ticket Note" },
+                        { id: 16, name: "Outsource Workflow Note" },
+                        { id: 17, name: "Surveys" },
+                        { id: 18, name: "Client Portal Note" },
+                        { id: 19, name: "Taskfire Note" },
+                        { id: 91, name: "Workflow Rule Action Note" },
+                        { id: 92, name: "Forward/Modify Note" },
+                        { id: 93, name: "Merged Into Ticket" },
+                        { id: 94, name: "Absorbed Another Ticket" },
+                        { id: 95, name: "Copied to Project" },
+                        { id: 99, name: "RMM Note" },
+                        { id: 100, name: "BDR Note" },
+                        { id: 201, name: "Test Note Provider" },
+                        { id: 202, name: "Test Note Provider 2" }
+                      ]).map((noteType) => (
+                        <option key={noteType.id} value={noteType.id}>{noteType.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Checkboxes Row */}
+                <div className="grid grid-cols-2 gap-4">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={newNote.isInternal}
+                        onChange={(e) => setNewNote({ ...newNote, isInternal: e.target.checked })}
+                        className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
+                      />
+                    </div>
+                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Internal</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={newNote.visibleToCoManaging}
+                        onChange={(e) => setNewNote({ ...newNote, visibleToCoManaging: e.target.checked })}
+                        className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
+                      />
+                    </div>
+                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Visible to Co-managing Users</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={newNote.appendToResolution}
+                        onChange={(e) => setNewNote({ ...newNote, appendToResolution: e.target.checked })}
+                        className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
+                      />
+                    </div>
+                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Append to Resolution</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

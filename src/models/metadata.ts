@@ -15,4 +15,6 @@ export interface SystemMetadata {
   automaticChase: MetadataOption[];
   workedBy: MetadataOption[];
   escalationReason: MetadataOption[];
+  noteType: MetadataOption[];
+  notePublishType: MetadataOption[];
 }
