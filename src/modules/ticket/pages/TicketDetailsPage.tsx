@@ -76,9 +76,7 @@ export const TicketDetailsPage = () => {
     title: '',
     description: '',
     noteTypeId: 1,
-    isInternal: false,
-    visibleToCoManaging: false,
-    appendToResolution: false,
+    publishTypeId: 1,
   });
   
   const [editForm, setEditForm] = useState({
@@ -280,7 +278,7 @@ export const TicketDetailsPage = () => {
       title: newNote.title,
       description: newNote.description,
       note_type: newNote.noteTypeId,
-      publish: newNote.isInternal ? 2 : 1,
+      publish: newNote.publishTypeId,
     };
 
     createTicketNoteAPI(ticketId, payload).subscribe({
@@ -292,9 +290,9 @@ export const TicketDetailsPage = () => {
         refetchNotes();
         if (closeModal) {
           setIsNewNoteModalOpen(false);
-          setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+          setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
         } else {
-          setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+          setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
         }
       },
       error: (error) => {
@@ -2417,7 +2415,7 @@ export const TicketDetailsPage = () => {
               <button
                 onClick={() => {
                   setIsNewNoteModalOpen(false);
-                  setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+                  setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
                 }}
                 className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -2464,7 +2462,7 @@ export const TicketDetailsPage = () => {
                 <button
                   onClick={() => {
                     setIsNewNoteModalOpen(false);
-                    setNewNote({ title: '', description: '', noteTypeId: 1, isInternal: false, visibleToCoManaging: false, appendToResolution: false });
+                    setNewNote({ title: '', description: '', noteTypeId: 1, publishTypeId: 1 });
                   }}
                   disabled={isSavingNote}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -2572,43 +2570,28 @@ export const TicketDetailsPage = () => {
                   </div>
                 </div>
 
-                {/* Checkboxes Row */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Publish Type Checkbox */}
+                <div>
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative">
                       <input
                         type="checkbox"
-                        checked={newNote.isInternal}
-                        onChange={(e) => setNewNote({ ...newNote, isInternal: e.target.checked })}
+                        checked={newNote.publishTypeId === 2}
+                        onChange={(e) => setNewNote({ ...newNote, publishTypeId: e.target.checked ? 2 : 1 })}
                         className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
                       />
                     </div>
-                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Internal</span>
+                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">
+                      {(metadata?.notePublishType || [
+                        { id: 1, name: "All Autotask Users" },
+                        { id: 2, name: "Internal Project Team" },
+                        { id: 4, name: "Internal & Co-Managed" }
+                      ]).find(pt => pt.id === 2)?.name || "Internal Project Team"}
+                    </span>
                   </label>
-                  
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={newNote.visibleToCoManaging}
-                        onChange={(e) => setNewNote({ ...newNote, visibleToCoManaging: e.target.checked })}
-                        className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
-                      />
-                    </div>
-                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Visible to Co-managing Users</span>
-                  </label>
-                  
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={newNote.appendToResolution}
-                        onChange={(e) => setNewNote({ ...newNote, appendToResolution: e.target.checked })}
-                        className="w-4 h-4 rounded border-border text-[#1fb6a6] focus:ring-[#1fb6a6] focus:ring-offset-0"
-                      />
-                    </div>
-                    <span className="text-sm text-foreground group-hover:text-[#1fb6a6] transition-colors">Append to Resolution</span>
-                  </label>
+                  <p className="text-xs text-muted-foreground mt-1 ml-7">
+                    {newNote.publishTypeId === 1 ? 'Currently: All Autotask Users' : 'Currently: Internal Project Team'}
+                  </p>
                 </div>
               </div>
             </div>
