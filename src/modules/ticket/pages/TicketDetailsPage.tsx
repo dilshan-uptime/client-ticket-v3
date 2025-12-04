@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { 
   FileText, 
@@ -90,9 +90,9 @@ export const TicketDetailsPage = () => {
     billingOffsetSign: '-',
     billingOffsetHours: 0,
     billingOffsetMinutes: 0,
-    summaryNotes: '',
-    internalNotes: '',
   });
+  const summaryNotesRef = useRef<HTMLTextAreaElement>(null);
+  const internalNotesRef = useRef<HTMLTextAreaElement>(null);
   
   const [editForm, setEditForm] = useState({
     title: '',
@@ -347,7 +347,9 @@ export const TicketDetailsPage = () => {
   const handleSaveTimeEntry = (keepOpen: boolean = false) => {
     if (!id) return;
     
-    if (!newTimeEntry.summaryNotes.trim()) {
+    const summaryNotes = summaryNotesRef.current?.value || '';
+    
+    if (!summaryNotes.trim()) {
       toast.error("Summary Notes is required");
       return;
     }
@@ -368,7 +370,7 @@ export const TicketDetailsPage = () => {
     const endDateTime = `${newTimeEntry.date}T${newTimeEntry.endTime}:00Z`;
 
     const payload: CreateTimeEntryPayload = {
-      summary_notes: newTimeEntry.summaryNotes,
+      summary_notes: summaryNotes,
       date_worked: newTimeEntry.date,
       hours_worked: parseFloat(hoursWorked.toFixed(2)),
       start_datetime: startDateTime,
@@ -390,9 +392,9 @@ export const TicketDetailsPage = () => {
           billingOffsetSign: '-',
           billingOffsetHours: 0,
           billingOffsetMinutes: 0,
-          summaryNotes: '',
-          internalNotes: '',
         });
+        if (summaryNotesRef.current) summaryNotesRef.current.value = '';
+        if (internalNotesRef.current) internalNotesRef.current.value = '';
         setIsSavingTimeEntry(false);
       },
       error: (error) => {
@@ -2718,9 +2720,9 @@ export const TicketDetailsPage = () => {
                     billingOffsetSign: '-',
                     billingOffsetHours: 0,
                     billingOffsetMinutes: 0,
-                    summaryNotes: '',
-                    internalNotes: '',
                   });
+                  if (summaryNotesRef.current) summaryNotesRef.current.value = '';
+                  if (internalNotesRef.current) internalNotesRef.current.value = '';
                 }}
                 className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -2774,9 +2776,9 @@ export const TicketDetailsPage = () => {
                       billingOffsetSign: '-',
                       billingOffsetHours: 0,
                       billingOffsetMinutes: 0,
-                      summaryNotes: '',
-                      internalNotes: '',
                     });
+                    if (summaryNotesRef.current) summaryNotesRef.current.value = '';
+                    if (internalNotesRef.current) internalNotesRef.current.value = '';
                   }}
                   disabled={isSavingTimeEntry}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -2952,14 +2954,13 @@ export const TicketDetailsPage = () => {
                   </div>
                   
                   <textarea
-                    value={newTimeEntry.summaryNotes}
-                    onChange={(e) => setNewTimeEntry({ ...newTimeEntry, summaryNotes: e.target.value })}
+                    ref={summaryNotesRef}
                     placeholder="Enter summary notes..."
                     rows={5}
                     maxLength={32000}
                     className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">{32000 - newTimeEntry.summaryNotes.length}</p>
+                  <p className="text-xs text-muted-foreground mt-1">32000</p>
                 </div>
 
                 {/* Internal Notes */}
@@ -2991,14 +2992,13 @@ export const TicketDetailsPage = () => {
                   </div>
                   
                   <textarea
-                    value={newTimeEntry.internalNotes}
-                    onChange={(e) => setNewTimeEntry({ ...newTimeEntry, internalNotes: e.target.value })}
+                    ref={internalNotesRef}
                     placeholder="Enter internal notes..."
                     rows={5}
                     maxLength={32000}
                     className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">{32000 - newTimeEntry.internalNotes.length}</p>
+                  <p className="text-xs text-muted-foreground mt-1">32000</p>
                 </div>
               </div>
             </div>
