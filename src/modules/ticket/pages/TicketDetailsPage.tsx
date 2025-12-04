@@ -79,6 +79,20 @@ export const TicketDetailsPage = () => {
     publishTypeId: 1,
   });
   
+  const [isNewTimeEntryModalOpen, setIsNewTimeEntryModalOpen] = useState(false);
+  const [newTimeEntry, setNewTimeEntry] = useState({
+    date: new Date().toISOString().split('T')[0],
+    startTime: '',
+    endTime: '',
+    timeWorkedHours: 0,
+    timeWorkedMinutes: 0,
+    billingOffsetSign: '-',
+    billingOffsetHours: 0,
+    billingOffsetMinutes: 0,
+    summaryNotes: '',
+    internalNotes: '',
+  });
+  
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -304,6 +318,29 @@ export const TicketDetailsPage = () => {
         setIsSavingNote(false);
       },
     });
+  };
+
+  const calculateHoursToBill = () => {
+    const totalMinutes = (newTimeEntry.timeWorkedHours * 60) + newTimeEntry.timeWorkedMinutes;
+    const offsetMinutes = (newTimeEntry.billingOffsetHours * 60) + newTimeEntry.billingOffsetMinutes;
+    const billableMinutes = newTimeEntry.billingOffsetSign === '-' 
+      ? Math.max(0, totalMinutes - offsetMinutes) 
+      : totalMinutes + offsetMinutes;
+    const hours = Math.floor(billableMinutes / 60);
+    const minutes = billableMinutes % 60;
+    const decimalHours = (billableMinutes / 60).toFixed(1);
+    return { decimalHours, hours, minutes };
+  };
+
+  const calculateTimeWorked = (start: string, end: string) => {
+    if (!start || !end) return;
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+    let totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+    if (totalMinutes < 0) totalMinutes += 24 * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    setNewTimeEntry(prev => ({ ...prev, timeWorkedHours: hours, timeWorkedMinutes: minutes }));
   };
 
   const formatNoteDate = (dateString: string): string => {
@@ -1874,7 +1911,10 @@ export const TicketDetailsPage = () => {
                   <div className="p-4">
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3 mb-4">
-                      <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors">
+                      <button 
+                        onClick={() => setIsNewTimeEntryModalOpen(true)}
+                        className="flex items-center gap-2 px-3 py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent/30 transition-colors"
+                      >
                         <Clock className="h-4 w-4" />
                         New Time Entry
                       </button>
@@ -2592,6 +2632,290 @@ export const TicketDetailsPage = () => {
                   <p className="text-xs text-muted-foreground mt-1 ml-7">
                     {newNote.publishTypeId === 1 ? 'Currently: All Autotask Users' : 'Currently: Internal Project Team'}
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Time Entry Modal */}
+      {isNewTimeEntryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-card rounded-lg shadow-xl w-[800px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-card z-10">
+              <h3 className="text-lg font-semibold text-foreground">New Time Entry</h3>
+              <button
+                onClick={() => {
+                  setIsNewTimeEntryModalOpen(false);
+                  setNewTimeEntry({
+                    date: new Date().toISOString().split('T')[0],
+                    startTime: '',
+                    endTime: '',
+                    timeWorkedHours: 0,
+                    timeWorkedMinutes: 0,
+                    billingOffsetSign: '-',
+                    billingOffsetHours: 0,
+                    billingOffsetMinutes: 0,
+                    summaryNotes: '',
+                    internalNotes: '',
+                  });
+                }}
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border">
+                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#1fb6a6] text-white rounded hover:bg-[#1aa396] transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & Close
+                </button>
+                <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-border rounded hover:bg-accent transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save & New
+                </button>
+                <button
+                  onClick={() => {
+                    setIsNewTimeEntryModalOpen(false);
+                    setNewTimeEntry({
+                      date: new Date().toISOString().split('T')[0],
+                      startTime: '',
+                      endTime: '',
+                      timeWorkedHours: 0,
+                      timeWorkedMinutes: 0,
+                      billingOffsetSign: '-',
+                      billingOffsetHours: 0,
+                      billingOffsetMinutes: 0,
+                      summaryNotes: '',
+                      internalNotes: '',
+                    });
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </button>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-6">
+                {/* Row 1: Date, Start Time, End Time, Time Worked */}
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Date */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Date <span className="text-[#ee754e]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={newTimeEntry.date}
+                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, date: e.target.value })}
+                        className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Start Time */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Start Time <span className="text-[#ee754e]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={newTimeEntry.startTime}
+                        onChange={(e) => {
+                          setNewTimeEntry({ ...newTimeEntry, startTime: e.target.value });
+                          if (newTimeEntry.endTime) {
+                            calculateTimeWorked(e.target.value, newTimeEntry.endTime);
+                          }
+                        }}
+                        className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* End Time */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      End Time <span className="text-[#ee754e]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={newTimeEntry.endTime}
+                        onChange={(e) => {
+                          setNewTimeEntry({ ...newTimeEntry, endTime: e.target.value });
+                          if (newTimeEntry.startTime) {
+                            calculateTimeWorked(newTimeEntry.startTime, e.target.value);
+                          }
+                        }}
+                        className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Time Worked */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Time Worked <span className="text-[#ee754e]">*</span>
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        min="0"
+                        value={newTimeEntry.timeWorkedHours}
+                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, timeWorkedHours: parseInt(e.target.value) || 0 })}
+                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
+                      />
+                      <span className="text-sm text-muted-foreground">h</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={newTimeEntry.timeWorkedMinutes}
+                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, timeWorkedMinutes: Math.min(59, parseInt(e.target.value) || 0) })}
+                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
+                      />
+                      <span className="text-sm text-muted-foreground">m</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Billing Offset, Hours to Bill */}
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Billing Offset */}
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Billing Offset <span className="text-[#ee754e]">*</span>
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setNewTimeEntry({ ...newTimeEntry, billingOffsetSign: newTimeEntry.billingOffsetSign === '-' ? '+' : '-' })}
+                        className="w-10 h-10 flex items-center justify-center bg-background border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                      >
+                        {newTimeEntry.billingOffsetSign}
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newTimeEntry.billingOffsetHours}
+                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, billingOffsetHours: parseInt(e.target.value) || 0 })}
+                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
+                      />
+                      <span className="text-sm text-muted-foreground">h</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={newTimeEntry.billingOffsetMinutes}
+                        onChange={(e) => setNewTimeEntry({ ...newTimeEntry, billingOffsetMinutes: Math.min(59, parseInt(e.target.value) || 0) })}
+                        className="w-14 px-2 py-2.5 bg-background border border-border rounded-md text-sm text-foreground text-center focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6]"
+                      />
+                      <span className="text-sm text-muted-foreground">m</span>
+                    </div>
+                  </div>
+
+                  {/* Hours to Bill */}
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">Hours to Bill</label>
+                    <p className="text-sm text-foreground py-2.5">
+                      <span className="font-semibold">{calculateHoursToBill().decimalHours}</span>
+                      <span className="text-muted-foreground ml-1">
+                        ({calculateHoursToBill().hours}h {calculateHoursToBill().minutes}m)
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Summary Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Summary Notes <span className="text-[#ee754e]">*</span>
+                  </label>
+                  
+                  {/* Rich Text Toolbar */}
+                  <div className="flex items-center gap-1 px-2 py-1.5 border border-border border-b-0 rounded-t-md bg-accent/20">
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Bold">
+                      <Bold className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Italic">
+                      <Italic className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Underline">
+                      <Underline className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Ordered List">
+                      <ListOrdered className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Unordered List">
+                      <List className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Insert Image">
+                      <Image className="h-4 w-4 text-foreground" />
+                    </button>
+                  </div>
+                  
+                  <textarea
+                    value={newTimeEntry.summaryNotes}
+                    onChange={(e) => setNewTimeEntry({ ...newTimeEntry, summaryNotes: e.target.value })}
+                    placeholder="Enter summary notes..."
+                    rows={5}
+                    maxLength={32000}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">{32000 - newTimeEntry.summaryNotes.length}</p>
+                </div>
+
+                {/* Internal Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Internal Notes</label>
+                  
+                  {/* Rich Text Toolbar */}
+                  <div className="flex items-center gap-1 px-2 py-1.5 border border-border border-b-0 rounded-t-md bg-accent/20">
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Bold">
+                      <Bold className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Italic">
+                      <Italic className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Underline">
+                      <Underline className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Ordered List">
+                      <ListOrdered className="h-4 w-4 text-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Unordered List">
+                      <List className="h-4 w-4 text-foreground" />
+                    </button>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <button className="p-1.5 hover:bg-accent rounded transition-colors" title="Insert Image">
+                      <Image className="h-4 w-4 text-foreground" />
+                    </button>
+                  </div>
+                  
+                  <textarea
+                    value={newTimeEntry.internalNotes}
+                    onChange={(e) => setNewTimeEntry({ ...newTimeEntry, internalNotes: e.target.value })}
+                    placeholder="Enter internal notes..."
+                    rows={5}
+                    maxLength={32000}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-b-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1fb6a6]/30 focus:border-[#1fb6a6] resize-y"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">{32000 - newTimeEntry.internalNotes.length}</p>
                 </div>
               </div>
             </div>
