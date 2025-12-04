@@ -201,3 +201,7 @@ export interface TimeEntry {
 export const getTicketTimeEntriesAPI = (ticketId: number): Observable<TimeEntry[]> => {
   return GET(`${ROOT_PATH}/${ticketId}/time-entries`, {});
 };
+
+export const toggleNotePinAPI = (ticketId: number, noteId: number): Observable<any> => {
+  return POST(`${ROOT_PATH}/${ticketId}/notes/${noteId}/toggle-pin`, {});
+};

@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, toggleNotePinAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
 import { forkJoin } from "rxjs";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
@@ -95,6 +95,10 @@ export const TicketDetailsPage = () => {
     timeWorkedMinutes: 0,
   });
   const summaryNotesRef = useRef<HTMLTextAreaElement>(null);
+  
+  const [isPinConfirmOpen, setIsPinConfirmOpen] = useState(false);
+  const [pinningNoteId, setPinningNoteId] = useState<number | null>(null);
+  const [isTogglingPin, setIsTogglingPin] = useState(false);
   
   const [editForm, setEditForm] = useState({
     title: '',
@@ -412,6 +416,31 @@ export const TicketDetailsPage = () => {
         console.error("Failed to create time entry:", error);
         toast.error("Failed to create time entry");
         setIsSavingTimeEntry(false);
+      },
+    });
+  };
+
+  const handlePinClick = (noteId: number) => {
+    setPinningNoteId(noteId);
+    setIsPinConfirmOpen(true);
+  };
+
+  const handleConfirmPin = () => {
+    if (!id || !pinningNoteId) return;
+    
+    setIsTogglingPin(true);
+    toggleNotePinAPI(parseInt(id), pinningNoteId).subscribe({
+      next: () => {
+        toast.success("Note pin status updated");
+        refetchActivity();
+        setIsPinConfirmOpen(false);
+        setPinningNoteId(null);
+        setIsTogglingPin(false);
+      },
+      error: (error) => {
+        console.error("Failed to toggle pin:", error);
+        toast.error("Failed to update pin status");
+        setIsTogglingPin(false);
       },
     });
   };
@@ -2098,21 +2127,25 @@ export const TicketDetailsPage = () => {
                         getFilteredActivityItems().map((item) => (
                           <div key={`${item.type}-${item.id}`} className="relative flex gap-3 p-3 bg-background rounded-lg border border-border">
                             {item.type === 'note' && (
-                              <div className="absolute top-2 right-2">
+                              <button
+                                onClick={() => handlePinClick(item.id)}
+                                className="absolute top-2 right-2 p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+                                title="Toggle pin"
+                              >
                                 <svg 
                                   width="16" 
                                   height="16" 
                                   viewBox="0 0 24 24" 
                                   fill="none" 
                                   xmlns="http://www.w3.org/2000/svg"
-                                  className="text-purple-400"
+                                  className="text-purple-400 hover:text-purple-600 transition-colors"
                                 >
                                   <path 
                                     d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
                                     fill="currentColor"
                                   />
                                 </svg>
-                              </div>
+                              </button>
                             )}
                             {item.type === 'note' ? (
                               <>
@@ -2988,6 +3021,78 @@ export const TicketDetailsPage = () => {
                   <p className="text-xs text-muted-foreground mt-1">32000</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pin Confirmation Modal */}
+      {isPinConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-card rounded-lg shadow-xl w-[400px] max-w-[90vw] p-6">
+            {/* Pin Icon SVG Illustration */}
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <svg 
+                  width="40" 
+                  height="40" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-purple-500"
+                >
+                  <path 
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" 
+                    fill="currentColor"
+                    opacity="0.2"
+                  />
+                  <path 
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-lg font-semibold text-foreground text-center mb-2">
+              Toggle Pin Status
+            </h3>
+
+            {/* Description */}
+            <p className="text-sm text-muted-foreground text-center mb-6">
+              Are you sure you want to change the pin status of this note?
+            </p>
+
+            {/* Buttons */}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => {
+                  setIsPinConfirmOpen(false);
+                  setPinningNoteId(null);
+                }}
+                disabled={isTogglingPin}
+                className="px-6 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-accent transition-colors disabled:opacity-50"
+              >
+                No
+              </button>
+              <button
+                onClick={handleConfirmPin}
+                disabled={isTogglingPin}
+                className="px-6 py-2.5 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isTogglingPin ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  'Yes'
+                )}
+              </button>
             </div>
           </div>
         </div>
