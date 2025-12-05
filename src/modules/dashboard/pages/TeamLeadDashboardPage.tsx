@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { getTeamsAPI, getUsersByTeamAPI } from "@/services/api/team-lead-api";
-import type { Team, User } from "@/services/api/team-lead-api";
+import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI } from "@/services/api/team-lead-api";
+import type { Team, User, IdleResource as ApiIdleResource } from "@/services/api/team-lead-api";
 import { toast } from "sonner";
 import { 
   ChevronDown, 
@@ -22,24 +22,6 @@ interface SentimentData {
   bgColor: string;
 }
 
-interface Engineer {
-  id: string;
-  name: string;
-}
-
-interface IdleResource {
-  id: string;
-  name: string;
-  status: 'stalled' | 'idle';
-  stalledTickets: number;
-  tickets: { id: string; title: string; hasTimeEntries: boolean }[];
-  lastActivity: string;
-  idleFor: string;
-  inProgressTickets: number;
-  assignedTickets: number;
-  recentTicketsCount: number;
-}
-
 interface Decision {
   id: string;
   dateTime: string;
@@ -50,32 +32,6 @@ interface Decision {
   timeToDecide: string;
   slaAtDecision: string;
 }
-
-const mockEngineers: Engineer[] = [
-  { id: '1', name: 'Gihan' },
-  { id: '2', name: 'John Smith' },
-  { id: '3', name: 'Sarah Connor' },
-];
-
-const mockIdleResources: IdleResource[] = [
-  {
-    id: '1',
-    name: 'Gihan',
-    status: 'stalled',
-    stalledTickets: 4,
-    tickets: [
-      { id: 'T20251110.0002', title: 'Ticket - Com A - 2025111002', hasTimeEntries: false },
-      { id: 'T20251110.0003', title: 'Ticket GG Com A - Test 001', hasTimeEntries: false },
-      { id: 'T20251111.0006', title: 'Test sample 111101', hasTimeEntries: false },
-      { id: 'T20251126.0007', title: 'Title 412132', hasTimeEntries: false },
-    ],
-    lastActivity: '2025-11-26 17:39',
-    idleFor: '7d 3h',
-    inProgressTickets: 4,
-    assignedTickets: 16,
-    recentTicketsCount: 3,
-  },
-];
 
 const mockDecisions: Decision[] = [
   {
@@ -99,9 +55,11 @@ export const TeamLeadDashboardPage = () => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [selectedEngineer, setSelectedEngineer] = useState('');
   const [ticketNumber, setTicketNumber] = useState('');
+  const [idleResources, setIdleResources] = useState<ApiIdleResource[]>([]);
+  const [isLoadingResources, setIsLoadingResources] = useState(false);
   const [idleThreshold, setIdleThreshold] = useState('30');
   const [stalledAfter, setStalledAfter] = useState('4');
-  const [expandedResource, setExpandedResource] = useState<string | null>(mockIdleResources[0]?.id || null);
+  const [expandedResource, setExpandedResource] = useState<string | null>(null);
   const [filterEngineer, setFilterEngineer] = useState('');
   const [fromDate, setFromDate] = useState('2025-11-26');
   const [toDate, setToDate] = useState('2025-12-03');
@@ -149,6 +107,53 @@ export const TeamLeadDashboardPage = () => {
 
     return () => subscription.unsubscribe();
   }, [selectedTeam]);
+
+  useEffect(() => {
+    if (!selectedTeam) {
+      setIdleResources([]);
+      return;
+    }
+
+    setIsLoadingResources(true);
+    const subscription = getCheckResourcesAPI(selectedTeam).subscribe({
+      next: (data) => {
+        setIdleResources(data);
+        setIsLoadingResources(false);
+        if (data.length > 0) {
+          setExpandedResource(data[0].creator.id);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch resources:', err);
+        toast.error('Failed to load idle resources');
+        setIsLoadingResources(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, [selectedTeam]);
+
+  const formatIdleDuration = (minutes: number | null): string => {
+    if (minutes === null) return 'N/A';
+    const days = Math.floor(minutes / 1440);
+    const hours = Math.floor((minutes % 1440) / 60);
+    const mins = minutes % 60;
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  const formatLastActivity = (dateStr: string | null): string => {
+    if (!dateStr) return 'No activity';
+    const date = new Date(dateStr);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   const sentimentData: SentimentData[] = [
     { label: 'Frustrated', count: 0, color: '#dc2626', bgColor: 'rgba(220, 38, 38, 0.1)' },
@@ -313,110 +318,194 @@ export const TeamLeadDashboardPage = () => {
           )}
 
           {/* Idle & Stalled Resources */}
-          <div className="bg-card border border-border rounded-xl mb-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 p-4 border-b border-border">
+          <div className="bg-card border border-border rounded-xl mb-6 overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 border-b border-border bg-gradient-to-r from-card to-accent/5">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-foreground">Idle & Stalled Resources</h2>
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-muted-foreground">Idle threshold:</span>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ee754e] to-[#f49b71] flex items-center justify-center shadow-lg shadow-[#ee754e]/20">
+                  <AlertTriangle className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">Idle & Stalled Resources</h2>
+                  <p className="text-xs text-muted-foreground">{idleResources.length} resource(s) need attention</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-background/50 rounded-lg border border-border">
+                  <span className="text-xs text-muted-foreground">Idle:</span>
                   <select
                     value={idleThreshold}
                     onChange={(e) => setIdleThreshold(e.target.value)}
-                    className="px-2 py-1 bg-background border border-border rounded text-sm text-foreground"
+                    className="px-1.5 py-0.5 bg-transparent text-xs text-foreground focus:outline-none"
                   >
-                    <option value="15">15 minutes</option>
-                    <option value="30">30 minutes</option>
-                    <option value="60">1 hour</option>
+                    <option value="15">15m</option>
+                    <option value="30">30m</option>
+                    <option value="60">1h</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-muted-foreground">Stalled after:</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-background/50 rounded-lg border border-border">
+                  <span className="text-xs text-muted-foreground">Stalled:</span>
                   <select
                     value={stalledAfter}
                     onChange={(e) => setStalledAfter(e.target.value)}
-                    className="px-2 py-1 bg-background border border-border rounded text-sm text-foreground"
+                    className="px-1.5 py-0.5 bg-transparent text-xs text-foreground focus:outline-none"
                   >
-                    <option value="2">2 hours</option>
-                    <option value="4">4 hours</option>
-                    <option value="8">8 hours</option>
+                    <option value="2">2h</option>
+                    <option value="4">4h</option>
+                    <option value="8">8h</option>
                   </select>
                 </div>
+                <button className="flex items-center gap-2 px-3 py-1.5 text-[#1fb6a6] hover:bg-[#1fb6a6]/10 rounded-lg transition-all duration-200 hover:scale-105">
+                  <RefreshCw className="h-4 w-4" />
+                  <span className="text-sm font-medium">Refresh</span>
+                </button>
               </div>
-              <button className="flex items-center gap-2 px-3 py-1.5 text-[#1fb6a6] hover:bg-[#1fb6a6]/10 rounded-lg transition-colors">
-                <RefreshCw className="h-4 w-4" />
-                <span className="text-sm font-medium">Refresh</span>
-              </button>
             </div>
 
             <div className="p-4">
-              {mockIdleResources.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  No idle resources - everyone has work assigned or in progress
-                </p>
-              ) : (
-                mockIdleResources.map((resource) => (
-                  <div key={resource.id} className="border border-border rounded-lg mb-4 last:mb-0">
-                    <div className="flex items-center justify-between p-4 border-b border-border">
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-foreground">{resource.name}</span>
-                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                          resource.status === 'stalled' 
-                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
-                            : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                        }`}>
-                          {resource.status === 'stalled' ? 'Stalled Work' : 'Idle'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-                          <span>How was this calculated?</span>
-                        </button>
-                        <button className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white text-sm font-medium rounded-lg transition-colors">
-                          Assign Next Ticket
-                        </button>
-                      </div>
-                    </div>
-
-                    <div 
-                      className="p-4 cursor-pointer"
-                      onClick={() => setExpandedResource(expandedResource === resource.id ? null : resource.id)}
-                    >
-                      <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="text-sm font-medium">{resource.stalledTickets} stalled in-progress ticket(s)</span>
-                      </div>
-
-                      {expandedResource === resource.id && (
-                        <>
-                          <div className="space-y-2 mb-4 pl-6">
-                            {resource.tickets.map((ticket) => (
-                              <div key={ticket.id} className="text-sm">
-                                <a href="#" className="text-[#1fb6a6] hover:underline font-medium">{ticket.id}</a>
-                                <span className="text-muted-foreground"> - {ticket.title}</span>
-                                <br />
-                                <span className={`text-xs ${ticket.hasTimeEntries ? 'text-green-500' : 'text-red-500'}`}>
-                                  {ticket.hasTimeEntries ? 'Has time entries' : 'No time entries'}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="text-sm text-muted-foreground space-y-1 border-t border-border pt-4">
-                            <p>Last activity: <span className="text-foreground">{resource.lastActivity}</span></p>
-                            <p>Idle for: <span className="text-foreground">{resource.idleFor}</span></p>
-                            <p>In-progress tickets: <span className="text-foreground">{resource.inProgressTickets}</span></p>
-                            <p>Assigned tickets: <span className="text-foreground">{resource.assignedTickets}</span></p>
-                          </div>
-
-                          <button className="mt-4 flex items-center gap-2 text-[#1fb6a6] hover:underline text-sm">
-                            <ExternalLink className="h-3 w-3" />
-                            Recent tickets ({resource.recentTicketsCount})
-                          </button>
-                        </>
-                      )}
-                    </div>
+              {isLoadingResources ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#ee754e]" />
+                    <span className="text-sm text-muted-foreground">Loading resources...</span>
                   </div>
-                ))
+                </div>
+              ) : idleResources.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-foreground font-medium mb-1">All Clear!</p>
+                  <p className="text-sm text-muted-foreground">Everyone has work assigned or in progress</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {idleResources.map((resource) => (
+                    <div 
+                      key={resource.creator.id} 
+                      className={`border rounded-xl overflow-hidden transition-all duration-300 ${
+                        expandedResource === resource.creator.id 
+                          ? 'border-[#ee754e]/30 shadow-lg shadow-[#ee754e]/5' 
+                          : 'border-border hover:border-[#ee754e]/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-background to-accent/5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1fb6a6] to-[#1fb6a6]/70 flex items-center justify-center text-white font-semibold text-lg shadow-md">
+                            {resource.creator.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-foreground">{resource.creator.name.split(' (')[0]}</span>
+                              <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
+                                resource.idleType === 'stalled' 
+                                  ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm shadow-red-500/30' 
+                                  : 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-sm shadow-amber-500/30'
+                              }`}>
+                                {resource.idleType === 'stalled' ? 'Stalled' : 'Idle'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                {resource.inProgressCount} in progress
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                {resource.assignedCount} assigned
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <button className="px-4 py-2 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#e06840] hover:to-[#ee754e] text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md shadow-[#ee754e]/20 hover:shadow-lg hover:shadow-[#ee754e]/30 hover:scale-105">
+                            Assign Next Ticket
+                          </button>
+                        </div>
+                      </div>
+
+                      <div 
+                        className="p-4 cursor-pointer border-t border-border/50"
+                        onClick={() => setExpandedResource(expandedResource === resource.creator.id ? null : resource.creator.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                            <AlertTriangle className="h-4 w-4" />
+                            <span className="text-sm font-medium">{resource.stalledTickets.length} stalled ticket(s)</span>
+                          </div>
+                          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${
+                            expandedResource === resource.creator.id ? 'rotate-180' : ''
+                          }`} />
+                        </div>
+
+                        {expandedResource === resource.creator.id && (
+                          <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                            {resource.stalledTickets.length > 0 && (
+                              <div className="space-y-2 mb-4">
+                                {resource.stalledTickets.map((ticket) => (
+                                  <div 
+                                    key={ticket.ticketId} 
+                                    className="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 rounded-lg border border-red-100 dark:border-red-900/30"
+                                  >
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <a href="#" className="text-[#1fb6a6] hover:underline font-medium text-sm">{ticket.ticketNumber}</a>
+                                        <span className="text-xs text-muted-foreground">-</span>
+                                        <span className="text-sm text-foreground truncate max-w-[300px]">{ticket.title}</span>
+                                      </div>
+                                      <div className="flex items-center gap-3 mt-1">
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                                          {ticket.stalledReason}
+                                        </span>
+                                        {ticket.hoursStalled && (
+                                          <span className="text-xs text-muted-foreground">
+                                            {ticket.hoursStalled}h stalled
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <a href="#" className="p-2 hover:bg-white dark:hover:bg-card rounded-lg transition-colors">
+                                      <ExternalLink className="h-4 w-4 text-[#1fb6a6]" />
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-accent/30 rounded-lg border border-border">
+                              <div className="text-center">
+                                <p className="text-2xl font-bold text-foreground">{resource.inProgressCount}</p>
+                                <p className="text-xs text-muted-foreground">In Progress</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-2xl font-bold text-foreground">{resource.assignedCount}</p>
+                                <p className="text-xs text-muted-foreground">Assigned</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-2xl font-bold text-[#ee754e]">{formatIdleDuration(resource.idleDurationMinutes)}</p>
+                                <p className="text-xs text-muted-foreground">Idle Duration</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm font-medium text-foreground">{formatLastActivity(resource.lastActivity)}</p>
+                                <p className="text-xs text-muted-foreground">Last Activity</p>
+                              </div>
+                            </div>
+
+                            {resource.recentTickets.length > 0 && (
+                              <div className="mt-4">
+                                <button className="flex items-center gap-2 text-[#1fb6a6] hover:underline text-sm font-medium">
+                                  <ExternalLink className="h-3 w-3" />
+                                  View {resource.recentTickets.length} recent tickets
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -436,8 +525,8 @@ export const TeamLeadDashboardPage = () => {
                       className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50"
                     >
                       <option value="">All engineers</option>
-                      {mockEngineers.map((eng) => (
-                        <option key={eng.id} value={eng.id}>{eng.name}</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>{user.name}</option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

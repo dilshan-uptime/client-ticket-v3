@@ -1,0 +1,223 @@
+[
+    {
+        "creator": {
+            "id": "29683006",
+            "sys_id": 7,
+            "name": "Dilshan (dilshan.s@uptimeglobal.tech)"
+        },
+        "idle_type": "stalled",
+        "last_activity": null,
+        "idle_duration_minutes": null,
+        "in_progress_count": 5,
+        "assigned_count": 12,
+        "stalled_tickets": [
+            {
+                "ticket_id": 412107,
+                "ticket_number": "T20251120.0001",
+                "title": "Test Ticket",
+                "status": 8,
+                "last_work": null,
+                "stalled_reason": "No time entries"
+            },
+            {
+                "ticket_id": 412108,
+                "ticket_number": "T20251120.0002",
+                "title": "[Summary of Issue]",
+                "status": 8,
+                "last_work": null,
+                "stalled_reason": "No time entries"
+            },
+            {
+                "ticket_id": 412133,
+                "ticket_number": "T20251126.0008",
+                "title": "Dev Team Testing",
+                "status": 8,
+                "last_work": null,
+                "stalled_reason": "No time entries"
+            },
+            {
+                "ticket_id": 412134,
+                "ticket_number": "T20251126.0009",
+                "title": "Dev Team Test V1",
+                "status": 8,
+                "last_work": null,
+                "stalled_reason": "No time entries"
+            },
+            {
+                "ticket_id": 412135,
+                "ticket_number": "T20251126.0010",
+                "title": "Dev Team Test v2",
+                "status": 8,
+                "last_work": null,
+                "stalled_reason": "No time entries"
+            }
+        ],
+        "recent_tickets": [
+            {
+                "id": 412107,
+                "title": "Test Ticket",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412107",
+                "ticket_number": "T20251120.0001",
+                "description": "Auto Description",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 5
+            },
+            {
+                "id": 412108,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412108",
+                "ticket_number": "T20251120.0002",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29683480
+            },
+            {
+                "id": 412116,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412116",
+                "ticket_number": "T20251125.0003",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29683480
+            },
+            {
+                "id": 412117,
+                "title": "[Summary of Issue] v2",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412117",
+                "ticket_number": "T20251125.0004",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###\nv22",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29683486
+            },
+            {
+                "id": 412118,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412118",
+                "ticket_number": "T20251125.0005",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29683484
+            }
+        ]
+    },
+    {
+        "creator": {
+            "id": "29683007",
+            "sys_id": 4,
+            "name": "Gihan (gihan.g@uptimeglobal.tech)"
+        },
+        "idle_type": "stalled",
+        "last_activity": "2025-11-26T14:09:27.073333+05:30",
+        "idle_duration_minutes": 13050,
+        "in_progress_count": 1,
+        "assigned_count": 14,
+        "stalled_tickets": [
+            {
+                "ticket_id": 412132,
+                "ticket_number": "T20251126.0007",
+                "title": "Title 412132",
+                "status": 8,
+                "last_work": "2025-12-03T16:39:00+00:00",
+                "hours_stalled": 41,
+                "stalled_reason": "No work for 41h"
+            }
+        ],
+        "recent_tickets": [
+            {
+                "id": 412095,
+                "title": "Sandbox Test 2025111001T",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412095",
+                "ticket_number": "T20251110.0001",
+                "description": "Sandbox Test 2025111001T",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29683485
+            },
+            {
+                "id": 412106,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412106",
+                "ticket_number": "T20251112.0001",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29682833
+            },
+            {
+                "id": 412113,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412113",
+                "ticket_number": "T20251124.0002",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29682969
+            },
+            {
+                "id": 412114,
+                "title": "11 25 2025 001",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412114",
+                "ticket_number": "T20251125.0001",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29682969
+            },
+            {
+                "id": 412119,
+                "title": "[Summary of Issue]",
+                "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412119",
+                "ticket_number": "T20251125.0006",
+                "description": "### Take the best contact number and update the Autotask contact UNLESS USER IS CALLING FOR A PASSWORD RESET ###\n\n[Issue?]\n\n[Error messages?]\n\n[Hostname?]\n\n[Timeframe?]\n\n[Multiple users?]\n\n[What site/office?]\n\n### Please suggest any workarounds you can recommend immediately ###",
+                "company_id": null,
+                "contract_id": null,
+                "issue_type_id": null,
+                "sub_issue_type_id": null,
+                "priority": null,
+                "work_type_id": null,
+                "queue_id": 29682969
+            }
+        ]
+    }
+]
