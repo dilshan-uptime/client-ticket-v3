@@ -1143,7 +1143,7 @@ export const TicketDetailsPage = () => {
           </div>
         )}
 
-        <div className={`${isEditMode ? 'h-[calc(100vh-4rem-52px)]' : 'h-[calc(100vh-4rem)]'} overflow-auto w-full`}>
+        <div className={`${isEditMode ? 'h-[calc(100vh-52px-52px)]' : 'h-[calc(100vh-52px)]'} overflow-auto w-full`}>
           <div className="flex gap-0 h-full w-full min-h-full">
             
             {/* LEFT SIDEBAR */}
