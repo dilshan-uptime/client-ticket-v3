@@ -1070,7 +1070,7 @@ export const TicketDetailsPage = () => {
   return (
     <div className="min-h-screen bg-background smooth-transition">
       <Sidebar />
-      <main className={`${collapsed ? 'ml-20' : 'ml-64'} min-h-screen bg-background smooth-transition`}>
+      <main className={`${collapsed ? 'ml-0' : 'ml-[156px]'} min-h-screen bg-background smooth-transition`}>
         {/* Back Button Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
           <button
