@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { getTeamsAPI } from "@/services/api/team-lead-api";
-import type { Team } from "@/services/api/team-lead-api";
+import { getTeamsAPI, getUsersByTeamAPI } from "@/services/api/team-lead-api";
+import type { Team, User } from "@/services/api/team-lead-api";
 import { toast } from "sonner";
 import { 
   ChevronDown, 
@@ -95,6 +95,8 @@ export const TeamLeadDashboardPage = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoadingTeams, setIsLoadingTeams] = useState(true);
   const [selectedTeam, setSelectedTeam] = useState('');
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [selectedEngineer, setSelectedEngineer] = useState('');
   const [ticketNumber, setTicketNumber] = useState('');
   const [idleThreshold, setIdleThreshold] = useState('30');
@@ -123,6 +125,30 @@ export const TeamLeadDashboardPage = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!selectedTeam) {
+      setUsers([]);
+      setSelectedEngineer('');
+      return;
+    }
+
+    setIsLoadingUsers(true);
+    setSelectedEngineer('');
+    const subscription = getUsersByTeamAPI(selectedTeam).subscribe({
+      next: (data) => {
+        setUsers(data);
+        setIsLoadingUsers(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch users:', err);
+        toast.error('Failed to load engineers');
+        setIsLoadingUsers(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, [selectedTeam]);
 
   const sentimentData: SentimentData[] = [
     { label: 'Frustrated', count: 0, color: '#dc2626', bgColor: 'rgba(220, 38, 38, 0.1)' },
@@ -230,17 +256,26 @@ export const TeamLeadDashboardPage = () => {
             <div className="flex-1 min-w-[250px]">
               <label className="block text-sm font-medium text-muted-foreground mb-2">Select Engineer</label>
               <div className="relative">
-                <select
-                  value={selectedEngineer}
-                  onChange={(e) => setSelectedEngineer(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
-                >
-                  <option value="">Select an engineer...</option>
-                  {mockEngineers.map((eng) => (
-                    <option key={eng.id} value={eng.id}>{eng.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                {isLoadingUsers ? (
+                  <div className="w-full px-4 py-2.5 bg-card border border-border rounded-lg flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-muted-foreground text-sm">Loading engineers...</span>
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      value={selectedEngineer}
+                      onChange={(e) => setSelectedEngineer(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
+                    >
+                      <option value="">Select an engineer...</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>{user.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                  </>
+                )}
               </div>
             </div>
             <button className="px-4 py-2.5 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors whitespace-nowrap">
@@ -267,7 +302,7 @@ export const TeamLeadDashboardPage = () => {
           {selectedEngineer && (
             <div className="mb-6 p-4 bg-card border border-border rounded-lg">
               <p className="font-semibold text-foreground mb-1">
-                Next Ticket for {mockEngineers.find(e => e.id === selectedEngineer)?.name}
+                Next Ticket for {users.find(u => u.id.toString() === selectedEngineer)?.name}
               </p>
               <p className="text-foreground font-medium">Ticket T20251110.0001</p>
               <p className="text-[#ee754e] font-bold">Total Score: 4100</p>
