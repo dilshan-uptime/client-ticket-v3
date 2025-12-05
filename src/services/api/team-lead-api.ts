@@ -10,7 +10,8 @@ export interface Team {
 }
 
 export interface User {
-  id: number;
+  id: string;
+  sysId: number;
   name: string;
 }
 

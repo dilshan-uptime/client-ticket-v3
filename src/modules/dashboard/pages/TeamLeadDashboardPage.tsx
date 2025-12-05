@@ -634,7 +634,7 @@ export const TeamLeadDashboardPage = () => {
                     >
                       <option value="">All engineers</option>
                       {users.map((user) => (
-                        <option key={user.id} value={user.id}>{user.name}</option>
+                        <option key={user.id} value={user.sysId}>{user.name}</option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
