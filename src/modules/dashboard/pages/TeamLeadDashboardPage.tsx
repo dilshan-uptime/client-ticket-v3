@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { getTeamsAPI } from "@/services/api/team-lead-api";
+import type { Team } from "@/services/api/team-lead-api";
+import { toast } from "sonner";
 import { 
   ChevronDown, 
   RefreshCw, 
@@ -8,7 +11,8 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Download
+  Download,
+  Loader2
 } from "lucide-react";
 
 interface SentimentData {
@@ -46,12 +50,6 @@ interface Decision {
   timeToDecide: string;
   slaAtDecision: string;
 }
-
-const mockTeams = [
-  { id: '1', name: '1st Responder' },
-  { id: '2', name: '2nd Line Support' },
-  { id: '3', name: 'Infrastructure' },
-];
 
 const mockEngineers: Engineer[] = [
   { id: '1', name: 'Gihan' },
@@ -94,7 +92,9 @@ const mockDecisions: Decision[] = [
 
 export const TeamLeadDashboardPage = () => {
   const { collapsed } = useSidebar();
-  const [selectedTeam, setSelectedTeam] = useState(mockTeams[0].id);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isLoadingTeams, setIsLoadingTeams] = useState(true);
+  const [selectedTeam, setSelectedTeam] = useState('');
   const [selectedEngineer, setSelectedEngineer] = useState('');
   const [ticketNumber, setTicketNumber] = useState('');
   const [idleThreshold, setIdleThreshold] = useState('30');
@@ -105,6 +105,24 @@ export const TeamLeadDashboardPage = () => {
   const [toDate, setToDate] = useState('2025-12-03');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+
+  const isTeamSelected = selectedTeam !== '';
+
+  useEffect(() => {
+    const subscription = getTeamsAPI().subscribe({
+      next: (data) => {
+        setTeams(data);
+        setIsLoadingTeams(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch teams:', err);
+        toast.error('Failed to load teams');
+        setIsLoadingTeams(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const sentimentData: SentimentData[] = [
     { label: 'Frustrated', count: 0, color: '#dc2626', bgColor: 'rgba(220, 38, 38, 0.1)' },
@@ -137,22 +155,42 @@ export const TeamLeadDashboardPage = () => {
           <div className="mb-6">
             <label className="block text-sm font-medium text-muted-foreground mb-2">Select Team</label>
             <div className="relative">
-              <select
-                value={selectedTeam}
-                onChange={(e) => setSelectedTeam(e.target.value)}
-                className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
-              >
-                {mockTeams.map((team) => (
-                  <option key={team.id} value={team.id}>{team.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+              {isLoadingTeams ? (
+                <div className="w-full px-4 py-3 bg-card border border-border rounded-lg flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <span className="text-muted-foreground">Loading teams...</span>
+                </div>
+              ) : (
+                <>
+                  <select
+                    value={selectedTeam}
+                    onChange={(e) => setSelectedTeam(e.target.value)}
+                    className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
+                  >
+                    <option value="">Select a team...</option>
+                    {teams.map((team) => (
+                      <option key={team.id} value={team.id}>{team.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                </>
+              )}
             </div>
           </div>
 
-          {/* Ticket Sentiment Analysis */}
-          <div className="bg-card border border-border rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-foreground mb-6">Ticket Sentiment Analysis</h2>
+          {/* Content wrapper - disabled when no team selected */}
+          <div className={`${!isTeamSelected ? 'opacity-50 pointer-events-none' : ''}`}>
+            {!isTeamSelected && (
+              <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">
+                  Please select a team to view dashboard data
+                </p>
+              </div>
+            )}
+
+            {/* Ticket Sentiment Analysis */}
+            <div className="bg-card border border-border rounded-xl p-6 mb-6">
+              <h2 className="text-lg font-semibold text-foreground mb-6">Ticket Sentiment Analysis</h2>
             
             <div className="flex justify-between items-center mb-8 px-8">
               {sentimentData.map((sentiment) => (
@@ -510,6 +548,7 @@ export const TeamLeadDashboardPage = () => {
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
+          </div>
           </div>
         </div>
       </main>
