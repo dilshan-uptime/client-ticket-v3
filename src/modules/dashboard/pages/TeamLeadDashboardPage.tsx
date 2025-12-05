@@ -451,7 +451,7 @@ export const TeamLeadDashboardPage = () => {
                                 {resource.stalledTickets.map((ticket) => (
                                   <div 
                                     key={ticket.ticketId} 
-                                    className="flex items-center justify-between px-4 py-3 bg-amber-50/50 dark:bg-amber-900/5"
+                                    className="flex items-center justify-between px-4 py-3 bg-[#fef9f3] dark:bg-[#2a3441] border-l-2 border-[#ee754e]/40"
                                   >
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export const TeamLeadDashboardPage = () => {
                                           {ticket.ticketNumber}
                                         </a>
                                         <span className="text-muted-foreground">-</span>
-                                        <span className="text-sm text-muted-foreground">{ticket.title}</span>
+                                        <span className="text-sm text-foreground dark:text-gray-300">{ticket.title}</span>
                                       </div>
                                       <span className="text-xs text-[#ee754e]">
                                         {ticket.stalledReason}
@@ -475,7 +475,7 @@ export const TeamLeadDashboardPage = () => {
                                       href={getTicketUrl(ticket.ticketId)} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
-                                      className="p-2 hover:bg-white dark:hover:bg-card rounded transition-colors"
+                                      className="p-2 hover:bg-white/50 dark:hover:bg-white/10 rounded transition-colors"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <ExternalLink className="h-4 w-4 text-muted-foreground" />
