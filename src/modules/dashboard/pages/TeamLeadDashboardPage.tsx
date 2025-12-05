@@ -401,7 +401,7 @@ export const TeamLeadDashboardPage = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 p-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                 <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Accepted</p>
                 <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{stats.accepted}</p>
@@ -418,11 +418,7 @@ export const TeamLeadDashboardPage = () => {
                 <p className="text-sm text-muted-foreground mb-1">Last Accepted</p>
                 <p className="text-lg font-semibold text-foreground">{stats.lastAccepted}</p>
               </div>
-            </div>
-
-            {/* Last Rejected */}
-            <div className="px-4 pb-4">
-              <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-[200px]">
+              <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Rejected</p>
                 <p className="text-foreground">{stats.lastRejected}</p>
               </div>
