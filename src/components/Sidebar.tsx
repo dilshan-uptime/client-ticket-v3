@@ -96,7 +96,7 @@ export const Sidebar = () => {
               }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
             </button>
           );
         })}
