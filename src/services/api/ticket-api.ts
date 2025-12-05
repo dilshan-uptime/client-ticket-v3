@@ -213,5 +213,5 @@ export interface UserSearchResult {
 }
 
 export const searchUsersAPI = (query: string): Observable<UserSearchResult[]> => {
-  return POST(`api/v1/system/users/search?q=${encodeURIComponent(query)}`, {});
+  return GET(`api/v1/system/users/search`, { q: query });
 };
