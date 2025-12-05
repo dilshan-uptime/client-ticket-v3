@@ -70,20 +70,19 @@ export const getCheckResourcesAPI = (teamId: string): Observable<IdleResource[]>
 
 export interface ActivityItem {
   id: number;
-  dateTime: string;
-  engineer: string;
-  ticketNumber: string;
-  ticketTitle: string;
-  action: 'accepted' | 'rejected';
+  ticketId: number;
+  userId: number;
+  userName: string;
+  type: 'accept' | 'reject';
+  timestamp: string;
   reason: string | null;
 }
 
 export interface ActivitiesResponse {
-  content: ActivityItem[];
-  totalElements: number;
-  totalPages: number;
+  total: number;
+  page: number;
   size: number;
-  number: number;
+  items: ActivityItem[];
 }
 
 export const getTeamActivitiesAPI = (

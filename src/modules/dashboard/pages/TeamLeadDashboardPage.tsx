@@ -137,9 +137,9 @@ export const TeamLeadDashboardPage = () => {
     setIsLoadingActivities(true);
     const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fromDate, toDate).subscribe({
       next: (data) => {
-        setActivities(data.content);
-        setTotalActivities(data.totalElements);
-        setTotalPages(data.totalPages);
+        setActivities(data.items);
+        setTotalActivities(data.total);
+        setTotalPages(Math.ceil(data.total / data.size));
         setIsLoadingActivities(false);
       },
       error: (err) => {
@@ -200,14 +200,29 @@ export const TeamLeadDashboardPage = () => {
     { label: 'Positive', count: 0, color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.1)' },
   ];
 
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   const stats = {
-    accepted: activities.filter(a => a.action === 'accepted').length,
-    rejected: activities.filter(a => a.action === 'rejected').length,
+    accepted: activities.filter(a => a.type === 'accept').length,
+    rejected: activities.filter(a => a.type === 'reject').length,
     acceptanceRate: activities.length > 0 
-      ? `${((activities.filter(a => a.action === 'accepted').length / activities.length) * 100).toFixed(1)}%` 
+      ? `${((activities.filter(a => a.type === 'accept').length / activities.length) * 100).toFixed(1)}%` 
       : '0%',
-    lastAccepted: activities.find(a => a.action === 'accepted')?.dateTime || '-',
-    lastRejected: activities.find(a => a.action === 'rejected')?.dateTime || '-',
+    lastAccepted: activities.find(a => a.type === 'accept')?.timestamp 
+      ? formatTimestamp(activities.find(a => a.type === 'accept')!.timestamp) 
+      : '-',
+    lastRejected: activities.find(a => a.type === 'reject')?.timestamp 
+      ? formatTimestamp(activities.find(a => a.type === 'reject')!.timestamp) 
+      : '-',
   };
 
   const getPageNumbers = () => {
@@ -717,16 +732,16 @@ export const TeamLeadDashboardPage = () => {
                   ) : (
                     activities.map((activity) => (
                       <tr key={activity.id} className="border-t border-border hover:bg-accent/30 transition-colors">
-                        <td className="px-4 py-3 text-sm text-foreground">{activity.dateTime}</td>
-                        <td className="px-4 py-3 text-sm text-foreground">{activity.engineer}</td>
-                        <td className="px-4 py-3 text-sm text-foreground">{activity.ticketNumber}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">{formatTimestamp(activity.timestamp)}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">{activity.userName}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">#{activity.ticketId}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-1 text-xs font-medium rounded ${
-                            activity.action === 'accepted'
+                            activity.type === 'accept'
                               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                               : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                           }`}>
-                            {activity.action}
+                            {activity.type === 'accept' ? 'accepted' : 'rejected'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">{activity.reason || '-'}</td>
