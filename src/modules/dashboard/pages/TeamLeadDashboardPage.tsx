@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI, getTeamActivitiesAPI } from "@/services/api/team-lead-api";
-import type { Team, User, IdleResource as ApiIdleResource, ActivityItem } from "@/services/api/team-lead-api";
+import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI, getTeamActivitiesAPI, getTeamActivityStatsAPI } from "@/services/api/team-lead-api";
+import type { Team, User, IdleResource as ApiIdleResource, ActivityItem, ActivityStats } from "@/services/api/team-lead-api";
 import { toast } from "sonner";
 import { 
   ChevronDown, 
@@ -58,6 +58,14 @@ export const TeamLeadDashboardPage = () => {
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [totalActivities, setTotalActivities] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [stats, setStats] = useState<ActivityStats>({
+    accepted: 0,
+    rejected: 0,
+    acceptanceRate: '0%',
+    lastAccepted: null,
+    lastRejected: null
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   const isTeamSelected = selectedTeam !== '';
 
@@ -161,11 +169,45 @@ export const TeamLeadDashboardPage = () => {
     return () => subscription.unsubscribe();
   };
 
+  const fetchStats = (userId?: number, from?: string, to?: string) => {
+    if (!selectedTeam) {
+      setStats({
+        accepted: 0,
+        rejected: 0,
+        acceptanceRate: '0%',
+        lastAccepted: null,
+        lastRejected: null
+      });
+      return;
+    }
+
+    const defaults = getDefaultDateRange();
+    const fetchFromDate = from ?? defaults.from;
+    const fetchToDate = to ?? defaults.to;
+
+    setIsLoadingStats(true);
+    const subscription = getTeamActivityStatsAPI(selectedTeam, currentPage, pageSize, fetchFromDate, fetchToDate, userId).subscribe({
+      next: (data) => {
+        setStats(data);
+        setIsLoadingStats(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch stats:', err);
+        toast.error('Failed to load activity stats');
+        setIsLoadingStats(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  };
+
   useEffect(() => {
     if (isFilterApplied) {
       fetchActivities(appliedUserId, appliedFromDate, appliedToDate);
+      fetchStats(appliedUserId, appliedFromDate, appliedToDate);
     } else {
       fetchActivities();
+      fetchStats();
     }
   }, [selectedTeam, currentPage, pageSize]);
 
@@ -179,6 +221,7 @@ export const TeamLeadDashboardPage = () => {
     setIsFilterApplied(true);
     setCurrentPage(0);
     fetchActivities(userId, fromDate, toDate);
+    fetchStats(userId, fromDate, toDate);
   };
 
   const handleResetFilter = () => {
@@ -192,6 +235,7 @@ export const TeamLeadDashboardPage = () => {
     setAppliedToDate(defaults.to);
     setCurrentPage(0);
     fetchActivities();
+    fetchStats();
   };
 
   const formatIdleDuration = (minutes: number | null): string => {
@@ -235,19 +279,6 @@ export const TeamLeadDashboardPage = () => {
     });
   };
 
-  const stats = {
-    accepted: activities.filter(a => a.type === 'accept').length,
-    rejected: activities.filter(a => a.type === 'reject').length,
-    acceptanceRate: activities.length > 0 
-      ? `${((activities.filter(a => a.type === 'accept').length / activities.length) * 100).toFixed(1)}%` 
-      : '0%',
-    lastAccepted: activities.find(a => a.type === 'accept')?.timestamp 
-      ? formatTimestamp(activities.find(a => a.type === 'accept')!.timestamp) 
-      : '-',
-    lastRejected: activities.find(a => a.type === 'reject')?.timestamp 
-      ? formatTimestamp(activities.find(a => a.type === 'reject')!.timestamp) 
-      : '-',
-  };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -697,11 +728,11 @@ export const TeamLeadDashboardPage = () => {
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Accepted</p>
-                <p className="text-lg font-semibold text-foreground">{stats.lastAccepted}</p>
+                <p className="text-lg font-semibold text-foreground">{stats.lastAccepted ? formatTimestamp(stats.lastAccepted) : '-'}</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Rejected</p>
-                <p className="text-foreground">{stats.lastRejected}</p>
+                <p className="text-foreground">{stats.lastRejected ? formatTimestamp(stats.lastRejected) : '-'}</p>
               </div>
             </div>
 

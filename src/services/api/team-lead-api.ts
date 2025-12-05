@@ -100,3 +100,26 @@ export const getTeamActivitiesAPI = (
   }
   return GET(url, {});
 };
+
+export interface ActivityStats {
+  accepted: number;
+  rejected: number;
+  acceptanceRate: string;
+  lastAccepted: string | null;
+  lastRejected: string | null;
+}
+
+export const getTeamActivityStatsAPI = (
+  teamId: string,
+  page: number,
+  size: number,
+  fromDate: string,
+  toDate: string,
+  userId?: number
+): Observable<ActivityStats> => {
+  let url = `${TEAMS_ROOT_PATH}/${teamId}/activities/stats?page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`;
+  if (userId) {
+    url = `${TEAMS_ROOT_PATH}/${teamId}/activities/stats?user_id=${userId}&page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`;
+  }
+  return GET(url, {});
+};
