@@ -1843,10 +1843,10 @@ export const TicketDetailsPage = () => {
             </div>
 
             {/* MAIN CONTENT AREA */}
-            <div className="flex-1 bg-background px-6 pb-6 pt-0 overflow-auto">
+            <div className="flex-1 bg-background px-6 pb-6 pt-4 overflow-auto">
               {/* View Mode Toolbar */}
               {!isEditMode && (
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
                   <button
                     onClick={enterEditMode}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded hover:bg-accent transition-colors"
