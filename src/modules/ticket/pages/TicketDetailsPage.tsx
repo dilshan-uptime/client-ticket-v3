@@ -38,6 +38,8 @@ import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
 import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, toggleNotePinAPI, searchUsersAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload, type UserSearchResult } from "@/services/api/ticket-api";
 import { forkJoin } from "rxjs";
+import { Sidebar } from "@/components/Sidebar";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 type ActivityItem = 
   | (TicketNote & { type: 'note' })
@@ -47,6 +49,7 @@ export const TicketDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const metadata = useAppSelector(getMetadata);
+  const { collapsed } = useSidebar();
   const [ticketData, setTicketData] = useState<TicketDetails | null>(null);
   const [ticketNotes, setTicketNotes] = useState<TicketNote[]>([]);
   const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
@@ -1003,50 +1006,56 @@ export const TicketDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background smooth-transition">
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </button>
-        </div>
-        <main className="flex-1 bg-background smooth-transition">
-          <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <div className="text-center">
-              <Loader2 className="h-16 w-16 text-[#ee754e] mx-auto mb-4 animate-spin" />
-              <h2 className="text-2xl font-bold text-foreground mb-2">Loading Ticket...</h2>
-              <p className="text-muted-foreground">Please wait while we fetch the ticket details.</p>
-            </div>
+      <div className="flex min-h-screen bg-background smooth-transition">
+        <Sidebar />
+        <div className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} smooth-transition`}>
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </button>
           </div>
-        </main>
+          <main className="flex-1 bg-background smooth-transition">
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+              <div className="text-center">
+                <Loader2 className="h-16 w-16 text-[#ee754e] mx-auto mb-4 animate-spin" />
+                <h2 className="text-2xl font-bold text-foreground mb-2">Loading Ticket...</h2>
+                <p className="text-muted-foreground">Please wait while we fetch the ticket details.</p>
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (!ticketData) {
     return (
-      <div className="min-h-screen bg-background smooth-transition">
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </button>
-        </div>
-        <main className="flex-1 bg-background smooth-transition">
-          <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <div className="text-center">
-              <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground mb-2">Ticket Not Found</h2>
-              <p className="text-muted-foreground">The requested ticket could not be loaded.</p>
-            </div>
+      <div className="flex min-h-screen bg-background smooth-transition">
+        <Sidebar />
+        <div className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} smooth-transition`}>
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </button>
           </div>
-        </main>
+          <main className="flex-1 bg-background smooth-transition">
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+              <div className="text-center">
+                <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-foreground mb-2">Ticket Not Found</h2>
+                <p className="text-muted-foreground">The requested ticket could not be loaded.</p>
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
@@ -1059,22 +1068,24 @@ export const TicketDetailsPage = () => {
     : "No Contact";
 
   return (
-    <div className="min-h-screen bg-background smooth-transition">
-      {/* Back Button Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-        <button
-          onClick={() => navigate('/home')}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Home
-        </button>
-        <div className="h-4 w-px bg-border" />
-        <span className="text-sm font-medium text-foreground">{ticketData.ticketNumber}</span>
-        <span className="text-sm text-muted-foreground">-</span>
-        <span className="text-sm text-muted-foreground truncate max-w-md">{ticketData.title}</span>
-      </div>
-      <main className="flex-1 bg-background smooth-transition">
+    <div className="flex min-h-screen bg-background smooth-transition">
+      <Sidebar />
+      <div className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} smooth-transition`}>
+        {/* Back Button Header */}
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+          <button
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </button>
+          <div className="h-4 w-px bg-border" />
+          <span className="text-sm font-medium text-foreground">{ticketData.ticketNumber}</span>
+          <span className="text-sm text-muted-foreground">-</span>
+          <span className="text-sm text-muted-foreground truncate max-w-md">{ticketData.title}</span>
+        </div>
+        <main className="flex-1 bg-background smooth-transition">
         {/* Edit Mode Toolbar */}
         {isEditMode && (
           <div className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2 flex items-center justify-between">
@@ -3339,6 +3350,7 @@ export const TicketDetailsPage = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
