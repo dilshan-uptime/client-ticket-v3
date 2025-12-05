@@ -15,7 +15,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Users
 } from "lucide-react";
 
 interface MenuItem {
@@ -26,6 +27,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { icon: Home, label: "Home", path: "/home" },
+  { icon: Users, label: "Team Lead Dashboard", path: "/team-lead-dashboard" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
