@@ -813,7 +813,7 @@ export const TicketDetailsPage = () => {
     
     if (ticketData.secondaryResource && Array.isArray(ticketData.secondaryResource) && ticketData.secondaryResource.length > 0) {
       const mappedSecondaryResources = ticketData.secondaryResource.map((resource: any) => ({
-        id: resource.autotaskId?.toString() || '',
+        id: (resource.autotaskId || resource.autotask_id)?.toString() || '',
         name: resource.name || '',
       }));
       setSelectedSecondaryResources(mappedSecondaryResources);
