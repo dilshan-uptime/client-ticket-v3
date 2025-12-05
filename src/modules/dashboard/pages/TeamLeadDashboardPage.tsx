@@ -202,6 +202,20 @@ export const TeamLeadDashboardPage = () => {
   };
 
   useEffect(() => {
+    const defaults = getDefaultDateRange();
+    setFilterEngineer('');
+    setFromDate(defaults.from);
+    setToDate(defaults.to);
+    setIsFilterApplied(false);
+    setAppliedUserId(undefined);
+    setAppliedFromDate(defaults.from);
+    setAppliedToDate(defaults.to);
+    setCurrentPage(0);
+    fetchActivities();
+    fetchStats();
+  }, [selectedTeam]);
+
+  useEffect(() => {
     if (isFilterApplied) {
       fetchActivities(appliedUserId, appliedFromDate, appliedToDate);
       fetchStats(appliedUserId, appliedFromDate, appliedToDate);
@@ -209,7 +223,7 @@ export const TeamLeadDashboardPage = () => {
       fetchActivities();
       fetchStats();
     }
-  }, [selectedTeam, currentPage, pageSize]);
+  }, [currentPage, pageSize]);
 
   const isApplyEnabled = filterEngineer !== '' && fromDate !== '' && toDate !== '';
 
@@ -728,11 +742,11 @@ export const TeamLeadDashboardPage = () => {
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Accepted</p>
-                <p className="text-lg font-semibold text-foreground">{stats.lastAccepted ? formatTimestamp(stats.lastAccepted) : '-'}</p>
+                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{stats.lastAccepted ? formatTimestamp(stats.lastAccepted) : '-'}</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Rejected</p>
-                <p className="text-foreground">{stats.lastRejected ? formatTimestamp(stats.lastRejected) : '-'}</p>
+                <p className="text-lg font-semibold text-red-400 dark:text-red-400">{stats.lastRejected ? formatTimestamp(stats.lastRejected) : '-'}</p>
               </div>
             </div>
 
