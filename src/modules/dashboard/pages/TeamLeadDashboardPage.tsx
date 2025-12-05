@@ -59,9 +59,9 @@ export const TeamLeadDashboardPage = () => {
   const [totalActivities, setTotalActivities] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [stats, setStats] = useState<ActivityStats>({
-    accepted: 0,
-    rejected: 0,
-    acceptanceRate: '0%',
+    acceptedCount: 0,
+    rejectedCount: 0,
+    acceptanceRate: 0,
     lastAccepted: null,
     lastRejected: null
   });
@@ -172,9 +172,9 @@ export const TeamLeadDashboardPage = () => {
   const fetchStats = (userId?: number, from?: string, to?: string) => {
     if (!selectedTeam) {
       setStats({
-        accepted: 0,
-        rejected: 0,
-        acceptanceRate: '0%',
+        acceptedCount: 0,
+        rejectedCount: 0,
+        acceptanceRate: 0,
         lastAccepted: null,
         lastRejected: null
       });
@@ -716,15 +716,15 @@ export const TeamLeadDashboardPage = () => {
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 p-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                 <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Accepted</p>
-                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{stats.accepted}</p>
+                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{stats.acceptedCount}</p>
               </div>
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <p className="text-sm text-red-600 dark:text-red-400 mb-1">Rejected</p>
-                <p className="text-3xl font-bold text-red-700 dark:text-red-300">{stats.rejected}</p>
+                <p className="text-3xl font-bold text-red-700 dark:text-red-300">{stats.rejectedCount}</p>
               </div>
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <p className="text-sm text-green-600 dark:text-green-400 mb-1">Acceptance Rate</p>
-                <p className="text-3xl font-bold text-green-700 dark:text-green-300">{stats.acceptanceRate}</p>
+                <p className="text-3xl font-bold text-green-700 dark:text-green-300">{stats.acceptanceRate.toFixed(2)}%</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-1">Last Accepted</p>

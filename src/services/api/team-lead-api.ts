@@ -102,9 +102,9 @@ export const getTeamActivitiesAPI = (
 };
 
 export interface ActivityStats {
-  accepted: number;
-  rejected: number;
-  acceptanceRate: string;
+  acceptedCount: number;
+  rejectedCount: number;
+  acceptanceRate: number;
   lastAccepted: string | null;
   lastRejected: string | null;
 }
