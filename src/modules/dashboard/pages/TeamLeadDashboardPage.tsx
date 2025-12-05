@@ -126,7 +126,12 @@ export const TeamLeadDashboardPage = () => {
     return () => subscription.unsubscribe();
   }, [selectedTeam]);
 
-  const fetchActivities = () => {
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [appliedUserId, setAppliedUserId] = useState<number | undefined>(undefined);
+  const [appliedFromDate, setAppliedFromDate] = useState(fromDate);
+  const [appliedToDate, setAppliedToDate] = useState(toDate);
+
+  const fetchActivities = (userId?: number, from?: string, to?: string) => {
     if (!selectedTeam) {
       setActivities([]);
       setTotalActivities(0);
@@ -134,9 +139,12 @@ export const TeamLeadDashboardPage = () => {
       return;
     }
 
+    const defaults = getDefaultDateRange();
+    const fetchFromDate = from ?? defaults.from;
+    const fetchToDate = to ?? defaults.to;
+
     setIsLoadingActivities(true);
-    const userId = filterEngineer ? parseInt(filterEngineer, 10) : undefined;
-    const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fromDate, toDate, userId).subscribe({
+    const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fetchFromDate, fetchToDate, userId).subscribe({
       next: (data) => {
         setActivities(data.items);
         setTotalActivities(data.total);
@@ -154,12 +162,23 @@ export const TeamLeadDashboardPage = () => {
   };
 
   useEffect(() => {
-    fetchActivities();
+    if (isFilterApplied) {
+      fetchActivities(appliedUserId, appliedFromDate, appliedToDate);
+    } else {
+      fetchActivities();
+    }
   }, [selectedTeam, currentPage, pageSize]);
 
+  const isApplyEnabled = filterEngineer !== '' && fromDate !== '' && toDate !== '';
+
   const handleApplyFilter = () => {
+    const userId = parseInt(filterEngineer, 10);
+    setAppliedUserId(userId);
+    setAppliedFromDate(fromDate);
+    setAppliedToDate(toDate);
+    setIsFilterApplied(true);
     setCurrentPage(0);
-    fetchActivities();
+    fetchActivities(userId, fromDate, toDate);
   };
 
   const handleResetFilter = () => {
@@ -167,8 +186,12 @@ export const TeamLeadDashboardPage = () => {
     setFromDate(defaults.from);
     setToDate(defaults.to);
     setFilterEngineer('');
+    setIsFilterApplied(false);
+    setAppliedUserId(undefined);
+    setAppliedFromDate(defaults.from);
+    setAppliedToDate(defaults.to);
     setCurrentPage(0);
-    setTimeout(() => fetchActivities(), 0);
+    fetchActivities();
   };
 
   const formatIdleDuration = (minutes: number | null): string => {
@@ -640,7 +663,12 @@ export const TeamLeadDashboardPage = () => {
 
                 <button 
                   onClick={handleApplyFilter}
-                  className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors"
+                  disabled={!isApplyEnabled}
+                  className={`px-4 py-2 font-medium rounded-lg transition-colors ${
+                    isApplyEnabled 
+                      ? 'bg-[#ee754e] hover:bg-[#e06840] text-white cursor-pointer' 
+                      : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  }`}
                 >
                   Apply
                 </button>
