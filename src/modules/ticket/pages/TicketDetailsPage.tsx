@@ -1068,9 +1068,9 @@ export const TicketDetailsPage = () => {
     : "No Contact";
 
   return (
-    <div className="flex min-h-screen bg-background smooth-transition">
+    <div className="min-h-screen bg-background smooth-transition">
       <Sidebar />
-      <div className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} smooth-transition`}>
+      <main className={`${collapsed ? 'ml-20' : 'ml-64'} min-h-screen bg-background smooth-transition`}>
         {/* Back Button Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
           <button
@@ -1085,7 +1085,7 @@ export const TicketDetailsPage = () => {
           <span className="text-sm text-muted-foreground">-</span>
           <span className="text-sm text-muted-foreground truncate max-w-md">{ticketData.title}</span>
         </div>
-        <main className="flex-1 bg-background smooth-transition">
+        <div className="bg-background smooth-transition">
         {/* Edit Mode Toolbar */}
         {isEditMode && (
           <div className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2 flex items-center justify-between">
@@ -3351,6 +3351,7 @@ export const TicketDetailsPage = () => {
         </div>
       )}
       </div>
+      </main>
     </div>
   );
 };
