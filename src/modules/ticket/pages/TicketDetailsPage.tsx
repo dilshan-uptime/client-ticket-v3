@@ -2113,22 +2113,22 @@ export const TicketDetailsPage = () => {
                   <span className="text-sm font-medium text-foreground">Timeline</span>
                 </button>
                 {isTimelineExpanded && (
-                  <div className="px-6 pb-6 pt-2">
-                    <div className="relative py-8">
+                  <div className="px-8 pb-6 pt-2">
+                    <div className="relative py-8 mx-auto max-w-[90%]">
                       {/* Teal Line (completed portion) */}
                       <div 
-                        className="absolute left-[52px] top-1/2 -translate-y-1/2 h-[3px] bg-[#1fb6a6] rounded-full"
-                        style={{ width: `calc(${getTimelineProgress()}% - 20px)` }}
+                        className="absolute left-[40px] top-1/2 -translate-y-1/2 h-[3px] bg-[#1fb6a6] rounded-full"
+                        style={{ width: `calc(${getTimelineProgress()}% - 10px)` }}
                       />
                       
                       {/* Gray Line (pending portion) */}
                       <div 
-                        className="absolute top-1/2 -translate-y-1/2 h-[3px] bg-gray-300 rounded-full right-[40px]"
-                        style={{ left: `calc(${getTimelineProgress()}% + 32px)`, width: `calc(${100 - getTimelineProgress()}% - 72px)` }}
+                        className="absolute top-1/2 -translate-y-1/2 h-[3px] bg-gray-300 rounded-full right-[30px]"
+                        style={{ left: `calc(${getTimelineProgress()}% + 30px)`, width: `calc(${100 - getTimelineProgress()}% - 60px)` }}
                       />
 
                       {/* Milestone Points */}
-                      <div className="relative flex justify-between items-center px-6">
+                      <div className="relative flex justify-between items-center px-4">
                         {getTimelineMilestones().map((milestone) => (
                           <div
                             key={milestone.id}
