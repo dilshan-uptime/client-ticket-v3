@@ -119,6 +119,7 @@ body {
   --sidebar-accent-foreground: #374151;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #ee754e;
+  --stalled-row-bg: #fef9f3;
 }
 
 .dark {
@@ -154,6 +155,7 @@ body {
   --sidebar-accent-foreground: #cbd5e1;
   --sidebar-border: #283548;
   --sidebar-ring: #ee754e;
+  --stalled-row-bg: #1e2832;
 }
 
 @layer base {

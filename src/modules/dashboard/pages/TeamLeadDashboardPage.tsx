@@ -451,7 +451,7 @@ export const TeamLeadDashboardPage = () => {
                                 {resource.stalledTickets.map((ticket) => (
                                   <div 
                                     key={ticket.ticketId} 
-                                    className="flex items-center justify-between px-4 py-3 bg-[#fef9f3] dark:bg-slate-800 border-l-2 border-[#ee754e]/40"
+                                    className="flex items-center justify-between px-4 py-3 border-l-2 border-[#ee754e]/40" style={{ backgroundColor: 'var(--stalled-row-bg)' }}
                                   >
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
