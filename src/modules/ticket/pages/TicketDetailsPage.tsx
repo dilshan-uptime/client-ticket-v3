@@ -1085,7 +1085,6 @@ export const TicketDetailsPage = () => {
           <span className="text-sm text-muted-foreground">-</span>
           <span className="text-sm text-muted-foreground truncate max-w-md">{ticketData.title}</span>
         </div>
-        <div className="bg-background smooth-transition">
         {/* Edit Mode Toolbar */}
         {isEditMode && (
           <div className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2 flex items-center justify-between">
@@ -2762,7 +2761,6 @@ export const TicketDetailsPage = () => {
             </div>
           </div>
         </div>
-      </main>
 
       {/* New Attachment Modal */}
       {isNewAttachmentModalOpen && (
@@ -3350,7 +3348,6 @@ export const TicketDetailsPage = () => {
           </div>
         </div>
       )}
-      </div>
       </main>
     </div>
   );
