@@ -135,7 +135,8 @@ export const TeamLeadDashboardPage = () => {
     }
 
     setIsLoadingActivities(true);
-    const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fromDate, toDate).subscribe({
+    const userId = filterEngineer ? parseInt(filterEngineer, 10) : undefined;
+    const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fromDate, toDate, userId).subscribe({
       next: (data) => {
         setActivities(data.items);
         setTotalActivities(data.total);

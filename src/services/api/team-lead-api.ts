@@ -90,7 +90,12 @@ export const getTeamActivitiesAPI = (
   page: number,
   size: number,
   fromDate: string,
-  toDate: string
+  toDate: string,
+  userId?: number
 ): Observable<ActivitiesResponse> => {
-  return GET(`${TEAMS_ROOT_PATH}/${teamId}/activities?page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`, {});
+  let url = `${TEAMS_ROOT_PATH}/${teamId}/activities?page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`;
+  if (userId) {
+    url = `${TEAMS_ROOT_PATH}/${teamId}/activities?user_id=${userId}&page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`;
+  }
+  return GET(url, {});
 };
