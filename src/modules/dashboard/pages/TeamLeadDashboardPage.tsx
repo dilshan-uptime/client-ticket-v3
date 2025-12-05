@@ -186,16 +186,16 @@ export const TeamLeadDashboardPage = () => {
             </div>
           </div>
 
-          {/* Select Engineer & Check Ticket Position */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Select Engineer & Check Ticket Position - Same Line */}
+          <div className="flex flex-wrap items-end gap-4 mb-6">
             {/* Select Engineer */}
-            <div>
+            <div className="flex-1 min-w-[250px]">
               <label className="block text-sm font-medium text-muted-foreground mb-2">Select Engineer</label>
-              <div className="relative mb-3">
+              <div className="relative">
                 <select
                   value={selectedEngineer}
                   onChange={(e) => setSelectedEngineer(e.target.value)}
-                  className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
+                  className="w-full px-4 py-2.5 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
                 >
                   <option value="">Select an engineer...</option>
                   {mockEngineers.map((eng) => (
@@ -204,41 +204,40 @@ export const TeamLeadDashboardPage = () => {
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
-              <button className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors">
-                Show Next Ticket
-              </button>
-
-              {selectedEngineer && (
-                <div className="mt-4 p-4 bg-card border border-border rounded-lg">
-                  <p className="font-semibold text-foreground mb-1">
-                    Next Ticket for {mockEngineers.find(e => e.id === selectedEngineer)?.name}
-                  </p>
-                  <p className="text-foreground font-medium">Ticket T20251110.0001</p>
-                  <p className="text-[#ee754e] font-bold">Total Score: 4100</p>
-                  <p className="text-sm text-muted-foreground">
-                    Title: <a href="#" className="text-[#1fb6a6] hover:underline">Sandbox Test 20251110011T</a>
-                  </p>
-                </div>
-              )}
             </div>
+            <button className="px-4 py-2.5 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+              Show Next Ticket
+            </button>
 
             {/* Check Ticket Position */}
-            <div>
+            <div className="flex-1 min-w-[250px]">
               <label className="block text-sm font-medium text-muted-foreground mb-2">Check Ticket Position</label>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={ticketNumber}
-                  onChange={(e) => setTicketNumber(e.target.value)}
-                  placeholder="Enter ticket number..."
-                  className="flex-1 px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
-                />
-                <button className="px-4 py-2 bg-[#1fb6a6] hover:bg-[#1a9e91] text-white font-medium rounded-lg transition-colors whitespace-nowrap">
-                  See Ticket Position
-                </button>
-              </div>
+              <input
+                type="text"
+                value={ticketNumber}
+                onChange={(e) => setTicketNumber(e.target.value)}
+                placeholder="Enter ticket number..."
+                className="w-full px-4 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
+              />
             </div>
+            <button className="px-4 py-2.5 bg-[#1fb6a6] hover:bg-[#1a9e91] text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+              See Ticket Position
+            </button>
           </div>
+
+          {/* Next Ticket Info */}
+          {selectedEngineer && (
+            <div className="mb-6 p-4 bg-card border border-border rounded-lg">
+              <p className="font-semibold text-foreground mb-1">
+                Next Ticket for {mockEngineers.find(e => e.id === selectedEngineer)?.name}
+              </p>
+              <p className="text-foreground font-medium">Ticket T20251110.0001</p>
+              <p className="text-[#ee754e] font-bold">Total Score: 4100</p>
+              <p className="text-sm text-muted-foreground">
+                Title: <a href="#" className="text-[#1fb6a6] hover:underline">Sandbox Test 20251110011T</a>
+              </p>
+            </div>
+          )}
 
           {/* Idle & Stalled Resources */}
           <div className="bg-card border border-border rounded-xl mb-6">
