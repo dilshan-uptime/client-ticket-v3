@@ -206,3 +206,12 @@ export const getTicketTimeEntriesAPI = (ticketId: number): Observable<TimeEntry[
 export const toggleNotePinAPI = (ticketId: number, noteId: number): Observable<any> => {
   return POST(`${ROOT_PATH}/${ticketId}/notes/${noteId}/toggle-pin`, {});
 };
+
+export interface UserSearchResult {
+  id: string;
+  name: string;
+}
+
+export const searchUsersAPI = (query: string): Observable<UserSearchResult[]> => {
+  return POST(`api/v1/system/users/search?q=${encodeURIComponent(query)}`, {});
+};

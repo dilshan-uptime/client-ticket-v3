@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/store-hooks";
 import { getMetadata } from "@/app/redux/metadataSlice";
-import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, toggleNotePinAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload } from "@/services/api/ticket-api";
+import { getTicketByIdAPI, getTicketNotesAPI, getTicketTimeEntriesAPI, updateTicketAPI, createTicketNoteAPI, createTimeEntryAPI, toggleNotePinAPI, searchUsersAPI, type TicketDetails, type TicketNote, type TimeEntry, type UpdateTicketPayload, type CreateNotePayload, type CreateTimeEntryPayload, type UserSearchResult } from "@/services/api/ticket-api";
 import { forkJoin } from "rxjs";
 import { Sidebar } from "@/components/Sidebar";
 import { TopNavbar } from "@/components/TopNavbar";
@@ -133,6 +133,18 @@ export const TicketDetailsPage = () => {
   });
   
   const [checklistItems, setChecklistItems] = useState<Array<{id: number; name: string; completed: boolean; important: boolean}>>([]);
+
+  const [primaryResourceSearch, setPrimaryResourceSearch] = useState('');
+  const [primaryResourceResults, setPrimaryResourceResults] = useState<UserSearchResult[]>([]);
+  const [isPrimaryResourceDropdownOpen, setIsPrimaryResourceDropdownOpen] = useState(false);
+  const [isSearchingPrimaryResource, setIsSearchingPrimaryResource] = useState(false);
+  const [selectedPrimaryResource, setSelectedPrimaryResource] = useState<UserSearchResult | null>(null);
+  
+  const [secondaryResourceSearch, setSecondaryResourceSearch] = useState('');
+  const [secondaryResourceResults, setSecondaryResourceResults] = useState<UserSearchResult[]>([]);
+  const [isSecondaryResourceDropdownOpen, setIsSecondaryResourceDropdownOpen] = useState(false);
+  const [isSearchingSecondaryResource, setIsSearchingSecondaryResource] = useState(false);
+  const [selectedSecondaryResources, setSelectedSecondaryResources] = useState<UserSearchResult[]>([]);
 
   const formatTimelineDate = (dateString: string | null | undefined): string => {
     if (!dateString) return "N/A";
@@ -443,6 +455,79 @@ export const TicketDetailsPage = () => {
         setIsTogglingPin(false);
       },
     });
+  };
+
+  const handlePrimaryResourceSearch = (query: string) => {
+    setPrimaryResourceSearch(query);
+    if (query.length >= 2) {
+      setIsSearchingPrimaryResource(true);
+      setIsPrimaryResourceDropdownOpen(true);
+      searchUsersAPI(query).subscribe({
+        next: (results) => {
+          setPrimaryResourceResults(results);
+          setIsSearchingPrimaryResource(false);
+        },
+        error: (error) => {
+          console.error("Failed to search users:", error);
+          setPrimaryResourceResults([]);
+          setIsSearchingPrimaryResource(false);
+        },
+      });
+    } else {
+      setPrimaryResourceResults([]);
+      setIsPrimaryResourceDropdownOpen(false);
+    }
+  };
+
+  const handleSelectPrimaryResource = (user: UserSearchResult) => {
+    setSelectedPrimaryResource(user);
+    setPrimaryResourceSearch('');
+    setPrimaryResourceResults([]);
+    setIsPrimaryResourceDropdownOpen(false);
+    // Remove from secondary resources if already selected
+    setSelectedSecondaryResources(prev => prev.filter(r => r.id !== user.id));
+  };
+
+  const handleRemovePrimaryResource = () => {
+    setSelectedPrimaryResource(null);
+  };
+
+  const handleSecondaryResourceSearch = (query: string) => {
+    setSecondaryResourceSearch(query);
+    if (query.length >= 2) {
+      setIsSearchingSecondaryResource(true);
+      setIsSecondaryResourceDropdownOpen(true);
+      searchUsersAPI(query).subscribe({
+        next: (results) => {
+          // Filter out primary resource and already selected secondary resources
+          const filtered = results.filter(user => 
+            user.id !== selectedPrimaryResource?.id &&
+            !selectedSecondaryResources.some(r => r.id === user.id)
+          );
+          setSecondaryResourceResults(filtered);
+          setIsSearchingSecondaryResource(false);
+        },
+        error: (error) => {
+          console.error("Failed to search users:", error);
+          setSecondaryResourceResults([]);
+          setIsSearchingSecondaryResource(false);
+        },
+      });
+    } else {
+      setSecondaryResourceResults([]);
+      setIsSecondaryResourceDropdownOpen(false);
+    }
+  };
+
+  const handleSelectSecondaryResource = (user: UserSearchResult) => {
+    setSelectedSecondaryResources(prev => [...prev, user]);
+    setSecondaryResourceSearch('');
+    setSecondaryResourceResults([]);
+    setIsSecondaryResourceDropdownOpen(false);
+  };
+
+  const handleRemoveSecondaryResource = (userId: string) => {
+    setSelectedSecondaryResources(prev => prev.filter(r => r.id !== userId));
   };
 
   const formatNoteDate = (dateString: string): string => {
@@ -1358,22 +1443,68 @@ export const TicketDetailsPage = () => {
                     </div>
 
                     {/* Primary Resource */}
-                    <div>
+                    <div className="relative">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Primary Resource (Role)</p>
                       {isEditMode ? (
                         <div className="space-y-2">
-                          <div className="flex items-center gap-1">
-                            <div className="flex-1 flex items-center gap-2 px-2 py-1.5 bg-background border border-border rounded text-sm">
-                              <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-[8px] font-bold">
-                                {getResourceName(ticketData.primaryResource)?.substring(0, 2).toUpperCase() || 'NA'}
+                          {selectedPrimaryResource ? (
+                            <div className="flex items-center gap-1">
+                              <div className="flex-1 flex items-center gap-2 px-2 py-1.5 bg-background border border-border rounded text-sm">
+                                <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-[8px] font-bold">
+                                  {selectedPrimaryResource.name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <span className="flex-1 truncate text-foreground">{selectedPrimaryResource.name}</span>
+                                <X 
+                                  className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" 
+                                  onClick={handleRemovePrimaryResource}
+                                />
                               </div>
-                              <span className="flex-1 truncate text-foreground">{getResourceName(ticketData.primaryResource)}</span>
-                              <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" />
+                              <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
+                              <button className="p-1.5 border border-border rounded hover:bg-accent"><Filter className="h-3 w-3" /></button>
                             </div>
-                            <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
-                            <button className="p-1.5 border border-border rounded hover:bg-accent"><FileText className="h-3 w-3" /></button>
-                            <button className="p-1.5 border border-border rounded hover:bg-accent"><Plus className="h-3 w-3" /></button>
-                          </div>
+                          ) : (
+                            <div className="relative">
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="text"
+                                  placeholder="Type to search..."
+                                  value={primaryResourceSearch}
+                                  onChange={(e) => handlePrimaryResourceSearch(e.target.value)}
+                                  onFocus={() => primaryResourceSearch.length >= 2 && setIsPrimaryResourceDropdownOpen(true)}
+                                  className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                                />
+                                <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
+                                <button className="p-1.5 border border-border rounded hover:bg-accent"><Filter className="h-3 w-3" /></button>
+                              </div>
+                              {isPrimaryResourceDropdownOpen && (
+                                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                  {isSearchingPrimaryResource ? (
+                                    <div className="px-3 py-2 text-sm text-muted-foreground">Searching...</div>
+                                  ) : primaryResourceResults.length > 0 ? (
+                                    <>
+                                      <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-accent/30">
+                                        SELECTED QUEUE
+                                      </div>
+                                      {primaryResourceResults.map((user) => (
+                                        <button
+                                          key={user.id}
+                                          onClick={() => handleSelectPrimaryResource(user)}
+                                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent transition-colors"
+                                        >
+                                          <div className="w-5 h-5 rounded-full bg-purple-400 flex items-center justify-center text-white text-[8px] font-bold">
+                                            {user.name.substring(0, 2).toUpperCase()}
+                                          </div>
+                                          <span className="text-foreground">{user.name}</span>
+                                        </button>
+                                      ))}
+                                    </>
+                                  ) : (
+                                    <div className="px-3 py-2 text-sm text-muted-foreground">No users found</div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -1392,27 +1523,62 @@ export const TicketDetailsPage = () => {
                     </div>
 
                     {/* Secondary Resources */}
-                    <div>
+                    <div className="relative">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Secondary Resources (Role)</p>
                       {isEditMode ? (
                         <div className="space-y-2">
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="text"
-                              placeholder="Type to search..."
-                              className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
-                            />
-                            <button className="p-1.5 border border-border rounded hover:bg-accent"><Search className="h-3 w-3" /></button>
+                          <div className="relative">
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                placeholder="Type to search..."
+                                value={secondaryResourceSearch}
+                                onChange={(e) => handleSecondaryResourceSearch(e.target.value)}
+                                onFocus={() => secondaryResourceSearch.length >= 2 && setIsSecondaryResourceDropdownOpen(true)}
+                                className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-[#1fb6a6]"
+                              />
+                              <button className="p-1.5 border border-border rounded hover:bg-accent"><Filter className="h-3 w-3" /></button>
+                            </div>
+                            {isSecondaryResourceDropdownOpen && (
+                              <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                {isSearchingSecondaryResource ? (
+                                  <div className="px-3 py-2 text-sm text-muted-foreground">Searching...</div>
+                                ) : secondaryResourceResults.length > 0 ? (
+                                  <>
+                                    <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-accent/30">
+                                      SELECTED QUEUE
+                                    </div>
+                                    {secondaryResourceResults.map((user) => (
+                                      <button
+                                        key={user.id}
+                                        onClick={() => handleSelectSecondaryResource(user)}
+                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent transition-colors"
+                                      >
+                                        <div className="w-5 h-5 rounded-full bg-purple-400 flex items-center justify-center text-white text-[8px] font-bold">
+                                          {user.name.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <span className="text-foreground">{user.name}</span>
+                                      </button>
+                                    ))}
+                                  </>
+                                ) : (
+                                  <div className="px-3 py-2 text-sm text-muted-foreground">No users found</div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          {ticketData.secondaryResource && ticketData.secondaryResource.length > 0 && (
+                          {selectedSecondaryResources.length > 0 && (
                             <div className="space-y-1">
-                              {ticketData.secondaryResource.map((resource, index) => (
-                                <div key={index} className="flex items-center gap-2 px-2 py-1.5 bg-background border border-border rounded text-sm">
+                              {selectedSecondaryResources.map((resource) => (
+                                <div key={resource.id} className="flex items-center gap-2 px-2 py-1.5 bg-background border border-border rounded text-sm">
                                   <div className="w-5 h-5 rounded-full bg-purple-400 flex items-center justify-center text-white text-[8px] font-bold">
-                                    {getResourceName(resource)?.substring(0, 2).toUpperCase() || 'NA'}
+                                    {resource.name.substring(0, 2).toUpperCase()}
                                   </div>
-                                  <span className="flex-1 truncate text-foreground">{getResourceName(resource)}</span>
-                                  <X className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" />
+                                  <span className="flex-1 truncate text-foreground">{resource.name}</span>
+                                  <X 
+                                    className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground" 
+                                    onClick={() => handleRemoveSecondaryResource(resource.id)}
+                                  />
                                 </div>
                               ))}
                             </div>
