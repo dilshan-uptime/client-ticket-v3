@@ -801,12 +801,34 @@ export const TicketDetailsPage = () => {
       imacApproval: '',
       purchaseOrderNumber: '',
     });
+    
+    if (ticketData.primaryResource && typeof ticketData.primaryResource === 'object') {
+      setSelectedPrimaryResource({
+        id: ticketData.primaryResource.autotaskId?.toString() || '',
+        name: ticketData.primaryResource.name || '',
+      });
+    } else {
+      setSelectedPrimaryResource(null);
+    }
+    
+    if (ticketData.secondaryResource && Array.isArray(ticketData.secondaryResource) && ticketData.secondaryResource.length > 0) {
+      const mappedSecondaryResources = ticketData.secondaryResource.map((resource: any) => ({
+        id: resource.autotaskId?.toString() || '',
+        name: resource.name || '',
+      }));
+      setSelectedSecondaryResources(mappedSecondaryResources);
+    } else {
+      setSelectedSecondaryResources([]);
+    }
+    
     setIsEditMode(true);
   };
 
   const cancelEditMode = () => {
     setIsEditMode(false);
     setChecklistItems([]);
+    setSelectedPrimaryResource(null);
+    setSelectedSecondaryResources([]);
   };
 
   const getAutomaticChaseValue = (automaticChaseId: number): number => {

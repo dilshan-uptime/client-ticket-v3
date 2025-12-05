@@ -1,0 +1,62 @@
+{
+    "id": 412132,
+    "ticket_number": "T20251126.0007",
+    "title": "Title 412132",
+    "description": "description",
+    "status_id": 8,
+    "priority_id": 2,
+    "queue_id": 29682969,
+    "issue_type": 6,
+    "sub_issue_type": 127,
+    "source_id": 6,
+    "estimated_hours": 3.0,
+    "sla_id": 4,
+    "automatic_chase": false,
+    "worked_by": "MSP Helpdesk",
+    "escalation_reason": "Account Management requirement",
+    "partner_ticket_number": "ABCD1111",
+    "primary_resource": {
+        "id": 2,
+        "autotask_id": "29683007",
+        "name": "Gigan Gunarathne",
+        "email": "gihan.g@uptimeglobal.tech"
+    },
+    "secondary_resource": [
+        {
+            "id": 1,
+            "autotask_id": "29683006",
+            "name": "Dilshan Sandaruwan",
+            "email": "dilshan.s@uptimeglobal.tech"
+        }
+    ],
+    "handover_region": null,
+    "contract_id": null,
+    "work_type_id": 29682800,
+    "partner_company": {
+        "id": 3,
+        "autotask_id": 0,
+        "name": "Uptime Solutions SANDBOX",
+        "phone_number": "0203 764 7688",
+        "parent_autotask_id": null
+    },
+    "parent_company": null,
+    "contact": {
+        "id": 1,
+        "autotask_id": 31200520,
+        "first_name": "Chamara",
+        "last_name": "Gunarathne",
+        "phone_number": "0203 764 7688",
+        "mobile_number": "",
+        "email_1": "gihan.g@uptimeglobal.tech",
+        "email_2": "gihan.g+1@uptimeglobal.tech"
+    },
+    "create_date_time": "2025-11-26T08:42:06.833000Z",
+    "due_date_time": "2025-11-28T14:10:00Z",
+    "url": "https://ww16.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&ticketId=412132",
+    "first_response_date_time": "2025-12-01T17:16:57.757000Z",
+    "first_response_due_date_time": "2025-11-26T12:42:06.833000Z",
+    "resolved_plan_date_time": "2025-12-04T15:20:57.323000Z",
+    "resolved_plan_due_date_time": "2025-11-26T16:42:06.833000Z",
+    "resolved_date_time": "2025-12-04T15:20:57.323000Z",
+    "resolved_due_date_time": "2025-11-26T16:42:06.833000Z"
+}
