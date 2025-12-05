@@ -914,6 +914,10 @@ export const TicketDetailsPage = () => {
       work_type_id: editForm.workTypeId,
       title: editForm.title,
       description: editForm.description,
+      primary_resource: selectedPrimaryResource ? { resource_id: parseInt(selectedPrimaryResource.id) } : undefined,
+      secondary_resources: selectedSecondaryResources.length > 0 
+        ? selectedSecondaryResources.map(r => ({ resource_id: parseInt(r.id) }))
+        : undefined,
     };
 
     return new Promise((resolve) => {

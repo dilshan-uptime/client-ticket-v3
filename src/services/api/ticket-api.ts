@@ -37,6 +37,10 @@ export const completeTriageAPI = (ticketId: number, payload: CompleteTriagePaylo
   return PUT(`${ROOT_PATH}/${ticketId}`, payload as unknown as Record<string, unknown>);
 };
 
+export interface ResourcePayload {
+  resource_id: number;
+}
+
 export interface UpdateTicketPayload {
   status_id: number;
   priority_id: number;
@@ -54,6 +58,8 @@ export interface UpdateTicketPayload {
   work_type_id: number;
   title: string;
   description: string;
+  primary_resource?: ResourcePayload;
+  secondary_resources?: ResourcePayload[];
 }
 
 export const updateTicketAPI = (ticketId: number, payload: UpdateTicketPayload): Observable<any> => {
