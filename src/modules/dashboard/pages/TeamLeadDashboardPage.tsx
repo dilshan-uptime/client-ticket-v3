@@ -381,130 +381,147 @@ export const TeamLeadDashboardPage = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {idleResources.map((resource) => (
-                    <div 
-                      key={resource.creator.id} 
-                      className={`border rounded-xl overflow-hidden transition-all duration-300 ${
-                        expandedResource === resource.creator.id 
-                          ? 'border-[#ee754e]/30 shadow-lg shadow-[#ee754e]/5' 
-                          : 'border-border hover:border-[#ee754e]/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-background to-accent/5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1fb6a6] to-[#1fb6a6]/70 flex items-center justify-center text-white font-semibold text-lg shadow-md">
-                            {resource.creator.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-foreground">{resource.creator.name.split(' (')[0]}</span>
-                              <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
-                                resource.idleType === 'stalled' 
-                                  ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm shadow-red-500/30' 
-                                  : 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-sm shadow-amber-500/30'
-                              }`}>
-                                {resource.idleType === 'stalled' ? 'Stalled' : 'Idle'}
-                              </span>
+                  {idleResources.map((resource) => {
+                    const getTicketUrl = (ticketId: number) => {
+                      const recentTicket = resource.recentTickets.find(t => t.id === ticketId);
+                      return recentTicket?.url || '#';
+                    };
+                    
+                    return (
+                      <div 
+                        key={resource.creator.id} 
+                        className={`border rounded-xl overflow-hidden transition-all duration-300 ${
+                          expandedResource === resource.creator.id 
+                            ? 'border-[#1fb6a6]/30 shadow-md' 
+                            : 'border-border hover:border-[#1fb6a6]/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between p-4 bg-card">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white font-semibold text-base">
+                              {resource.creator.name.charAt(0).toUpperCase()}
                             </div>
-                            <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                                {resource.inProgressCount} in progress
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                {resource.assignedCount} assigned
-                              </span>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-foreground">{resource.creator.name.split(' (')[0]}</span>
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                  resource.idleType === 'stalled' 
+                                    ? 'bg-[#ee754e] text-white' 
+                                    : 'bg-amber-500 text-white'
+                                }`}>
+                                  {resource.idleType === 'stalled' ? 'Stalled' : 'Idle'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
+                                  {resource.inProgressCount} in progress
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
+                                  {resource.assignedCount} assigned
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <button className="px-4 py-2 bg-gradient-to-r from-[#ee754e] to-[#f49b71] hover:from-[#e06840] hover:to-[#ee754e] text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md shadow-[#ee754e]/20 hover:shadow-lg hover:shadow-[#ee754e]/30 hover:scale-105">
+                          <button className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white text-sm font-medium rounded-lg transition-colors">
                             Assign Next Ticket
                           </button>
                         </div>
-                      </div>
 
-                      <div 
-                        className="p-4 cursor-pointer border-t border-border/50"
-                        onClick={() => setExpandedResource(expandedResource === resource.creator.id ? null : resource.creator.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="text-sm font-medium">{resource.stalledTickets.length} stalled ticket(s)</span>
+                        <div 
+                          className="px-4 py-3 cursor-pointer border-t border-border/50"
+                          onClick={() => setExpandedResource(expandedResource === resource.creator.id ? null : resource.creator.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-[#ee754e]">
+                              <AlertTriangle className="h-4 w-4" />
+                              <span className="text-sm font-medium">{resource.stalledTickets.length} stalled ticket(s)</span>
+                            </div>
+                            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${
+                              expandedResource === resource.creator.id ? 'rotate-180' : ''
+                            }`} />
                           </div>
-                          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${
-                            expandedResource === resource.creator.id ? 'rotate-180' : ''
-                          }`} />
                         </div>
 
                         {expandedResource === resource.creator.id && (
-                          <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                          <div className="border-t border-border/50">
                             {resource.stalledTickets.length > 0 && (
-                              <div className="space-y-2 mb-4">
+                              <div className="divide-y divide-border/30">
                                 {resource.stalledTickets.map((ticket) => (
                                   <div 
                                     key={ticket.ticketId} 
-                                    className="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 rounded-lg border border-red-100 dark:border-red-900/30"
+                                    className="flex items-center justify-between px-4 py-3 bg-amber-50/50 dark:bg-amber-900/5"
                                   >
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
-                                        <a href="#" className="text-[#1fb6a6] hover:underline font-medium text-sm">{ticket.ticketNumber}</a>
-                                        <span className="text-xs text-muted-foreground">-</span>
-                                        <span className="text-sm text-foreground truncate max-w-[300px]">{ticket.title}</span>
+                                        <a 
+                                          href={getTicketUrl(ticket.ticketId)} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-[#1fb6a6] hover:underline font-medium text-sm"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          {ticket.ticketNumber}
+                                        </a>
+                                        <span className="text-muted-foreground">-</span>
+                                        <span className="text-sm text-muted-foreground">{ticket.title}</span>
                                       </div>
-                                      <div className="flex items-center gap-3 mt-1">
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
-                                          {ticket.stalledReason}
-                                        </span>
-                                        {ticket.hoursStalled && (
-                                          <span className="text-xs text-muted-foreground">
-                                            {ticket.hoursStalled}h stalled
-                                          </span>
-                                        )}
-                                      </div>
+                                      <span className="text-xs text-[#ee754e]">
+                                        {ticket.stalledReason}
+                                      </span>
                                     </div>
-                                    <a href="#" className="p-2 hover:bg-white dark:hover:bg-card rounded-lg transition-colors">
-                                      <ExternalLink className="h-4 w-4 text-[#1fb6a6]" />
+                                    <a 
+                                      href={getTicketUrl(ticket.ticketId)} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="p-2 hover:bg-white dark:hover:bg-card rounded transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
                                     </a>
                                   </div>
                                 ))}
                               </div>
                             )}
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-accent/30 rounded-lg border border-border">
+                            <div className="grid grid-cols-4 gap-4 p-4 bg-[#1fb6a6] text-white">
                               <div className="text-center">
-                                <p className="text-2xl font-bold text-foreground">{resource.inProgressCount}</p>
-                                <p className="text-xs text-muted-foreground">In Progress</p>
+                                <p className="text-2xl font-bold">{resource.inProgressCount}</p>
+                                <p className="text-xs opacity-80">In Progress</p>
                               </div>
                               <div className="text-center">
-                                <p className="text-2xl font-bold text-foreground">{resource.assignedCount}</p>
-                                <p className="text-xs text-muted-foreground">Assigned</p>
+                                <p className="text-2xl font-bold">{resource.assignedCount}</p>
+                                <p className="text-xs opacity-80">Assigned</p>
                               </div>
                               <div className="text-center">
-                                <p className="text-2xl font-bold text-[#ee754e]">{formatIdleDuration(resource.idleDurationMinutes)}</p>
-                                <p className="text-xs text-muted-foreground">Idle Duration</p>
+                                <p className="text-2xl font-bold">{formatIdleDuration(resource.idleDurationMinutes)}</p>
+                                <p className="text-xs opacity-80">Idle Duration</p>
                               </div>
                               <div className="text-center">
-                                <p className="text-sm font-medium text-foreground">{formatLastActivity(resource.lastActivity)}</p>
-                                <p className="text-xs text-muted-foreground">Last Activity</p>
+                                <p className="text-sm font-medium">{formatLastActivity(resource.lastActivity)}</p>
+                                <p className="text-xs opacity-80">Last Activity</p>
                               </div>
                             </div>
 
                             {resource.recentTickets.length > 0 && (
-                              <div className="mt-4">
-                                <button className="flex items-center gap-2 text-[#1fb6a6] hover:underline text-sm font-medium">
+                              <div className="px-4 py-3 border-t border-border/50">
+                                <a 
+                                  href={resource.recentTickets[0]?.url || '#'} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-[#1fb6a6] hover:underline text-sm font-medium"
+                                >
                                   <ExternalLink className="h-3 w-3" />
                                   View {resource.recentTickets.length} recent tickets
-                                </button>
+                                </a>
                               </div>
                             )}
                           </div>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
