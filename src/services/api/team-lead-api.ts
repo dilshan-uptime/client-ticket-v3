@@ -67,3 +67,31 @@ export const getUsersByTeamAPI = (teamId: string): Observable<User[]> => {
 export const getCheckResourcesAPI = (teamId: string): Observable<IdleResource[]> => {
   return GET(`${TEAMS_ROOT_PATH}/${teamId}/check-resources`, {});
 };
+
+export interface ActivityItem {
+  id: number;
+  dateTime: string;
+  engineer: string;
+  ticketNumber: string;
+  ticketTitle: string;
+  action: 'accepted' | 'rejected';
+  reason: string | null;
+}
+
+export interface ActivitiesResponse {
+  content: ActivityItem[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+export const getTeamActivitiesAPI = (
+  teamId: string,
+  page: number,
+  size: number,
+  fromDate: string,
+  toDate: string
+): Observable<ActivitiesResponse> => {
+  return GET(`${TEAMS_ROOT_PATH}/${teamId}/activities?page=${page}&size=${size}&from_date=${fromDate}&to_date=${toDate}`, {});
+};

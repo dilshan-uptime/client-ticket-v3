@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI } from "@/services/api/team-lead-api";
-import type { Team, User, IdleResource as ApiIdleResource } from "@/services/api/team-lead-api";
+import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI, getTeamActivitiesAPI } from "@/services/api/team-lead-api";
+import type { Team, User, IdleResource as ApiIdleResource, ActivityItem } from "@/services/api/team-lead-api";
 import { toast } from "sonner";
 import { 
   ChevronDown, 
@@ -22,32 +22,21 @@ interface SentimentData {
   bgColor: string;
 }
 
-interface Decision {
-  id: string;
-  dateTime: string;
-  engineer: string;
-  ticket: string;
-  action: 'accepted' | 'rejected';
-  reason: string;
-  timeToDecide: string;
-  slaAtDecision: string;
-}
-
-const mockDecisions: Decision[] = [
-  {
-    id: '1',
-    dateTime: '2025-11-26 17:39',
-    engineer: 'Gihan',
-    ticket: '#412095',
-    action: 'accepted',
-    reason: '-',
-    timeToDecide: '0s',
-    slaAtDecision: '-',
-  },
-];
+const getDefaultDateRange = () => {
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  return {
+    from: formatDate(oneMonthAgo),
+    to: formatDate(today)
+  };
+};
 
 export const TeamLeadDashboardPage = () => {
   const { collapsed } = useSidebar();
+  const defaultDates = getDefaultDateRange();
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoadingTeams, setIsLoadingTeams] = useState(true);
   const [selectedTeam, setSelectedTeam] = useState('');
@@ -61,10 +50,14 @@ export const TeamLeadDashboardPage = () => {
   const [stalledAfter, setStalledAfter] = useState('4');
   const [expandedResource, setExpandedResource] = useState<string | null>(null);
   const [filterEngineer, setFilterEngineer] = useState('');
-  const [fromDate, setFromDate] = useState('2025-11-26');
-  const [toDate, setToDate] = useState('2025-12-03');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [fromDate, setFromDate] = useState(defaultDates.from);
+  const [toDate, setToDate] = useState(defaultDates.to);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [totalActivities, setTotalActivities] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const isTeamSelected = selectedTeam !== '';
 
@@ -133,6 +126,50 @@ export const TeamLeadDashboardPage = () => {
     return () => subscription.unsubscribe();
   }, [selectedTeam]);
 
+  const fetchActivities = () => {
+    if (!selectedTeam) {
+      setActivities([]);
+      setTotalActivities(0);
+      setTotalPages(0);
+      return;
+    }
+
+    setIsLoadingActivities(true);
+    const subscription = getTeamActivitiesAPI(selectedTeam, currentPage, pageSize, fromDate, toDate).subscribe({
+      next: (data) => {
+        setActivities(data.content);
+        setTotalActivities(data.totalElements);
+        setTotalPages(data.totalPages);
+        setIsLoadingActivities(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch activities:', err);
+        toast.error('Failed to load activities');
+        setIsLoadingActivities(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  };
+
+  useEffect(() => {
+    fetchActivities();
+  }, [selectedTeam, currentPage, pageSize]);
+
+  const handleApplyFilter = () => {
+    setCurrentPage(0);
+    fetchActivities();
+  };
+
+  const handleResetFilter = () => {
+    const defaults = getDefaultDateRange();
+    setFromDate(defaults.from);
+    setToDate(defaults.to);
+    setFilterEngineer('');
+    setCurrentPage(0);
+    setTimeout(() => fetchActivities(), 0);
+  };
+
   const formatIdleDuration = (minutes: number | null): string => {
     if (minutes === null) return 'N/A';
     const days = Math.floor(minutes / 1440);
@@ -164,15 +201,30 @@ export const TeamLeadDashboardPage = () => {
   ];
 
   const stats = {
-    accepted: 1,
-    rejected: 0,
-    acceptanceRate: '100.0%',
-    lastAccepted: '2025-11-26 17:39',
-    lastRejected: '-',
+    accepted: activities.filter(a => a.action === 'accepted').length,
+    rejected: activities.filter(a => a.action === 'rejected').length,
+    acceptanceRate: activities.length > 0 
+      ? `${((activities.filter(a => a.action === 'accepted').length / activities.length) * 100).toFixed(1)}%` 
+      : '0%',
+    lastAccepted: activities.find(a => a.action === 'accepted')?.dateTime || '-',
+    lastRejected: activities.find(a => a.action === 'rejected')?.dateTime || '-',
   };
 
-  const totalDecisions = mockDecisions.length;
-  const totalPages = Math.ceil(totalDecisions / pageSize);
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      pages.push(0);
+      if (currentPage > 3) pages.push('...');
+      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages - 2, currentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 4) pages.push('...');
+      if (totalPages > 1) pages.push(totalPages - 1);
+    }
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-background smooth-transition">
@@ -570,10 +622,16 @@ export const TeamLeadDashboardPage = () => {
                   />
                 </div>
 
-                <button className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors">
+                <button 
+                  onClick={handleApplyFilter}
+                  className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors"
+                >
                   Apply
                 </button>
-                <button className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-lg transition-colors">
+                <button 
+                  onClick={handleResetFilter}
+                  className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-lg transition-colors"
+                >
                   Reset
                 </button>
               </div>
@@ -606,7 +664,7 @@ export const TeamLeadDashboardPage = () => {
             {/* Table Header */}
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
               <p className="text-sm text-muted-foreground">
-                Showing 1-{Math.min(pageSize, totalDecisions)} of {totalDecisions} decisions
+                Showing {totalActivities > 0 ? currentPage * pageSize + 1 : 0}-{Math.min((currentPage + 1) * pageSize, totalActivities)} of {totalActivities} decisions
               </p>
               <div className="flex items-center gap-3">
                 <button className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors">
@@ -615,7 +673,10 @@ export const TeamLeadDashboardPage = () => {
                 </button>
                 <select
                   value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(0);
+                  }}
                   className="px-2 py-1.5 bg-background border border-border rounded-lg text-sm text-foreground"
                 >
                   <option value={10}>10 / page</option>
@@ -635,59 +696,84 @@ export const TeamLeadDashboardPage = () => {
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Ticket</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Action</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Reason</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Time to Decide</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">SLA at Decision</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Link</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {mockDecisions.map((decision) => (
-                    <tr key={decision.id} className="border-t border-border hover:bg-accent/30 transition-colors">
-                      <td className="px-4 py-3 text-sm text-foreground">{decision.dateTime}</td>
-                      <td className="px-4 py-3 text-sm text-foreground">{decision.engineer}</td>
-                      <td className="px-4 py-3 text-sm text-foreground">{decision.ticket}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${
-                          decision.action === 'accepted'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                        }`}>
-                          {decision.action}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">{decision.reason}</td>
-                      <td className="px-4 py-3 text-sm text-foreground">{decision.timeToDecide}</td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">{decision.slaAtDecision}</td>
-                      <td className="px-4 py-3">
-                        <a href="#" className="text-[#1fb6a6] hover:underline text-sm font-medium">Open</a>
+                  {isLoadingActivities ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin text-[#ee754e]" />
+                          <span className="text-muted-foreground">Loading activities...</span>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : activities.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                        No activities found for the selected date range.
+                      </td>
+                    </tr>
+                  ) : (
+                    activities.map((activity) => (
+                      <tr key={activity.id} className="border-t border-border hover:bg-accent/30 transition-colors">
+                        <td className="px-4 py-3 text-sm text-foreground">{activity.dateTime}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">{activity.engineer}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">{activity.ticketNumber}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs font-medium rounded ${
+                            activity.action === 'accepted'
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          }`}>
+                            {activity.action}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{activity.reason || '-'}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span className="text-sm">Previous</span>
-              </button>
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages || 1}
-              </span>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage >= totalPages}
-                className="flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-sm">Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </button>
+            <div className="flex items-center justify-center px-4 py-4 border-t border-border">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                  disabled={currentPage === 0}
+                  className="p-2 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                
+                {getPageNumbers().map((page, idx) => (
+                  typeof page === 'string' ? (
+                    <span key={`ellipsis-${idx}`} className="px-3 py-2 text-muted-foreground">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white'
+                          : 'hover:bg-accent text-foreground'
+                      }`}
+                    >
+                      {page + 1}
+                    </button>
+                  )
+                ))}
+                
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                  disabled={currentPage >= totalPages - 1}
+                  className="p-2 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
           </div>
