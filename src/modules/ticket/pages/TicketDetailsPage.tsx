@@ -2100,7 +2100,7 @@ export const TicketDetailsPage = () => {
               )}
 
               {/* Timeline Section */}
-              <div className="border border-border rounded-lg mb-4 bg-card">
+              <div className="border border-border rounded-lg mb-4 bg-card overflow-hidden">
                 <button
                   onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
                   className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent/30 smooth-transition"
