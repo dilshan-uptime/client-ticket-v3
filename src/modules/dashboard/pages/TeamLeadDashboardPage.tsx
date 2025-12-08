@@ -668,11 +668,13 @@ export const TeamLeadDashboardPage = () => {
                         {expandedResource === resource.creator.id && (
                           <div className="border-t border-border/50">
                             {resource.stalledTickets.length > 0 && (
-                              <div className="divide-y divide-border/30">
-                                {resource.stalledTickets.map((ticket) => (
+                              <div className="bg-[#1a2332]/50 dark:bg-[#1a2332]/80">
+                                {resource.stalledTickets.map((ticket, index) => (
                                   <div 
                                     key={ticket.ticketId} 
-                                    className="flex items-center justify-between px-4 py-3 border-l-2 border-[#ee754e]/40" style={{ backgroundColor: 'var(--stalled-row-bg)' }}
+                                    className={`flex items-center justify-between px-4 py-3 border-l-4 border-[#ee754e] bg-[#ee754e]/5 dark:bg-[#ee754e]/10 hover:bg-[#ee754e]/10 dark:hover:bg-[#ee754e]/15 transition-colors ${
+                                      index !== resource.stalledTickets.length - 1 ? 'border-b border-border/20' : ''
+                                    }`}
                                   >
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
@@ -680,15 +682,15 @@ export const TeamLeadDashboardPage = () => {
                                           href={getTicketUrl(ticket.ticketId)} 
                                           target="_blank" 
                                           rel="noopener noreferrer"
-                                          className="text-[#1fb6a6] hover:underline font-medium text-sm"
+                                          className="text-[#1fb6a6] hover:underline font-semibold text-sm"
                                           onClick={(e) => e.stopPropagation()}
                                         >
                                           {ticket.ticketNumber}
                                         </a>
-                                        <span className="text-muted-foreground">-</span>
-                                        <span className="text-sm text-foreground dark:text-gray-300">{ticket.title}</span>
+                                        <span className="text-muted-foreground/60">-</span>
+                                        <span className="text-sm text-foreground">{ticket.title}</span>
                                       </div>
-                                      <span className="text-xs text-[#ee754e]">
+                                      <span className="text-xs text-[#ee754e] font-medium mt-0.5 inline-block">
                                         {ticket.stalledReason}
                                       </span>
                                     </div>
@@ -696,10 +698,10 @@ export const TeamLeadDashboardPage = () => {
                                       href={getTicketUrl(ticket.ticketId)} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
-                                      className="p-2 hover:bg-white/50 dark:hover:bg-white/10 rounded transition-colors"
+                                      className="p-2 hover:bg-[#1fb6a6]/20 rounded-lg transition-colors"
                                       onClick={(e) => e.stopPropagation()}
                                     >
-                                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                                      <ExternalLink className="h-4 w-4 text-[#1fb6a6]" />
                                     </a>
                                   </div>
                                 ))}
