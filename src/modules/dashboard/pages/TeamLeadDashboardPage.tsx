@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
 
 interface SentimentData {
@@ -533,7 +534,7 @@ export const TeamLeadDashboardPage = () => {
                             : 'border-border hover:border-[#1fb6a6]/20'
                         }`}
                       >
-                        <div className="p-4 bg-card">
+                        <div className="p-4 bg-card relative">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white font-semibold text-base">
@@ -582,63 +583,67 @@ export const TeamLeadDashboardPage = () => {
                           </div>
                           
                           {expandedCalculation === resource.creator.id && (
-                            <div className="mt-4 max-w-2xl">
-                              <div className="bg-background border border-border rounded-lg overflow-hidden">
-                                <div className="px-5 py-4 border-b border-border">
-                                  <h4 className="font-semibold text-foreground text-center">Idle Detection Logic:</h4>
+                            <div className="absolute right-0 top-0 z-20 w-80 bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                              <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
+                                <h4 className="font-semibold text-foreground text-sm">Idle Detection Logic:</h4>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setExpandedCalculation(null); }}
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                              
+                              <div className="px-4 py-3 space-y-3 text-sm">
+                                <div className="flex items-start gap-2">
+                                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">1</span>
+                                  <div>
+                                    <span className="font-medium text-foreground">In-Progress Tickets:</span>{' '}
+                                    <span className="text-[#1fb6a6] font-semibold">{resource.inProgressCount} ticket(s)</span>
+                                  </div>
                                 </div>
                                 
-                                <div className="px-5 py-4 space-y-4">
-                                  <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">1</span>
-                                    <div>
-                                      <span className="font-medium text-foreground">In-Progress Tickets:</span>{' '}
-                                      <span className="text-[#1fb6a6] font-semibold">{resource.inProgressCount} ticket(s)</span>
+                                <div className="flex items-start gap-2">
+                                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">2</span>
+                                  <div>
+                                    <span className="font-medium text-foreground">Time Entries Check:</span>
+                                    <div className="text-[#ee754e] font-medium">
+                                      {resource.stalledTickets.length} of {resource.inProgressCount} ticket(s) stalled
                                     </div>
-                                  </div>
-                                  
-                                  <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">2</span>
-                                    <div>
-                                      <span className="font-medium text-foreground">Time Entries Check:</span>
-                                      <div className="mt-1 text-[#ee754e] font-medium">
-                                        {resource.stalledTickets.length} of {resource.inProgressCount} ticket(s) stalled
-                                      </div>
-                                      <div className="text-muted-foreground text-sm mt-0.5">
-                                        → No time logged within {parseInt(stalledAfter) * 60}min threshold
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">3</span>
-                                    <div>
-                                      <span className="font-medium text-foreground">Recent Queue Activity:</span>
-                                      <div className="mt-1 text-[#ee754e] font-medium">
-                                        {resource.lastActivity ? 'Activity found' : 'No recent activity found'}
-                                      </div>
-                                      <div className="text-muted-foreground text-sm mt-0.5">
-                                        → Checking {idleThreshold}min threshold for accepts/rejects
-                                      </div>
+                                    <div className="text-muted-foreground text-xs">
+                                      → No time logged within {parseInt(stalledAfter) * 60}min threshold
                                     </div>
                                   </div>
                                 </div>
-
-                                <div className="px-5 py-3 border-t border-border text-center">
-                                  <span className="font-medium text-foreground">Result: </span>
-                                  <span className="text-[#ee754e]">
-                                    Flagged as <span className="font-bold uppercase">{resource.idleType}</span>
-                                    {resource.idleType === 'stalled' && ' - Has in-progress work but no recent time entries'}
-                                    {resource.idleType === 'idle' && ' - No recent queue activity detected'}
-                                  </span>
-                                </div>
-
-                                <div className="px-5 py-3 border-t border-border">
-                                  <p className="font-medium text-foreground text-center mb-2">Thresholds Applied:</p>
-                                  <div className="flex justify-center gap-6 text-sm text-muted-foreground">
-                                    <span>• Idle threshold: {idleThreshold} minutes</span>
-                                    <span>• Stalled threshold: {parseInt(stalledAfter) * 60} minutes</span>
+                                
+                                <div className="flex items-start gap-2">
+                                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1fb6a6]/10 text-[#1fb6a6] text-xs font-bold flex items-center justify-center">3</span>
+                                  <div>
+                                    <span className="font-medium text-foreground">Recent Queue Activity:</span>
+                                    <div className="text-[#ee754e] font-medium">
+                                      {resource.lastActivity ? 'Activity found' : 'No recent activity found'}
+                                    </div>
+                                    <div className="text-muted-foreground text-xs">
+                                      → Checking {idleThreshold}min threshold for accepts/rejects
+                                    </div>
                                   </div>
+                                </div>
+                              </div>
+
+                              <div className="px-4 py-2 border-t border-border text-sm">
+                                <span className="font-medium text-foreground">Result: </span>
+                                <span className="text-[#ee754e]">
+                                  Flagged as <span className="font-bold uppercase">{resource.idleType}</span>
+                                  {resource.idleType === 'stalled' && ' - Has in-progress work but no recent time entries'}
+                                  {resource.idleType === 'idle' && ' - No recent queue activity detected'}
+                                </span>
+                              </div>
+
+                              <div className="px-4 py-2 border-t border-border">
+                                <p className="font-medium text-foreground text-sm mb-1">Thresholds Applied:</p>
+                                <div className="text-xs text-muted-foreground space-y-0.5">
+                                  <div>• Idle threshold: {idleThreshold} minutes</div>
+                                  <div>• Stalled threshold: {parseInt(stalledAfter) * 60} minutes</div>
                                 </div>
                               </div>
                             </div>
