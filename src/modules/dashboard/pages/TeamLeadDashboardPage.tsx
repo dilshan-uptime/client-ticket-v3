@@ -49,6 +49,7 @@ export const TeamLeadDashboardPage = () => {
   const [idleThreshold, setIdleThreshold] = useState('30');
   const [stalledAfter, setStalledAfter] = useState('4');
   const [expandedResource, setExpandedResource] = useState<string | null>(null);
+  const [expandedCalculation, setExpandedCalculation] = useState<string | null>(null);
   const [filterEngineer, setFilterEngineer] = useState('');
   const [fromDate, setFromDate] = useState(defaultDates.from);
   const [toDate, setToDate] = useState(defaultDates.to);
@@ -638,6 +639,83 @@ export const TeamLeadDashboardPage = () => {
                                 <p className="text-sm font-medium">{formatLastActivity(resource.lastActivity)}</p>
                                 <p className="text-xs opacity-80">Last Activity</p>
                               </div>
+                            </div>
+
+                            <div className="border-t border-border/50">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedCalculation(expandedCalculation === resource.creator.id ? null : resource.creator.id);
+                                }}
+                                className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-accent/30 transition-colors"
+                              >
+                                <ChevronDown className={`h-4 w-4 text-[#1fb6a6] transition-transform duration-200 ${
+                                  expandedCalculation === resource.creator.id ? 'rotate-180' : ''
+                                }`} />
+                                <span className="text-sm font-medium text-[#1fb6a6]">How was this calculated?</span>
+                              </button>
+                              
+                              {expandedCalculation === resource.creator.id && (
+                                <div className="px-4 pb-4 space-y-4 bg-gray-50 dark:bg-gray-800/30">
+                                  <div>
+                                    <h4 className="font-semibold text-foreground mb-2">Idle Detection Logic:</h4>
+                                    <ol className="space-y-3 text-sm">
+                                      <li className="flex gap-2">
+                                        <span className="font-medium text-foreground">1.</span>
+                                        <div>
+                                          <span className="font-medium text-foreground">In-Progress Tickets:</span>{' '}
+                                          <span className="text-[#1fb6a6]">{resource.inProgressCount} ticket(s)</span>
+                                        </div>
+                                      </li>
+                                      <li className="flex gap-2">
+                                        <span className="font-medium text-foreground">2.</span>
+                                        <div>
+                                          <span className="font-medium text-foreground">Time Entries Check:</span>
+                                          <div className="ml-2 mt-1 text-[#ee754e]">
+                                            {resource.stalledTickets.length} of {resource.inProgressCount} ticket(s) stalled
+                                          </div>
+                                          <div className="ml-2 text-muted-foreground">
+                                            → No time logged within {parseInt(stalledAfter) * 60}min threshold
+                                          </div>
+                                        </div>
+                                      </li>
+                                      <li className="flex gap-2">
+                                        <span className="font-medium text-foreground">3.</span>
+                                        <div>
+                                          <span className="font-medium text-foreground">Recent Queue Activity:</span>
+                                          <div className="ml-2 mt-1 text-[#ee754e]">
+                                            {resource.lastActivity ? 'Activity found' : 'No recent activity found'}
+                                          </div>
+                                          <div className="ml-2 text-muted-foreground">
+                                            → Checking {idleThreshold}min threshold for accepts/rejects
+                                          </div>
+                                        </div>
+                                      </li>
+                                    </ol>
+                                  </div>
+
+                                  <div>
+                                    <span className="font-medium text-foreground">Result:</span>{' '}
+                                    <span className="text-[#ee754e]">
+                                      Flagged as <span className="font-bold">{resource.idleType.toUpperCase()}</span>
+                                    </span>
+                                    {resource.idleType === 'stalled' && (
+                                      <span className="text-[#ee754e]"> - Has in-progress work but no recent time entries</span>
+                                    )}
+                                    {resource.idleType === 'idle' && (
+                                      <span className="text-[#ee754e]"> - No recent queue activity detected</span>
+                                    )}
+                                  </div>
+
+                                  <div>
+                                    <h4 className="font-semibold text-foreground mb-1">Thresholds Applied:</h4>
+                                    <ul className="text-sm text-muted-foreground space-y-1 ml-2">
+                                      <li>• Idle threshold: {idleThreshold} minutes</li>
+                                      <li>• Stalled threshold: {parseInt(stalledAfter) * 60} minutes</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             {resource.recentTickets.length > 0 && (
