@@ -668,12 +668,12 @@ export const TeamLeadDashboardPage = () => {
                         {expandedResource === resource.creator.id && (
                           <div className="border-t border-border/50">
                             {resource.stalledTickets.length > 0 && (
-                              <div className="bg-gray-50 dark:bg-[#1a2332]/80">
+                              <div className="bg-gray-50 dark:bg-[#131c29]">
                                 {resource.stalledTickets.map((ticket, index) => (
                                   <div 
                                     key={ticket.ticketId} 
-                                    className={`flex items-center justify-between px-4 py-3 border-l-4 border-[#ee754e] bg-white dark:bg-[#ee754e]/10 hover:bg-gray-100 dark:hover:bg-[#ee754e]/15 transition-colors ${
-                                      index !== resource.stalledTickets.length - 1 ? 'border-b border-gray-200 dark:border-border/20' : ''
+                                    className={`flex items-center justify-between px-4 py-3 border-l-4 border-[#ee754e] bg-white dark:bg-[#1a2332] hover:bg-gray-100 dark:hover:bg-[#243447] transition-colors ${
+                                      index !== resource.stalledTickets.length - 1 ? 'border-b border-gray-200 dark:border-[#2a3a4d]' : ''
                                     }`}
                                   >
                                     <div className="flex-1">
