@@ -528,7 +528,7 @@ export const TeamLeadDashboardPage = () => {
                     return (
                       <div 
                         key={resource.creator.id} 
-                        className={`border rounded-xl overflow-hidden transition-all duration-300 ${
+                        className={`border rounded-xl transition-all duration-300 ${
                           expandedResource === resource.creator.id 
                             ? 'border-[#1fb6a6]/30 shadow-md' 
                             : 'border-border hover:border-[#1fb6a6]/20'
@@ -583,7 +583,7 @@ export const TeamLeadDashboardPage = () => {
                           </div>
                           
                           {expandedCalculation === resource.creator.id && (
-                            <div className="absolute right-0 top-0 z-20 w-80 bg-background border border-border rounded-lg shadow-lg overflow-hidden">
+                            <div className="absolute right-4 top-16 z-50 w-80 bg-background border border-border rounded-lg shadow-xl overflow-hidden">
                               <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                                 <h4 className="font-semibold text-foreground text-sm">Idle Detection Logic:</h4>
                                 <button 
