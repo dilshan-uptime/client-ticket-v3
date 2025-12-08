@@ -533,37 +533,119 @@ export const TeamLeadDashboardPage = () => {
                             : 'border-border hover:border-[#1fb6a6]/20'
                         }`}
                       >
-                        <div className="flex items-center justify-between p-4 bg-card">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white font-semibold text-base">
-                              {resource.creator.name.charAt(0).toUpperCase()}
+                        <div className="p-4 bg-card">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-[#1fb6a6] flex items-center justify-center text-white font-semibold text-base">
+                                {resource.creator.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-foreground">{resource.creator.name.split(' (')[0]}</span>
+                                  <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                    resource.idleType === 'stalled' 
+                                      ? 'bg-[#ee754e] text-white' 
+                                      : 'bg-amber-500 text-white'
+                                  }`}>
+                                    {resource.idleType === 'stalled' ? 'Stalled' : 'Idle'}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
+                                    {resource.inProgressCount} in progress
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
+                                    {resource.assignedCount} assigned
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-foreground">{resource.creator.name.split(' (')[0]}</span>
-                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                                  resource.idleType === 'stalled' 
-                                    ? 'bg-[#ee754e] text-white' 
-                                    : 'bg-amber-500 text-white'
-                                }`}>
-                                  {resource.idleType === 'stalled' ? 'Stalled' : 'Idle'}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
-                                  {resource.inProgressCount} in progress
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#1fb6a6]"></span>
-                                  {resource.assignedCount} assigned
-                                </span>
-                              </div>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedCalculation(expandedCalculation === resource.creator.id ? null : resource.creator.id);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                              >
+                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
+                                  expandedCalculation === resource.creator.id ? 'rotate-180' : ''
+                                }`} />
+                                <span className="font-medium">How was this calculated?</span>
+                              </button>
+                              <button className="px-4 py-2 bg-[#1fb6a6] hover:bg-[#1a9e91] text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                                Assign Next Ticket
+                              </button>
                             </div>
                           </div>
-                          <button className="px-4 py-2 bg-[#ee754e] hover:bg-[#e06840] text-white text-sm font-medium rounded-lg transition-colors">
-                            Assign Next Ticket
-                          </button>
+                          
+                          {expandedCalculation === resource.creator.id && (
+                            <div className="mt-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Idle Detection Logic:</h4>
+                                  <ol className="space-y-3 text-sm">
+                                    <li className="flex gap-3">
+                                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium flex items-center justify-center">1</span>
+                                      <div>
+                                        <span className="font-medium text-gray-800 dark:text-gray-200">In-Progress Tickets:</span>{' '}
+                                        <span className="text-blue-600 dark:text-blue-400 font-medium">{resource.inProgressCount} ticket(s)</span>
+                                      </div>
+                                    </li>
+                                    <li className="flex gap-3">
+                                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium flex items-center justify-center">2</span>
+                                      <div>
+                                        <span className="font-medium text-gray-800 dark:text-gray-200">Time Entries Check:</span>
+                                        <div className="ml-0 mt-1 text-orange-600 dark:text-orange-400">
+                                          {resource.stalledTickets.length} of {resource.inProgressCount} ticket(s) stalled
+                                        </div>
+                                        <div className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
+                                          → No time logged within {parseInt(stalledAfter) * 60}min threshold
+                                        </div>
+                                      </div>
+                                    </li>
+                                    <li className="flex gap-3">
+                                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium flex items-center justify-center">3</span>
+                                      <div>
+                                        <span className="font-medium text-gray-800 dark:text-gray-200">Recent Queue Activity:</span>
+                                        <div className="ml-0 mt-1 text-orange-600 dark:text-orange-400">
+                                          {resource.lastActivity ? 'Activity found' : 'No recent activity found'}
+                                        </div>
+                                        <div className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
+                                          → Checking {idleThreshold}min threshold for accepts/rejects
+                                        </div>
+                                      </div>
+                                    </li>
+                                  </ol>
+                                </div>
+
+                                <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
+                                  <span className="font-medium text-gray-800 dark:text-gray-200">Result:</span>{' '}
+                                  <span className="text-orange-600 dark:text-orange-400">
+                                    Flagged as <span className="font-bold uppercase">{resource.idleType}</span>
+                                    {resource.idleType === 'stalled' && ' - Has in-progress work but no recent time entries'}
+                                    {resource.idleType === 'idle' && ' - No recent queue activity detected'}
+                                  </span>
+                                </div>
+
+                                <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
+                                  <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Thresholds Applied:</h4>
+                                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                    <li className="flex items-center gap-2">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                      Idle threshold: {idleThreshold} minutes
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                      Stalled threshold: {parseInt(stalledAfter) * 60} minutes
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div 
@@ -639,83 +721,6 @@ export const TeamLeadDashboardPage = () => {
                                 <p className="text-sm font-medium">{formatLastActivity(resource.lastActivity)}</p>
                                 <p className="text-xs opacity-80">Last Activity</p>
                               </div>
-                            </div>
-
-                            <div className="border-t border-border/50">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedCalculation(expandedCalculation === resource.creator.id ? null : resource.creator.id);
-                                }}
-                                className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-accent/30 transition-colors"
-                              >
-                                <ChevronDown className={`h-4 w-4 text-[#1fb6a6] transition-transform duration-200 ${
-                                  expandedCalculation === resource.creator.id ? 'rotate-180' : ''
-                                }`} />
-                                <span className="text-sm font-medium text-[#1fb6a6]">How was this calculated?</span>
-                              </button>
-                              
-                              {expandedCalculation === resource.creator.id && (
-                                <div className="px-4 pb-4 space-y-4 bg-gray-50 dark:bg-gray-800/30">
-                                  <div>
-                                    <h4 className="font-semibold text-foreground mb-2">Idle Detection Logic:</h4>
-                                    <ol className="space-y-3 text-sm">
-                                      <li className="flex gap-2">
-                                        <span className="font-medium text-foreground">1.</span>
-                                        <div>
-                                          <span className="font-medium text-foreground">In-Progress Tickets:</span>{' '}
-                                          <span className="text-[#1fb6a6]">{resource.inProgressCount} ticket(s)</span>
-                                        </div>
-                                      </li>
-                                      <li className="flex gap-2">
-                                        <span className="font-medium text-foreground">2.</span>
-                                        <div>
-                                          <span className="font-medium text-foreground">Time Entries Check:</span>
-                                          <div className="ml-2 mt-1 text-[#ee754e]">
-                                            {resource.stalledTickets.length} of {resource.inProgressCount} ticket(s) stalled
-                                          </div>
-                                          <div className="ml-2 text-muted-foreground">
-                                            → No time logged within {parseInt(stalledAfter) * 60}min threshold
-                                          </div>
-                                        </div>
-                                      </li>
-                                      <li className="flex gap-2">
-                                        <span className="font-medium text-foreground">3.</span>
-                                        <div>
-                                          <span className="font-medium text-foreground">Recent Queue Activity:</span>
-                                          <div className="ml-2 mt-1 text-[#ee754e]">
-                                            {resource.lastActivity ? 'Activity found' : 'No recent activity found'}
-                                          </div>
-                                          <div className="ml-2 text-muted-foreground">
-                                            → Checking {idleThreshold}min threshold for accepts/rejects
-                                          </div>
-                                        </div>
-                                      </li>
-                                    </ol>
-                                  </div>
-
-                                  <div>
-                                    <span className="font-medium text-foreground">Result:</span>{' '}
-                                    <span className="text-[#ee754e]">
-                                      Flagged as <span className="font-bold">{resource.idleType.toUpperCase()}</span>
-                                    </span>
-                                    {resource.idleType === 'stalled' && (
-                                      <span className="text-[#ee754e]"> - Has in-progress work but no recent time entries</span>
-                                    )}
-                                    {resource.idleType === 'idle' && (
-                                      <span className="text-[#ee754e]"> - No recent queue activity detected</span>
-                                    )}
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-semibold text-foreground mb-1">Thresholds Applied:</h4>
-                                    <ul className="text-sm text-muted-foreground space-y-1 ml-2">
-                                      <li>• Idle threshold: {idleThreshold} minutes</li>
-                                      <li>• Stalled threshold: {parseInt(stalledAfter) * 60} minutes</li>
-                                    </ul>
-                                  </div>
-                                </div>
-                              )}
                             </div>
 
                             {resource.recentTickets.length > 0 && (
