@@ -123,3 +123,30 @@ export const getTeamActivityStatsAPI = (
   }
   return GET(url, {});
 };
+
+export interface NextTicketItem {
+  id: number;
+  title: string;
+  url: string;
+  ticketNumber: string;
+  description: string;
+  companyId: number | null;
+  contractId: number | null;
+  issueTypeId: number | null;
+  subIssueTypeId: number | null;
+  priority: number | null;
+  workTypeId: number | null;
+  queueId: number | null;
+  isTriage: boolean;
+  score: number;
+  reasons: string[];
+}
+
+export interface NextTicketResponse {
+  scoredList: NextTicketItem[];
+  isTriageMode: boolean;
+}
+
+export const getNextTicketAPI = (userId: number): Observable<NextTicketResponse> => {
+  return GET(`api/v1/tickets/next-ticket/users/${userId}`, {});
+};

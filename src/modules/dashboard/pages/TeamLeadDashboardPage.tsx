@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI, getTeamActivitiesAPI, getTeamActivityStatsAPI } from "@/services/api/team-lead-api";
-import type { Team, User, IdleResource as ApiIdleResource, ActivityItem, ActivityStats } from "@/services/api/team-lead-api";
+import { getTeamsAPI, getUsersByTeamAPI, getCheckResourcesAPI, getTeamActivitiesAPI, getTeamActivityStatsAPI, getNextTicketAPI } from "@/services/api/team-lead-api";
+import type { Team, User, IdleResource as ApiIdleResource, ActivityItem, ActivityStats, NextTicketItem } from "@/services/api/team-lead-api";
 import { toast } from "sonner";
 import { 
   ChevronDown, 
@@ -68,6 +68,9 @@ export const TeamLeadDashboardPage = () => {
     lastRejected: null
   });
   const [, setIsLoadingStats] = useState(false);
+  const [nextTicket, setNextTicket] = useState<NextTicketItem | null>(null);
+  const [isLoadingNextTicket, setIsLoadingNextTicket] = useState(false);
+  const [showNextTicketInfo, setShowNextTicketInfo] = useState(false);
 
   const isTeamSelected = selectedTeam !== '';
 
@@ -254,6 +257,37 @@ export const TeamLeadDashboardPage = () => {
     fetchStats();
   };
 
+  const handleShowNextTicket = () => {
+    if (!selectedEngineer) return;
+    
+    const selectedUser = users.find(u => u.id === selectedEngineer);
+    if (!selectedUser) return;
+    
+    setIsLoadingNextTicket(true);
+    setShowNextTicketInfo(false);
+    
+    const subscription = getNextTicketAPI(selectedUser.sysId).subscribe({
+      next: (data) => {
+        if (data.scoredList && data.scoredList.length > 0) {
+          setNextTicket(data.scoredList[0]);
+          setShowNextTicketInfo(true);
+        } else {
+          setNextTicket(null);
+          setShowNextTicketInfo(true);
+          toast.info('No tickets available for this engineer');
+        }
+        setIsLoadingNextTicket(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch next ticket:', err);
+        toast.error('Failed to fetch next ticket');
+        setIsLoadingNextTicket(false);
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  };
+
   const formatIdleDuration = (minutes: number | null): string => {
     if (minutes === null) return 'N/A';
     const days = Math.floor(minutes / 1440);
@@ -408,7 +442,11 @@ export const TeamLeadDashboardPage = () => {
                   <>
                     <select
                       value={selectedEngineer}
-                      onChange={(e) => setSelectedEngineer(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedEngineer(e.target.value);
+                        setShowNextTicketInfo(false);
+                        setNextTicket(null);
+                      }}
                       className="w-full px-4 py-2.5 bg-card border border-border rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ee754e]/50 focus:border-[#ee754e]"
                     >
                       <option value="">Select an engineer...</option>
@@ -421,7 +459,16 @@ export const TeamLeadDashboardPage = () => {
                 )}
               </div>
             </div>
-            <button className="px-4 py-2.5 bg-[#ee754e] hover:bg-[#e06840] text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+            <button 
+              onClick={handleShowNextTicket}
+              disabled={!selectedEngineer || isLoadingNextTicket}
+              className={`px-4 py-2.5 font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2 ${
+                selectedEngineer && !isLoadingNextTicket
+                  ? 'bg-[#1fb6a6] hover:bg-[#1a9e91] text-white cursor-pointer'
+                  : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {isLoadingNextTicket && <Loader2 className="h-4 w-4 animate-spin" />}
               Show Next Ticket
             </button>
 
@@ -442,16 +489,22 @@ export const TeamLeadDashboardPage = () => {
           </div>
 
           {/* Next Ticket Info */}
-          {selectedEngineer && (
-            <div className="mb-6 p-4 bg-card border border-border rounded-lg">
-              <p className="font-semibold text-foreground mb-1">
-                Next Ticket for {users.find(u => u.id.toString() === selectedEngineer)?.name}
-              </p>
-              <p className="text-foreground font-medium">Ticket T20251110.0001</p>
-              <p className="text-[#ee754e] font-bold">Total Score: 4100</p>
-              <p className="text-sm text-muted-foreground">
-                Title: <a href="#" className="text-[#1fb6a6] hover:underline">Sandbox Test 20251110011T</a>
-              </p>
+          {showNextTicketInfo && (
+            <div className="mb-6 p-4 bg-card border border-border rounded-lg text-center">
+              {nextTicket ? (
+                <>
+                  <p className="font-semibold text-foreground mb-1">
+                    Next Ticket for {users.find(u => u.id === selectedEngineer)?.name}
+                  </p>
+                  <p className="text-foreground font-medium">Ticket {nextTicket.ticketNumber}</p>
+                  <p className="text-[#1fb6a6] font-bold">Total Score: {nextTicket.score}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Title: <a href={nextTicket.url} target="_blank" rel="noopener noreferrer" className="text-[#1fb6a6] hover:underline">{nextTicket.title}</a>
+                  </p>
+                </>
+              ) : (
+                <p className="text-muted-foreground">No tickets available for this engineer</p>
+              )}
             </div>
           )}
 
