@@ -49,11 +49,10 @@ export const getUserDataFromMsal = (): AuthenticationResponse | null => {
     token: '',
     refreshToken: '',
     user: {
-      id: account.localAccountId,
+      id: undefined,
       email: account.username,
       firstName: account.name?.split(' ')[0] || '',
       lastName: account.name?.split(' ').slice(1).join(' ') || '',
-      userRole: null,
     },
   };
 };

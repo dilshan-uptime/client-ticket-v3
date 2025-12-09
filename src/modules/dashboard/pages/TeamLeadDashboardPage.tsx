@@ -67,7 +67,7 @@ export const TeamLeadDashboardPage = () => {
     lastAccepted: null,
     lastRejected: null
   });
-  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [, setIsLoadingStats] = useState(false);
 
   const isTeamSelected = selectedTeam !== '';
 
